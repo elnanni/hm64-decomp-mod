@@ -43,6 +43,10 @@ u8 gMaximumStamina;
 u8 gPlayerBirthdaySeason;
 u8 gToolboxSlots[8 * 4];
 
+// wheel status for tools and items
+bool heldToolChange;
+bool heldItemChange;
+
 
 // data
 // indexed by gSpawnPointIndex
@@ -351,7 +355,6 @@ void handleDrinkAction(void);
 void handleUnusedAction21(void);
 void handleFishingAction(void);
 void handleUnusedAction23(void);
-void handleUnusedAction24(void);
 void handleStaminaExhaustionAction(void);
 void handleUnusedAction25(void);
 void handleTreeClimbingAction(void);
@@ -389,7 +392,7 @@ void handleUnusedAnimation30(void);
 void handleWhistleForDogAnimation(void);
 void handleWhistleForHorseAnimation(void);
 void handleDrinkingAnimation(void);
-void handlePutItemInRucksackAnimation(void);
+void handleTakeItemFromRucksackAnimation(void);
 void handleFishingRodAnimation(void);
 void handleUnusedAnimation24(void);
 void handleUnusedAnimation25(void);
@@ -459,7 +462,7 @@ static inline void reset() {
 
 void setupPlayerEntity(u16 spawnPoint, u8 resetPlayer) {
  
-    loadEntity(ENTITY_PLAYER, 0, TRUE);
+    loadEntity(ENTITY_PLAYER, ENTITY_ASSET_PLAYER, TRUE);
 
     setEntityCollidable(ENTITY_PLAYER, TRUE);
     setEntityYMovement(ENTITY_PLAYER, TRUE);
@@ -532,6 +535,35 @@ inline u8 addItemToRucksack(u8 item) {
     
 }
 
+inline u8 takeItemFromRucksack(void) {
+    u8 i;
+    u8 writeIdx = 0;
+    u8 nextItem = 0xFF;
+    u8 itemToStore = gPlayer.heldItem;
+    u8 found = 0xFF;
+
+    for (i = 0; i < MAX_RUCKSACK_SLOTS - 1 && found == 0xFF; i++) {
+        if (gPlayer.belongingsSlots[i] != 0) {
+            nextItem = gPlayer.belongingsSlots[i];
+            gPlayer.belongingsSlots[i] = 0;
+            found = 1;
+        }
+    }
+    if (found == 1) {
+        for (i = 0; i < MAX_RUCKSACK_SLOTS; i++) {
+            if (gPlayer.belongingsSlots[i] != 0) {
+                gPlayer.belongingsSlots[writeIdx] = gPlayer.belongingsSlots[i];
+                if (writeIdx != i) {
+                    gPlayer.belongingsSlots[i] = 0;
+                }
+                writeIdx++;
+            }
+        }
+        gPlayer.heldItem = nextItem;
+    }
+    return found;
+}
+
 //INCLUDE_ASM("asm/nonmatchings/game/player", storeTool);
 
 // store tool
@@ -601,6 +633,33 @@ u8 removeTool(u8 tool) {
 
     return found;
 
+}
+
+inline u8 takeToolFromToolsack(void) {
+    u8 i;
+    u8 writeIdx = 0;
+    u8 nextTool = 0xFF;
+    u8 toolToStore = gPlayer.currentTool;
+    u8 found = 0xFF;
+
+    for (i = 0; i < MAX_TOOL_SLOTS_RUCKSACK && found == 0xFF; i++) {
+        if (gPlayer.toolSlots[i] != 0) {
+            nextTool = gPlayer.toolSlots[i];
+            gPlayer.toolSlots[i] = 0;
+            found = 1;
+        }
+    }
+    if(found == 1){
+        for (i = 0; i < MAX_TOOL_SLOTS_RUCKSACK; i++) {
+            if (gPlayer.toolSlots[i] != 0) {
+                gPlayer.toolSlots[writeIdx] = gPlayer.toolSlots[i];
+                if (writeIdx != i) gPlayer.toolSlots[i] = 0;
+                writeIdx++;
+            }
+        }
+        gPlayer.currentTool = nextTool;
+    }
+    return found;
 }
 
 //INCLUDE_ASM("asm/nonmatchings/game/player", acquireKeyItem);
@@ -813,17 +872,17 @@ void updatePlayerAction(void) {
         case (DRINKING - 1):
             handleDrinkAction();
             break;
-        case (STORING_ITEM_IN_RUCKSACK - 1):
+        case (HANDLING_ITEM - 1):
             handleUnusedAction21();
             break;
         case (FISHING - 1):
             handleFishingAction();
             break;
-        case 22:
-            handleUnusedAction23();
+        case (CHANGE_TOOL - 1):
+            handleChangeToolAction();
             break;
-        case 23:
-            handleUnusedAction24();
+        case (23):
+            handleUnusedAction23();
             break;
         case (STAMINA_EXHAUSTION - 1):
             handleStaminaExhaustionAction();
@@ -933,18 +992,24 @@ void handlePlayerInput(void) {
 
     if (!set) {
         
-        // jump over logs
-        if (gBaseMapIndex == FARM && gPlayer.groundObjectIndex == LOG) {
+        // jump over logs, rocks and weeds in farm and greenhouse
+        bool jumpableObject = (gPlayer.groundObjectIndex == LOG || gPlayer.groundObjectIndex == SMALL_ROCK || gPlayer.groundObjectIndex == WEED);
+        bool jumpableMap = (gBaseMapIndex == FARM || gBaseMapIndex == GREENHOUSE);
 
-            if ((getAnalogStickMagnitude(CONTROLLER_1) / 1.2f) > 4.6) {
-                
-                if (!checkTerrainCollisionInDirection(ENTITY_PLAYER, 0x34, convertWorldToSpriteDirection(entities[ENTITY_PLAYER].direction, MAIN_MAP_INDEX))) {
+        if (jumpableMap && jumpableObject) {
+            u8 dir = entities[ENTITY_PLAYER].direction;
+            u8 rotation = mapControllers[MAIN_MAP_INDEX].rotation;
+            bool isRotating = mapControllers[MAIN_MAP_INDEX].flags & (MAP_CONTROLLER_ROTATING_COUNTERCLOCKWISE | MAP_CONTROLLER_ROTATING_CLOCKWISE);
+            bool isViewIsometric = !isRotating && (rotation % 2 != 0);
+            bool isDirCardinal = (dir % 2 != 0);
+            bool validDirection = (isViewIsometric == isDirCardinal);
 
-                    vec3 = projectEntityPosition(ENTITY_PLAYER, 0x34, convertWorldToSpriteDirection(entities[ENTITY_PLAYER].direction, MAIN_MAP_INDEX));
-
+            if ((getAnalogStickMagnitude(CONTROLLER_1) > 5.52f) && validDirection) {
+                u8 spriteDir = convertWorldToSpriteDirection(dir, MAIN_MAP_INDEX);
+                if (!checkTerrainCollisionInDirection(ENTITY_PLAYER, 0x34, spriteDir)) {
+                    vec3 = projectEntityPosition(ENTITY_PLAYER, 0x34, spriteDir);
                     groundObjectIndex = getGroundObjectIndexFromCoordinates(vec3.x, vec3.z);
-
-                    if (groundObjectIndex == 0xFF || getGroundObjectPlayerInteractionsFlags(groundObjectIndex) & 8) {
+                    if (groundObjectIndex == 0xFF || (getGroundObjectPlayerInteractionsFlags(groundObjectIndex) & 8)) {
                         
                         setDailyEventBit(SUSPEND_TIME_DURING_ANIMATION);
                         set = TRUE;
@@ -952,11 +1017,31 @@ void handlePlayerInput(void) {
                         startAction(JUMPING, ANIM_JUMPING);
                         
                     }
-                    
                 } 
             }
         }
-        
+    }
+
+    if (!set && (heldItemChange || heldToolChange)) {
+        if (checkButtonReleased(CONTROLLER_1, BUTTON_Z) || !checkButtonHeld(CONTROLLER_1, BUTTON_Z)) {
+            heldItemChange = FALSE;
+            heldToolChange = FALSE;
+            set = TRUE;
+            temp = 0xFF;
+        }
+    }
+
+    if (!set) {
+        // show text for item being held
+        if (!(gPlayer.flags & PLAYER_RIDING_HORSE) && !checkDailyEventBit(18)) {
+            if (checkButtonReleased(CONTROLLER_1, BUTTON_Z) && !heldItemChange) {
+                if (gPlayer.heldItem != 0) {
+                    set = TRUE;
+                    showHeldItemText(gPlayer.heldItem);
+                    temp = 0xFF;
+                }
+            }
+        }
     }
 
     if (!set) {
@@ -999,10 +1084,23 @@ void handlePlayerInput(void) {
     }
 
     if (!set) {
+        if (!(gPlayer.flags & PLAYER_RIDING_HORSE)) {
+            if (checkButtonHeld(CONTROLLER_1, BUTTON_Z) && checkButtonPressed(CONTROLLER_1, BUTTON_B) && !gPlayer.heldItem) {
+                if (takeToolFromToolsack() != 0xFF) {
+                    set = TRUE;
+                    temp = 0xFF;
+                    heldToolChange = TRUE;
+                    startAction(CHANGE_TOOL, ANIM_TOOL_CHANGE);
+                }
+            }
+        }
+    }
+
+    if (!set) {
 
         if (!(gPlayer.flags & PLAYER_RIDING_HORSE) && !checkDailyEventBit(18)) {
         
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_B)) {
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_B) && !heldToolChange) {
                 
                 if (gPlayer.heldItem == 0 && gPlayer.currentTool) {
                         
@@ -1037,19 +1135,6 @@ void handlePlayerInput(void) {
     }
 
     if (!set) {
-        // show text for item being held
-        if (!(gPlayer.flags & PLAYER_RIDING_HORSE) && !checkDailyEventBit(18)) {
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_Z)) {
-                if (gPlayer.heldItem != 0) {
-                    set = TRUE;
-                    showHeldItemText(gPlayer.heldItem);
-                    temp = 0xFF;
-                }
-            }
-        }
-    }
-
-    if (!set) {
         if (!(gPlayer.flags & PLAYER_RIDING_HORSE)) {
             if (checkButtonPressed(CONTROLLER_1, BUTTON_C_RIGHT)) {
                 set = TRUE;
@@ -1071,14 +1156,27 @@ void handlePlayerInput(void) {
         }
     }
 
+    if(!set) {
+        if (!(gPlayer.flags & PLAYER_RIDING_HORSE) && !checkDailyEventBit(18)) {
+            if (checkButtonHeld(CONTROLLER_1, BUTTON_Z) && checkButtonPressed(CONTROLLER_1, BUTTON_C_UP) && !heldToolChange) {
+                if (((gPlayer.heldItem == 0) || (getItemFlags(gPlayer.heldItem) & ITEM_RUCKSACK_STORABLE)) && takeItemFromRucksack() != 0xFF) {
+                    set = TRUE;
+                    temp = 0xFF;
+                    heldItemChange = TRUE;
+                    startAction(HANDLING_ITEM, ANIM_ITEM_CHANGE);
+                }
+            }
+        }
+    }
+
     if (!set) {
         if (!(gPlayer.flags & PLAYER_RIDING_HORSE)) {
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_C_UP)) {
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_C_UP) && !heldItemChange) {
                 if (gPlayer.heldItem != 0 && getItemFlags(gPlayer.heldItem) & ITEM_RUCKSACK_STORABLE) {
                     if (addItemToRucksack(gPlayer.heldItem) != 0xFF) {
                         set = TRUE;
                         temp = 0xFF;
-                        startAction(STORING_ITEM_IN_RUCKSACK, ANIM_PUT_ITEM_IN_RUCKSACK);
+                        startAction(HANDLING_ITEM, ANIM_HANDLE_ITEM_RUCKSACK);
                     }
                 }
             }
@@ -1299,7 +1397,7 @@ void handleItemLevelInteraction(u8 arg0) {
 
         if (checkFarmDogBowlInteraction(gBaseMapIndex) != 0xFF) {
             
-            if ((getItemFlags(gPlayer.heldItem) & ITEM_EATABLE) && !set) {    
+            if ((getItemFlags(gPlayer.heldItem) & ITEM_EATABLE) && !set) {
                 startAction(PUTTING_FOOD_IN_DOG_BOWL, ANIM_PUT_FOOD_IN_DOG_BOWL);
             }
             
@@ -2557,9 +2655,6 @@ void handleFishingAction(void) {
 void handleUnusedAction23(void) {}
 
 // empty function
-void handleUnusedAction24(void) {}
-
-// empty function
 void handleStaminaExhaustionAction(void) {} 
 
 // empty function
@@ -2805,8 +2900,8 @@ void handlePlayerAnimation(void) {
             handleDismountHorseAnimation();
             playerIdleCounter = 0;
             break;
-        case 17:
-            handleUnusedAnimation17();
+        case ANIM_TOOL_CHANGE:
+            handleToolChangeAnimation();
             playerIdleCounter = 0;
             break;
         case 18:
@@ -2829,7 +2924,7 @@ void handlePlayerAnimation(void) {
             handleDrinkingAnimation();
             playerIdleCounter = 0;
             break;
-        case ANIM_PUT_ITEM_IN_RUCKSACK:
+        case ANIM_HANDLE_ITEM_RUCKSACK:
             handlePutItemInRucksackAnimation();
             playerIdleCounter = 0;
             break;
@@ -2837,12 +2932,8 @@ void handlePlayerAnimation(void) {
             handleFishingRodAnimation();
             playerIdleCounter = 0;
             break;
-        case 24:
-            handleUnusedAnimation24();
-            playerIdleCounter = 0;
-            break;
-        case 25:
-            handleUnusedAnimation25();
+        case (ANIM_ITEM_CHANGE):
+            handleTakeItemFromRucksackAnimation();
             playerIdleCounter = 0;
             break;
         case ANIM_FATIGUE_THRESHOLD:
@@ -3583,24 +3674,32 @@ void handleDrinkingAnimation(void) {
 //INCLUDE_ASM("asm/nonmatchings/game/player", handlePutItemInRucksackAnimation);
 
 void handlePutItemInRucksackAnimation(void) {
-    
     if ((checkEntityAnimationStateChanged(ENTITY_PLAYER)) || (gPlayer.actionPhase == 0)) {
-        
         if (gPlayer.actionPhase == 0) {
-            
             setEntityAnimationWithDirectionChange(ENTITY_PLAYER, 618);
             setItemState(gPlayer.itemInfoIndex, ITEM_STATE_CLEANUP);
             gPlayer.heldItem = 0;
             gPlayer.actionPhase++;
             playSfx(PICKING_UP_SFX);
-            
         } else {
             resetAction();
             gItemBeingHeld = 0xFF;
         }
-        
     }
+}
 
+void handleTakeItemFromRucksackAnimation(void) {
+    if (checkEntityAnimationStateChanged(ENTITY_PLAYER)) {
+        if (gPlayer.actionPhase == 0) {
+            setEntityAnimationWithDirectionChange(ENTITY_PLAYER, 618);
+            setItemState(gPlayer.itemInfoIndex, ITEM_STATE_CLEANUP);
+            gPlayer.actionPhase++;
+            playSfx(PICKING_UP_SFX);
+        } else {
+            initializePlayerHeldItem();
+            resetAction();
+        } 
+    }
 }
 
 //INCLUDE_ASM("asm/nonmatchings/game/player", handleFishingRodAnimation);
@@ -3821,13 +3920,24 @@ static const u8 toolHeldItemIndices[5][3] = {
     { WATERING_CAN_HELD_ITEM, SILVER_WATERING_CAN_HELD_ITEM, GOLDEN_WATERING_CAN_HELD_ITEM }
 };
 
+void handleChangeToolAction(void) {
+    if (gPlayer.actionPhase == 0) {
+        if (gPlayer.actionPhaseFrameCounter >= 10) {
+            gPlayer.actionPhase = 1;
+            resetAction();
+            return;
+        }
+        gPlayer.actionPhaseFrameCounter++;
+    }
+}
+
 //INCLUDE_ASM("asm/nonmatchings/game/player", handleToolAnimation);
 
 void handleToolAnimation(void) {
     
     if (checkEntityAnimationStateChanged(ENTITY_PLAYER) || (gPlayer.actionPhase == 0)) {
         
-        switch (gPlayer.currentTool) {                          
+        switch (gPlayer.currentTool) {
             case SICKLE:                                     
                 handleSickleAnimation();
                 break;
@@ -3956,6 +4066,122 @@ void handleToolAnimation(void) {
         
     }
     
+}
+
+void handleToolChangeAnimation(void) {
+    u16 animationIndex = 0;
+    bool isToolItem = FALSE;
+    u8 toolItem = 0;
+    switch (gPlayer.currentTool) {
+        case SICKLE:
+            animationIndex = 80;
+            break;
+        case HOE:
+            animationIndex = 128;
+            break;
+        case AX:
+            animationIndex = 176;
+            break;
+        case HAMMER:
+            animationIndex = 224;
+            break;
+        case WATERING_CAN:
+            animationIndex = 272;
+            break;
+        case MILKER:
+            animationIndex = 329;
+            break;
+        case BELL:
+            animationIndex = 337;
+            break;
+        case BRUSH:
+            animationIndex = 345;
+            break;
+        case CLIPPERS:
+            animationIndex = 353;
+            break;
+        case TURNIP_SEEDS:
+            toolItem = TURNIP_SEEDS_HELD_ITEM;
+            isToolItem = TRUE;
+            break;
+        case POTATO_SEEDS:
+            toolItem = POTATO_SEEDS_HELD_ITEM;
+            isToolItem = TRUE;
+            break;
+        case CABBAGE_SEEDS:
+            toolItem = CABBAGE_SEEDS_HELD_ITEM;
+            isToolItem = TRUE;
+            break;
+        case TOMATO_SEEDS:
+            toolItem = TOMATO_SEEDS_HELD_ITEM;
+            isToolItem = TRUE;
+            break;
+        case CORN_SEEDS:
+            toolItem = CORN_SEEDS_HELD_ITEM;
+            isToolItem = TRUE;
+            break;
+        case EGGPLANT_SEEDS:
+            toolItem = EGGPLANT_SEEDS_HELD_ITEM;
+            isToolItem = TRUE;
+            break;
+        case STRAWBERRY_SEEDS:
+            toolItem = STRAWBERRY_SEEDS_HELD_ITEM;
+            isToolItem = TRUE;
+            break;
+        case GRASS_SEEDS:
+            toolItem = GRASS_SEEDS_HELD_ITEM;
+            isToolItem = TRUE;
+            break;
+        case MOON_DROP_SEEDS:
+            toolItem = MOON_DROP_SEEDS_HELD_ITEM;
+            isToolItem = TRUE;
+            break;
+        case PINK_CAT_MINT_SEEDS:
+            toolItem = PINK_CAT_MINT_SEEDS_HELD_ITEM;
+            isToolItem = TRUE;
+            break;
+        case BLUE_MIST_SEEDS:
+            toolItem = BLUE_MIST_SEEDS_HELD_ITEM;
+            isToolItem = TRUE;
+            break;
+        case CHICKEN_FEED:
+            toolItem = CHICKEN_FEED_HELD_ITEM;
+            isToolItem = TRUE;
+            break;
+        case FISHING_POLE:
+            animationIndex = 386;
+            break;
+        case MIRACLE_POTION:
+            toolItem = MIRACLE_POTION_HELD_ITEM;
+            isToolItem = TRUE;
+            break;
+        case COW_MEDICINE:
+            toolItem = MEDICINE_HELD_ITEM;
+            isToolItem = TRUE;
+            break;
+        case BLUE_FEATHER:
+            toolItem = BLUE_FEATHER_HELD_ITEM;
+            isToolItem = TRUE;
+            break;
+        case EMPTY_BOTTLE:
+            animationIndex = 626;
+            break;
+        default:
+            break;
+    }
+    if(isToolItem) {
+        animationIndex = 421;
+        if (gPlayer.actionPhaseFrameCounter >= 10) {
+            initializeHeldItem(0, ITEM_STATE_HELD, toolItem, 0, ITEM_CONTEXT_USE_ATTACHMENT);
+            gPlayer.actionPhase++;
+        }
+        if (gPlayer.actionPhase >= 10) {
+            setItemState(gPlayer.itemInfoIndex, ITEM_STATE_CLEANUP);
+            handleStopHolding();
+            resetAction();
+        }
+    }
+    setEntityAnimationWithDirectionChange(ENTITY_PLAYER, animationIndex);
 }
 
 //INCLUDE_ASM("asm/nonmatchings/game/player", handleToolUseAnimation);

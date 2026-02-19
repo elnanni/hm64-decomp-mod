@@ -3,6 +3,9 @@
 
 #include "common.h"
 
+#define COOP_ANIMALS 1
+#define BARN_ANIMALS 2
+
 #define MAX_CHICKENS 12
 #define MAX_MISC_ANIMALS 7
 #define MAX_FARM_ANIMALS 8
@@ -10,6 +13,8 @@
 #define CHICKEN_EGG 0
 #define CHICK 1
 #define ADULT_CHICKEN 2
+#define CHICKEN_GOLDEN_EGG 3
+#define CHICKEN_EGG_HATCHED 0xFF
 
 #define BABY_COW 0
 #define CALF 1
@@ -126,6 +131,7 @@
 
 // 0x801C3BF0
 typedef struct {
+	u8 affection;
 	u8 name[6];
 	Vec3f coordinates;
 	u16 entityIndex;
@@ -219,10 +225,33 @@ typedef struct {
 } MiscAnimal;
 
 typedef struct {
-    u16 arr[3];
-    u16 arr2[3];
-    u16 arr3[3];
-} SheepItemInfo;
+	u16 product;
+	u16 sellAnimalPrice;
+} AnimalProductInfo;
+
+typedef struct {
+    AnimalProductInfo sheepProductInfo[3];
+} SheepProductInfo;
+
+#define GET_SHEEP_INDEX(aff) ((aff) >= 200 ? 2 : ((aff) >= 100 ? 1 : 0))
+
+typedef struct {
+    AnimalProductInfo cowProductInfo[4];
+} CowProductInfo;
+
+#define IS_ADULT_COW(type) ((type) > CALF && (type) < BABY_SHEEP)
+#define GET_MILK_INDEX(id) ((id) - SMALL_MILK)
+#define GET_COW_AFF_ID(aff) ((aff) >= 221 ? LARGE_MILK : ((aff) >= 151 ? MEDIUM_MILK : SMALL_MILK))
+#define GET_COW_PRODUCT_ID(animalIdx) \
+    ((gFarmAnimals[(animalIdx)].milkType == 0) \
+    ? GOLDEN_MILK \
+    : GET_COW_AFF_ID(gFarmAnimals[(animalIdx)].affection))
+
+typedef struct {
+	AnimalProductInfo chickenProductInfo[3];
+} ChickenProductInfo;
+
+#define GET_CHICKEN_INDEX(aff) ((aff) >= 221 ? 2 : ((aff) >= 150 ? 1 : 0))
 
 extern u8 initializeNewFarmAnimal(u8 arg0, u8 arg1);
 extern void adjustAllAnimalAffection(s8 amount);

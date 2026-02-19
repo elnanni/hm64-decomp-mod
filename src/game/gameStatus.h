@@ -134,6 +134,7 @@
 #define SHADY_SALESMAN_MARIA_CUTSCENE 0xCE
 #define ANN_SPRAINED_ANKLE_CUTSCENE 0xCF
 #define WIFE_LEFT 0xD9
+#define ELLEN_SAVED_BY_EGG 0xDA
 // 0x4D = sprites taking care of animals during typhoon
 
 // TODO: finish adding these
@@ -190,6 +191,7 @@
 #define WIFE_PREGNANT_ELLI 0x14E
 #define WIFE_PREGNANT_ANN 0x14F
 #define WIFE_PREGNANT_KAREN 0x150
+#define SAVE_ELLEN 0x151
 
 #define MAX_LETTERS 80
 
@@ -248,7 +250,7 @@ extern void func_800657C4();
 extern u32 dailyEventBits[0x20];
 extern u32 lifeEventBits[0x20];
 extern u32 specialDialogueBits[0x10];
-extern u32 recipesBits[1];
+extern u32 recipesBits[2];
 extern u32 readMailBits[];
 extern u32 mailboxBits[];
 extern u32 albumBits;
