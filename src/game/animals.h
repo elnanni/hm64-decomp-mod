@@ -229,8 +229,10 @@ typedef struct {
 } MiscAnimal;
 
 typedef struct {
-	u16 product;
-	u16 sellAnimalPrice;
+    u16 product;
+    u16 shippingValue;
+    u16 sellAnimalPrice;
+    u16 stamina;
 } AnimalProductInfo;
 
 typedef struct {
@@ -244,16 +246,24 @@ typedef struct {
 } CowProductInfo;
 
 #define IS_ADULT_COW(type) ((type) > CALF && (type) < BABY_SHEEP)
-#define GET_MILK_INDEX(id) ((id) - SMALL_MILK)
-#define GET_COW_AFF_ID(aff) ((aff) >= 221 ? LARGE_MILK : ((aff) >= 151 ? MEDIUM_MILK : SMALL_MILK))
+#define GET_MILK_INDEX(id) ((id) - SMALL_MILK_HELD_ITEM)
+#define GET_COW_AFF_ID(aff) ((aff) >= 221 ? LARGE_MILK_HELD_ITEM : ((aff) >= 151 ? MEDIUM_MILK_HELD_ITEM : SMALL_MILK_HELD_ITEM))
 #define GET_COW_PRODUCT_ID(animalIdx) \
     ((gFarmAnimals[(animalIdx)].milkType == 0) \
-    ? GOLDEN_MILK \
+    ? GOLDEN_MILK_HELD_ITEM \
     : GET_COW_AFF_ID(gFarmAnimals[(animalIdx)].affection))
 
 typedef struct {
 	AnimalProductInfo chickenProductInfo[3];
 } ChickenProductInfo;
+
+extern SheepProductInfo sheepWoolInfo;
+extern CowProductInfo cowMilkInfo;
+extern ChickenProductInfo chickenEggInfo;
+
+extern u16 getMilkHeldItemIndex(u8 animalIndex);
+extern u16 getWoolHeldItemIndex(u8 animalIndex);
+extern u16 getEggHeldItemIndex(u8 animalIndex);
 
 #define GET_CHICKEN_INDEX(aff) ((aff) >= 221 ? 2 : ((aff) >= 150 ? 1 : 0))
 

@@ -1922,7 +1922,7 @@ u16 setMountain1Cutscenes(void) {
     }
 
     if (!set) {
-        if (!checkHaveTool(FISHING_POLE)) {
+        if (!checkHaveTool(FISHING_ROD)) {
             setDailyEventBit(MOUNTAIN_1_CUTSCENE_DAILY);
             gCutsceneIndex = CUTSCENE_MOUNTAIN_GREG_FISHING_POLE;
             loadCutscene(FALSE);
@@ -2729,6 +2729,7 @@ u16 setVineyardCellarCutscenes(void) {
 u16 setVillage1Cutscenes(void) {
 
     u16 bytecodeSegmentIndex = 0xFFFF;
+    u8 yearElenDies;
     bool set = FALSE;
 
     if (!checkLifeEventBit(BLUE_MIST_CYCLE_ACTIVE) && checkLifeEventBit(BOUGHT_BLUE_MIST_SEEDS) && checkHaveTool(BLUE_MIST_SEEDS)) {
@@ -2798,7 +2799,7 @@ u16 setVillage1Cutscenes(void) {
         set = TRUE;
     } 
 
-    bool yearElenDies = (gYear == 2);
+    yearElenDies = (gYear == 2);
 
     if (checkLifeEventBit(ELLEN_SAVED_BY_EGG)) {
         yearElenDies = (gYear == 3);
@@ -4260,7 +4261,7 @@ void handleCutsceneCompletion(void) {
                             break;
 
                         case CUTSCENE_MOUNTAIN_GREG_FISHING_POLE:                         
-                            storeTool(FISHING_POLE);
+                            storeTool(FISHING_ROD);
                             break;
                         
                         case CUTSCENE_MOUNTAIN_MASTER_CARPENTER_BRIDGE_RECRUIT:

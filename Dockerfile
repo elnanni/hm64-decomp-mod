@@ -23,15 +23,8 @@ RUN python3 -m venv /opt/hm64-venv \
         -r /tmp/hm64-requirements.txt \
         "splat64[mips]<0.40.0"
 
-RUN mkdir -p /opt/gcc-2.7.2 \
-    && wget -O /tmp/gcc-2.7.2-linux.tar.gz \
-        "https://github.com/decompals/mips-gcc-2.7.2/releases/download/main/gcc-2.7.2-linux.tar.gz" \
-    && tar -xzf /tmp/gcc-2.7.2-linux.tar.gz -C /opt/gcc-2.7.2 \
-    && wget -O /tmp/binutils-2.6-linux.tar.gz \
-        "https://github.com/decompals/mips-binutils-2.6/releases/latest/download/binutils-2.6-linux.tar.gz" \
-    && tar -xzf /tmp/binutils-2.6-linux.tar.gz -C /opt/gcc-2.7.2 \
-    && rm /tmp/gcc-2.7.2-linux.tar.gz /tmp/binutils-2.6-linux.tar.gz \
-    && chmod -R +x /opt/gcc-2.7.2
+COPY tools/gcc-2.7.2 /opt/gcc-2.7.2
+RUN chmod -R +x /opt/gcc-2.7.2
 
 COPY tools/docker-entrypoint.sh /usr/local/bin/hm64-docker-entrypoint
 RUN chmod +x /usr/local/bin/hm64-docker-entrypoint

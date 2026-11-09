@@ -63,23 +63,8 @@ undefined_funcs_auto.txt
 !/tools/build
 /tools/build/mkldscript
 /docs/
-.DS_Store
-build/
-*.z64
-*.elf
-*.bin.DS_Store
-build/
-*.z64
-*.elf
-*.bin
-build.sh
-fixtmp.py
-tools/fixtmp.py
-.DS_Store
-build/
-*.z64
-*.elf
-*.bin
+
+# Custom QoL / macOS scripts
 build.sh
 fixtmp.py
 tools/fixtmp.py

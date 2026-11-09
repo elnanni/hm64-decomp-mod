@@ -23,15 +23,19 @@
 
 u32 D_8016FB00;
 
-void setupGameStart(void) {
+void setupGameStart(void)
+{
 
     // set up game
     initializeAll();
 
-    if (contPattern & 1) {
-        //launchIntroCutscene(OPENING_LOGOS, 0x61, 1);
+    if (contPattern & 1)
+    {
+        // launchIntroCutscene(OPENING_LOGOS, 0x61, 1);
         startGame();
-    } else {
+    }
+    else
+    {
 
         setMainLoopCallbackFunctionIndex(NO_OP);
         setMessageBoxViewSpacePosition(0, 0, -64.0f, 352.0f);
@@ -40,12 +44,11 @@ void setupGameStart(void) {
 
         // load "no controller" dialogue
         initializeMessageBox(MAIN_MESSAGE_BOX_INDEX, TEXT_1_TEXT_INDEX, 25, MESSAGE_BOX_MODE_NO_INPUT);
-
     }
-
 }
 
-void startGame(void) {
+void startGame(void)
+{
 
     setSpawnPoint(HOUSE_SPAWN_POINT_3);
 
@@ -59,51 +62,53 @@ void startGame(void) {
     // gHour = 6;
 
     setMainLoopCallbackFunctionIndex(MAP_LOAD);
-
 }
 
 u8 i;
 
-void func_8004DFF8(void) {
-    
-     setLifeEventBit(HAVE_HORSE);
-     setLifeEventBit(HAVE_KITCHEN);
-     setLifeEventBit(HAVE_BATHROOM);
-     setLifeEventBit(HAVE_STAIRS);
-     setLifeEventBit(HAVE_GREENHOUSE);
-     setLifeEventBit(HAVE_LOG_TERRACE);
-     setLifeEventBit(HAVE_BABY_BED);
-     setLifeEventBit(HAVE_CABINET);
-     setLifeEventBit(HAVE_TABLECLOTH);
-     setLifeEventBit(MAYOR_TOUR);
-     setLifeEventBit(PAINTING_FROM_MARIA);
-//     setLifeEventBit(BASIL_IN_TOWN);
-//     setLifeEventBit(CLIFF_ARRIVED);
-     setLifeEventBit(BRIDGE_COMPLETED);
-//     setLifeEventBit(0x46);
-//     setLifeEventBit(0x47);
-//     setLifeEventBit(0x58);
-//     setLifeEventBit(0x59);
-//     setLifeEventBit(0x5A);
-//     setLifeEventBit(WON_CALENDAR_STICKERS_FROM_RAFFLE);
-//     setLifeEventBit(0x5C);
-//     setLifeEventBit(0x5D);
-    
-//     setSpecialDialogueBit(0x25);
+void func_8004DFF8(void)
+{
+
+    setLifeEventBit(HAVE_HORSE);
+    setLifeEventBit(HAVE_KITCHEN);
+    setLifeEventBit(HAVE_BATHROOM);
+    setLifeEventBit(HAVE_STAIRS);
+    setLifeEventBit(HAVE_GREENHOUSE);
+    setLifeEventBit(HAVE_LOG_TERRACE);
+    setLifeEventBit(HAVE_BABY_BED);
+    setLifeEventBit(HAVE_CABINET);
+    setLifeEventBit(HAVE_TABLECLOTH);
+    setLifeEventBit(MAYOR_TOUR);
+    setLifeEventBit(PAINTING_FROM_MARIA);
+    //     setLifeEventBit(BASIL_IN_TOWN);
+    //     setLifeEventBit(CLIFF_ARRIVED);
+    setLifeEventBit(BRIDGE_COMPLETED);
+    //     setLifeEventBit(0x46);
+    //     setLifeEventBit(0x47);
+    //     setLifeEventBit(0x58);
+    //     setLifeEventBit(0x59);
+    //     setLifeEventBit(0x5A);
+    //     setLifeEventBit(WON_CALENDAR_STICKERS_FROM_RAFFLE);
+    //     setLifeEventBit(0x5C);
+    //     setLifeEventBit(0x5D);
+
+    //     setSpecialDialogueBit(0x25);
 
     gGold = 100000;
-    
+
     gPlayer.belongingsSlots[0] = EGG_HELD_ITEM;
     gPlayer.belongingsSlots[1] = GOLDEN_EGG_HELD_ITEM;
-    gPlayer.belongingsSlots[2] = GOLDEN_MILK;
+    gPlayer.belongingsSlots[2] = GOLDEN_MILK_HELD_ITEM;
     gPlayer.belongingsSlots[3] = GOLDEN_EGG_HELD_ITEM;
     gPlayer.belongingsSlots[4] = WEED_HELD_ITEM;
 
     chickenFeedQuantity = 100;
     fodderQuantity = 100;
-    
-    for (i = 0; i < MAX_CHICKENS; i++) {
-        if (!(gChickens[i].flags & CHICKEN_ACTIVE)) {
+
+    for (i = 0; i < MAX_CHICKENS; i++)
+    {
+        if (!(gChickens[i].flags & CHICKEN_ACTIVE))
+        {
             gChickens[i].flags = CHICKEN_ACTIVE | CHICKEN_ENTITY_LOADED;
             gChickens[i].type = ADULT_CHICKEN;
             gChickens[i].affection = 222;
@@ -112,37 +117,36 @@ void func_8004DFF8(void) {
             gChickens[i].coordinates.y = 0.0f;
             gChickens[i].coordinates.z = 0.0f;
             initializeChickenEntity(i);
-            if(i == 1) break;
+            if (i == 1)
+                break;
         }
     }
 
-     addRecipe(HERB_RICE_CAKE);
-    
-     initializeHorse();
-    
-     horseInfo.grown = TRUE;
-     npcAffection[ELLEN] = 100;
+    addRecipe(HERB_RICE_CAKE);
+
+    initializeHorse();
+
+    horseInfo.grown = TRUE;
+    npcAffection[ELLEN] = 100;
 
     setLifeEventBit(MARRIED);
     setLifeEventBit(WIFE_PREGNANT);
     setLifeEventBit(HAVE_BABY);
 
-    
     gWife = KAREN;
-    
-     npcAffection[KAREN] = MAX_AFFECTION;
-    
-     gSeason = WINTER;
-     gDayOfMonth = 1;
-    
-     dogInfo.affection = MAX_AFFECTION;
-    
-     gHour = 10;
-    
-//     // max recipes
-     recipesBits[0] = -1;
-    
-//     // unused game variable
-//     D_8016FB00 = 7;
-    
+
+    npcAffection[KAREN] = MAX_AFFECTION;
+
+    gSeason = WINTER;
+    gDayOfMonth = 1;
+
+    dogInfo.affection = MAX_AFFECTION;
+
+    gHour = 10;
+
+    //     // max recipes
+    recipesBits[0] = -1;
+
+    //     // unused game variable
+    //     D_8016FB00 = 7;
 }

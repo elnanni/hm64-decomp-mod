@@ -6081,7 +6081,7 @@ void setGregLocation(void) {
     greg->idleAnimation = GREG_ANIMATION_STANDING_DIRECTIONAL;
     greg->movingAnimation = GREG_ANIMATION_WALKING_DIRECTIONAL;
 
-    if (gSeason != WINTER && checkHaveTool(FISHING_POLE) && gWeather == SUNNY) {
+    if (gSeason != WINTER && checkHaveTool(FISHING_ROD) && gWeather == SUNNY) {
 
         switch (gDayOfWeek) {
 
