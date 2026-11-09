@@ -24,19 +24,17 @@
 volatile u16 mainLoopCallbackCurrentIndex;
 void (*mainLoopCallbacksTable[MAIN_LOOP_CALLBACK_FUNCTION_TABLE_SIZE])();
 
-volatile u16 D_80182BA0;
-volatile u16 D_8020564C;
 void *currentGfxTaskPtr;
 
-// forward declarations
+volatile u16 D_80182BA0;
+volatile u16 D_8020564C;
+
 void func_80026284(void);
+void func_8004DF00(void);
 void handleGraphicsUpdate(int pendingGfx);
 void updateMainLoopTimer(int pendingGfx);
 
 extern s32 __osSpSetPc(u32 pc);
-
-  
-//INCLUDE_ASM("asm/nonmatchings/mainLoop", mainLoop)
 
 void mainLoop(void) {
 
@@ -48,31 +46,31 @@ void mainLoop(void) {
 
     // toggle flags
     func_8004DEC8();
-    
+
     // could be inline func_80026230
     D_80182BA0 = 1;
     D_8020564C = 0;
 
     while (TRUE) {
-      
+
         nuGfxDisplayOn();
-          
+
         while (engineStateFlags & 1) {
-            
+
             while (stepMainLoop == FALSE);
-            
-            if (!D_8020564C) { 
-              
+
+            if (!D_8020564C) {
+
               D_80182BA0 = 1;
-              
+
               // handle specific logic depending on game mode/screen
-              mainLoopCallbacksTable[mainLoopCallbackCurrentIndex](); 
+              mainLoopCallbacksTable[mainLoopCallbackCurrentIndex]();
 
-              D_8020564C = D_80182BA0; 
+              D_8020564C = D_80182BA0;
 
-            } 
-            
-            D_8020564C -= 1;    
+            }
+
+            D_8020564C -= 1;
 
             resetBitmaps();
             updateAudio(); 
@@ -101,8 +99,6 @@ void mainLoop(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/mainLoop", registerMainLoopCallback);
-
 bool registerMainLoopCallback(u16 index, void *(func)()) {
 
     bool result = FALSE;
@@ -117,8 +113,6 @@ bool registerMainLoopCallback(u16 index, void *(func)()) {
     return result;
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/mainLoop", setMainLoopCallbackFunctionIndex);
 
 bool setMainLoopCallbackFunctionIndex(u16 index) {
     
@@ -137,8 +131,6 @@ bool setMainLoopCallbackFunctionIndex(u16 index) {
 }
 
 void noOpCallback(void) {}
-
-//INCLUDE_ASM("asm/nonmatchings/mainLoop", func_80026248);
 
 inline void func_80026248(u16 count) {
 
@@ -162,10 +154,9 @@ inline void func_80026248(u16 count) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/mainLoop", func_80026284);
-
 // start up before main loop
-void func_80026284(void) {
+void func_80026284(void)
+{
 
     goto loop_end;
     
@@ -180,10 +171,7 @@ loop_end:
 
 }
 
-
 // gfx retrace funcs
-
-//INCLUDE_ASM("asm/nonmatchings/mainLoop", gfxRetraceCallback);
 
 // NUGfxFunc
 u8 gfxRetraceCallback(int pendingGfx) {
@@ -199,15 +187,15 @@ u8 gfxRetraceCallback(int pendingGfx) {
     handleGraphicsUpdate(pendingGfx);
     updateMainLoopTimer(pendingGfx);
     
-    if (frameCount > 59) {
-        frameCount = 0;
+    if (vblankCounter > 59) {
+        vblankCounter = 0;
         engineStateFlags |= 2;
     }
     
     // no op
     // func_8004DF00();
     
-    frameCount++;
+    vblankCounter++;
     retraceCount++;
     // reset to 0 when pendingGfx < 3
     framebufferCount++;
@@ -216,15 +204,13 @@ u8 gfxRetraceCallback(int pendingGfx) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/mainLoop", handleGraphicsUpdate);
-
 void handleGraphicsUpdate(int pendingGfx) {
 
   u8 temp;
     
-  if ((frameCount % frameRate) == 0) {
+  if ((vblankCounter % vblanksPerDraw) == 0) {
       
-    if (frameCount > 59) {
+    if (vblankCounter > 59) {
 
       previousDrawnFrameCount = drawnFrameCount;
       drawnFrameCount = 0;
@@ -244,18 +230,18 @@ void handleGraphicsUpdate(int pendingGfx) {
         framebufferCount = 0;
         
       }
+    
     }
+
   }
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/mainLoop", updateMainLoopTimer);
-
 void updateMainLoopTimer(int pendingGfx) {
     
-    if ((frameCount % mainLoopUpdateRate) == 0) {
+    if ((vblankCounter % mainLoopUpdateInterval) == 0) {
         
-        if (frameCount > 59) {
+        if (vblankCounter > 59) {
 
           previousLoopStepsPerCycle = loopStepsPerCycle;
           loopStepsPerCycle = 0;
@@ -274,8 +260,6 @@ void updateMainLoopTimer(int pendingGfx) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/mainLoop", gfxBufferSwap);
-
 void gfxBufferSwap(void *gfxTask) {
     
     currentGfxTaskPtr = gfxTask;
@@ -288,8 +272,6 @@ s32 osAfterPreNMI(void) {
     return __osSpSetPc(0);
 }
 
-//INCLUDE_ASM("asm/nonmatchings/mainLoop", gfxPreNMICallback);
-
 void gfxPreNMICallback(void) {
     
     volatile int *callbackTablePtr;
@@ -301,16 +283,18 @@ void gfxPreNMICallback(void) {
     }
     
     nuGfxFuncSet(NULL);
+    
     nuGfxTaskAllEndWait();
+
     nuGfxDisplayOff();
 
     osStopThread(&nusched.graphicsThread);
     osStopThread(&nusched.audioThread);
-    
+
     osViSetYScale(1.0f);
-    
+
     while (__osSpSetPc(0));
-    
+
     while (TRUE);
 
 }

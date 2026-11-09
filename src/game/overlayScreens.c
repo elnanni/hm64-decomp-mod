@@ -37,20 +37,21 @@
 
 #include "buffers/buffers.h"
 
-#include "data/animationScripts/animationScripts.h"
+#include "data/animation/entityAnimationScripts/entityAnimationScripts.h"
 
 #include "ld_symbols.h"
 
 // bss
 OverlayScreenTable overlayScreenTable;
-u32 D_80189858;
+u32 raceBettingGold;
 
-u8 D_80205640[10];
-u8 D_80189108[5][7];
-u8 D_80237420[31];
+u8 calendarStickers[10];
+u8 calendarStickerGrid[5][7];
+u32 medalBalance;
+u8 freezerItemSlots[32];
 
 // shared bss
-u8 D_801890E8[31];
+u8 cabinetItemSlots[32];
 
 // data
 
@@ -297,365 +298,371 @@ f32 calendarStickersYCoordinates[] = {
 
 u16 toolAnimationIndices[] = {
      0xFFFF,
-     0x0000,
-     0x0003,
-     0x0006,
-     0x0009,
-     0x000C,
-     0x000F,
-     0x0010,
-     0x0011,
-     0x0012,
-     0x0013,
-     0x0014,
-     0x0015,
-     0x0016,
-     0x0017,
-     0x0018,
-     0x0019,
-     0x001A,
-     0x001B,
-     0x001C,
-     0x001D,
-     0x001E,
-     0x001F,
-     0x0020,
-     0x0021,
-     0x0022,
-     0x0023,
-     0x0024,
-     0x0025,
-     0x0026,
+     0,
+     3,
+     6,
+     9,
+     12,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37,
+     38,
 };
 
 u16 keyItemAnimationIndices[] = {
      0xFFFF,
-     0x0035,
-     0x0072,
-     0x0073,
-     0x0090,
-     0x0091,
-     0x0092,
-     0x0032,
-     0x0093,
-     0x0094,
-     0x0095,
-     0x0096,
-     0x0097,
-     0x0098,
-     0x0099,
-     0x009A,
-     0x007E,
-     0x007F,
-     0x0080,
-     0x0081,
-     0x0020,
-     0x00E8,
-     0x0000,
-     0x0000,
+     53,
+     114,
+     115,
+     144,
+     145,
+     146,
+     50,
+     147,
+     148,
+     149,
+     150,
+     151,
+     152,
+     153,
+     154,
+     126,
+     127,
+     128,
+     129,
+     32,
+     232,
+     0,
+     0,
 };
 
-
-// power nut bits
-static u32 powerNutBits[] = { 1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100, 0x200 };
+static u32 powerNutBits[] = {
+    FARM_POWER_NUT,
+    HARVEST_SPRITES_POWER_NUT,
+    FISHING_POWER_NUT,
+    KAPPA_POWER_NUT,
+    MOUNTAIN_BOULDER_POWER_NUT,
+    MINE_POWER_NUT,
+    HARVEST_GODDESS_POWER_NUT,
+    FLOWER_FESTIVAL_POWER_NUT,
+    EGG_FESTIVAL_POWER_NUT,
+    BASIL_POWER_NUT,
+};
 
 u16 D_80116F4C[] = {
-    0x0000,
-    0x002F,
-    0x0030,
-    0x0031,
-    0x0032,
-    0x0033,
-    0x0040,
-    0x003F,
-    0x0041,
-    0x004A,
-    0x0034,
-    0x0036,
-    0x0035,
-    0x0037,
-    0x0038,
-    0x0039,
-    0x0012,
-    0x003A,
-    0x003B,
-    0x003C,
-    0x003E,
-    0x004B,
-    0x004D,
-    0x0052,
-    0x004C,
-    0x0050,
-    0x004E,
-    0x003D,
-    0x0051,
-    0x0042,
+    0,
+    47,
+    48,
+    49,
+    50,
+    51,
+    64,
+    63,
+    65,
+    74,
+    52,
+    54,
+    53,
+    55,
+    56,
+    57,
+    18,
+    58,
+    59,
+    60,
+    62,
+    75,
+    77,
+    82,
+    76,
+    80,
+    78,
+    61,
+    81,
+    66,
 };
 
 u16 D_80116F88[] = {
-    0x0000,
-    0x0085,
-    0x0084,
-    0x007F,
-    0x0065,
-    0x0066,
-    0x0000,
-    0x0067,
-    0x0068,
-    0x0069,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0053,
-    0x0055,
-    0x0057,
-    0x0059,
-    0x005B,
-    0x005D,
-    0x005F,
-    0x0060,
-    0x0061,
-    0x0062,
-    0x0063,
-    0x0064,
-    0x006A,
-    0x006B,
-    0x006C,
-    0x006D,
-    0x006E,
-    0x006F,
-    0x0070,
-    0x0086,
-    0x0000,
-    0x0071,
-    0x0073,
-    0x0074,
-    0x0075,
-    0x0076,
-    0x0077,
-    0x0072,
-    0x0078,
-    0x0079,
-    0x007C,
-    0x007B,
-    0x007A,
-    0x0080,
-    0x0082,
-    0x0081,
-    0x0083,
-    0x007E,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x004F,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0099,
-    0x0099,
-    0x0099,
-    0x0099,
-    0x0099,
-    0x0099,
-    0x0099,
-    0x0099,
-    0x00AD,
-    0x00AD,
-    0x00AD,
-    0x00AD,
-    0x00AD,
-    0x00AD,
-    0x00AD,
-    0x00AD,
-    0x00AE,
-    0x00AE,
-    0x00AE,
-    0x00AE,
-    0x00AE,
-    0x00AE,
-    0x00AE,
-    0x00AE,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x00A8,
-    0x00A8,
-    0x00A8,
-    0x00A8,
-    0x00A8,
-    0x00A8,
-    0x00A8,
-    0x00A8,
-    0x00A5,
-    0x00A5,
-    0x00A5,
-    0x00A5,
-    0x00A5,
-    0x00A5,
-    0x00A5,
-    0x00A5,
-    0x00A4,
-    0x00A4,
-    0x00A4,
-    0x00A4,
-    0x00A4,
-    0x00A4,
-    0x00A4,
-    0x00A4,
-    0x00A6,
-    0x00A6,
-    0x00A6,
-    0x00A6,
-    0x00A6,
-    0x00A6,
-    0x00A6,
-    0x00A6,
-    0x00A3,
-    0x00A3,
-    0x00A3,
-    0x00A3,
-    0x00A3,
-    0x00A3,
-    0x00A3,
-    0x00A3,
-    0x00A7,
-    0x00A7,
-    0x00A7,
-    0x00A7,
-    0x00A7,
-    0x00A7,
-    0x00A7,
-    0x00A7,
-    0x00A9,
-    0x00A9,
-    0x00A9,
-    0x00A9,
-    0x00A9,
-    0x00A9,
-    0x00A9,
-    0x00A9,
-    0x009F,
-    0x00A0,
-    0x009E,
-    0x009B,
-    0x009C,
-    0x00A1,
-    0x00A2,
-    0x00B1,
-    0x00B1,
-    0x00B1,
-    0x00B1,
-    0x00B1,
-    0x00B1,
-    0x00B1,
-    0x00B1,
-    0x00B2,
-    0x00B2,
-    0x00B2,
-    0x00B2,
-    0x00B2,
-    0x00B2,
-    0x00B2,
-    0x00B2,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x00B4, // need to manually add assets/text/diary/text180.txt
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
+    0,
+    133,
+    132,
+    127,
+    101,
+    102,
+    0,
+    103,
+    104,
+    105,
+    0,
+    0,
+    0,
+    83,
+    85,
+    87,
+    89,
+    91,
+    93,
+    95,
+    96,
+    97,
+    98,
+    99,
+    100,
+    106,
+    107,
+    108,
+    109,
+    110,
+    111,
+    112,
+    134,
+    0,
+    113,
+    115,
+    116,
+    117,
+    118,
+    119,
+    114,
+    120,
+    121,
+    124,
+    123,
+    122,
+    128,
+    130,
+    129,
+    131,
+    126,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    79,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    153,
+    153,
+    153,
+    153,
+    153,
+    153,
+    153,
+    153,
+    173,
+    173,
+    173,
+    173,
+    173,
+    173,
+    173,
+    173,
+    174,
+    174,
+    174,
+    174,
+    174,
+    174,
+    174,
+    174,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    168,
+    168,
+    168,
+    168,
+    168,
+    168,
+    168,
+    168,
+    165,
+    165,
+    165,
+    165,
+    165,
+    165,
+    165,
+    165,
+    164,
+    164,
+    164,
+    164,
+    164,
+    164,
+    164,
+    164,
+    166,
+    166,
+    166,
+    166,
+    166,
+    166,
+    166,
+    166,
+    163,
+    163,
+    163,
+    163,
+    163,
+    163,
+    163,
+    163,
+    167,
+    167,
+    167,
+    167,
+    167,
+    167,
+    167,
+    167,
+    169,
+    169,
+    169,
+    169,
+    169,
+    169,
+    169,
+    169,
+    159,
+    160,
+    158,
+    155,
+    156,
+    161,
+    162,
+    177,
+    177,
+    177,
+    177,
+    177,
+    177,
+    177,
+    177,
+    178,
+    178,
+    178,
+    178,
+    178,
+    178,
+    178,
+    178,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    180, // need to manually add assets/text/diary/text180.txt
+    0,
+    0,
 };
 
 u16 D_80117148[] = {
-    0x0000,
-    0x00AA,
-    0x0087,
-    0x0088,
-    0x0089,
-    0x008A,
-    0x008B,
-    0x008C,
-    0x008D,
-    0x008E,
-    0x008F,
-    0x0090,
-    0x0091,
-    0x0092,
-    0x0093,
-    0x0094,
-    0x0095,
-    0x0096,
-    0x0097,
-    0x0098,
-    0x00AC,
-    0x00AB,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
-    0x0000,
+    0,
+    170,
+    135,
+    136,
+    137,
+    138,
+    139,
+    140,
+    141,
+    142,
+    143,
+    144,
+    145,
+    146,
+    147,
+    148,
+    149,
+    150,
+    151,
+    152,
+    172,
+    171,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
 };
 
 // rodata forward declarations
-static const u8 D_801220CC[19][6];
-static const u8 D_80122140[19][6];
+static const u8 horseRaceRacerNames[19][6];
+static const u8 dogRaceRacerNames[19][6];
 
 // forward declarations
 void loadClockSprites(void);
@@ -755,9 +762,6 @@ bool checkAvailableBakeryPrize(u8 arg0);
 void handleGetBakeryPrize(u8 arg0);
 u32 checkRecipe(u16 bitIndex);
 
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", closeOverlayScreen);
-
 // close overlay screen
 // TODO: seems to be static inline calls (repeated deactivations)
 void closeOverlayScreen(void) {
@@ -786,7 +790,6 @@ void closeOverlayScreen(void) {
     // cursor hand
     resetAnimationState(0x79);
 
-    
     deactivateSprite(0x89);
     deactivateSprite(0x8C);
     deactivateSprite(0x8D);
@@ -849,19 +852,17 @@ void closeOverlayScreen(void) {
     }
 
 }
- 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadClockSprites);
 
 void loadClockSprites(void) {
 
     // clock and background
     dmaSprite(CLOCK, (u32)&_timeUITextureSegmentRomStart, (u32)&_timeUITextureSegmentRomEnd, (u32)&_timeUIAssetsIndexSegmentRomStart, (u32)&_timeUIAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_CLOCK_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_CLOCK_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_CLOCK_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_CLOCK_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(CLOCK, 0.0f, 0.0f, 256.0f);
-    setBilinearFiltering(CLOCK, 1);
+    setBilinearFiltering(CLOCK, TRUE);
     setSpriteColor(CLOCK, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(CLOCK, 2);
+    setSpriteBlendMode(CLOCK, SPRITE_BLEND_ALPHA_MODULATED);
 
-    if (checkLifeEventBit(0x59)) {
+    if (checkLifeEventBit(HAVE_CUTE_CLOCK)) {
         // cow skin background
         startSpriteAnimation(CLOCK, 6, 0);
     } else {
@@ -872,7 +873,7 @@ void loadClockSprites(void) {
     dmaSprite(0x8C, (u32)&_timeUITextureSegmentRomStart, (u32)&_timeUITextureSegmentRomEnd, (u32)&_timeUIAssetsIndexSegmentRomStart, (u32)&_timeUIAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_CLOCK_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_CLOCK_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_CLOCK_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_CLOCK_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x8C, -79.0f, 81.0f, 256.0f);
     setSpriteRotation(0x8C, 0.0f, 0.0f, (360 - (gMinutes * 6)));
-    setBilinearFiltering(0x8C, 1);
+    setBilinearFiltering(0x8C, TRUE);
     setSpriteColor(0x8C, 0xFF, 0xFF, 0xFF, 0);
     setSpriteBlendMode(0x8C, SPRITE_BLEND_ALPHA_MODULATED);
     startSpriteAnimation(0x8C, 4, 0);
@@ -881,7 +882,7 @@ void loadClockSprites(void) {
     dmaSprite(0x8D, (u32)&_timeUITextureSegmentRomStart, (u32)&_timeUITextureSegmentRomEnd, (u32)&_timeUIAssetsIndexSegmentRomStart, (u32)&_timeUIAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_CLOCK_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_CLOCK_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_CLOCK_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_CLOCK_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x8D, -80.0f, 80.0f, 256.0f);
     setSpriteRotation(0x8D, 0.0f, 0.0f, ((360 - (gHour * 30)) - (gMinutes * 0.5)));
-    setBilinearFiltering(0x8D, 1);
+    setBilinearFiltering(0x8D, TRUE);
     setSpriteColor(0x8D, 0xFF, 0xFF, 0xFF, 0);
     setSpriteBlendMode(0x8D, SPRITE_BLEND_ALPHA_MODULATED);
     startSpriteAnimation(0x8D, 5, 0);
@@ -889,7 +890,7 @@ void loadClockSprites(void) {
     // season name
     dmaSprite(0x8B, (u32)&_timeUITextureSegmentRomStart, (u32)&_timeUITextureSegmentRomEnd, (u32)&_timeUIAssetsIndexSegmentRomStart, (u32)&_timeUIAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_CLOCK_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_CLOCK_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_CLOCK_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_CLOCK_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x8B, 0.0f, 0.0f, 256.0f);
-    setBilinearFiltering(0x8B, 1);
+    setBilinearFiltering(0x8B, TRUE);
     setSpriteColor(0x8B, 0xFF, 0xFF, 0xFF, 0);
     setSpriteBlendMode(0x8B, SPRITE_BLEND_ALPHA_MODULATED);
     startSpriteAnimation(0x8B, 1, gSeason - 1);
@@ -897,7 +898,7 @@ void loadClockSprites(void) {
     // day of week
     dmaSprite(0x8A, (u32)&_timeUITextureSegmentRomStart, (u32)&_timeUITextureSegmentRomEnd, (u32)&_timeUIAssetsIndexSegmentRomStart, (u32)&_timeUIAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_CLOCK_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_CLOCK_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_CLOCK_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_CLOCK_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x8A, 0.0f, 0.0f, 256.0f);
-    setBilinearFiltering(0x8A, 1);
+    setBilinearFiltering(0x8A, TRUE);
     setSpriteColor(0x8A, 0xFF, 0xFF, 0xFF, 0);
     setSpriteBlendMode(0x8A, SPRITE_BLEND_ALPHA_MODULATED);
     startSpriteAnimation(0x8A, 3, gDayOfWeek);
@@ -926,18 +927,16 @@ static inline void fadeOutClock() {
     updateSpriteAlpha(0x8E, 0, 24);
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadMoneySprites);
-
 // unused or inline
 // void loadMoneySprites(f32 x, f32 y, f32 z, u16 renderingLayer, u32 arg4) {
 
-//     // background and "g"
-//     dmaSprite(0x8E, (u32)&_moneyTextureSegmentRomStart, (u32)&_moneyTextureSegmentRomEnd, (u32)&_moneyAssetsIndexSegmentRomStart, (u32)&_moneyAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)GOLD_UI_TEXTURE_BUFFER, NULL, (u16*)GOLD_UI_PALETTE_BUFFER, (AnimationFrameMetadata*)GOLD_UI_ANIMATION_FRAME_METADATA_BUFFER, (u32*)GOLD_UI_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
-//     setSpriteViewSpacePosition(0x8E, x, y, z);
-//     setBilinearFiltering(0x8E, 1);
-//     setSpriteColor(0x8E, 0xFF, 0xFF, 0xFF, 0);
-//     setSpriteBlendMode(0x8E, renderingLayer);
-//     startSpriteAnimation(0x8E, 0, 0);
+    // background and "g"
+    // dmaSprite(0x8E, (u32)&_moneyTextureSegmentRomStart, (u32)&_moneyTextureSegmentRomEnd, (u32)&_moneyAssetsIndexSegmentRomStart, (u32)&_moneyAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)GOLD_UI_TEXTURE_BUFFER, NULL, (u16*)GOLD_UI_PALETTE_BUFFER, (AnimationFrameMetadata*)GOLD_UI_ANIMATION_FRAME_METADATA_BUFFER, (u32*)GOLD_UI_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
+    // setSpriteViewSpacePosition(0x8E, x, y, z);
+    // setBilinearFiltering(0x8E, TRUE);
+    // setSpriteColor(0x8E, 0xFF, 0xFF, 0xFF, 0);
+    // setSpriteBlendMode(0x8E, renderingLayer);
+    // startSpriteAnimation(0x8E, 0, 0);
 
 //     setNumberSprites(1, 0x91, (u32)&_moneyTextureSegmentRomStart, (u32)&_moneyTextureSegmentRomEnd, (u32)&_moneyAssetsIndexSegmentRomStart, (u32)&_moneyAssetsIndexSegmentRomEnd, 
 //         (u8*)GOLD_UI_TEXTURE_BUFFER, (u16*)GOLD_UI_PALETTE_BUFFER, (AnimationFrameMetadata*)GOLD_UI_ANIMATION_FRAME_METADATA_BUFFER, (u32*)GOLD_UI_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, 
@@ -950,48 +949,43 @@ static inline void fadeOutClock() {
 
 // }
 
-
 /* TV functions */
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadTVCButtonIcons);
 
 void loadTVCButtonIcons(void) {
 
     dmaSprite(0x86, (u32)&_dialogueButtonIconsTextureSegmentRomStart, (u32)&_dialogueButtonIconsTextureSegmentRomEnd, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomStart, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)DIALOGUE_ICON_TEXTURE_BUFFER, NULL, (u16*)DIALOGUE_ICON_PALETTE_BUFFER, (AnimationFrameMetadata*)DIALOGUE_ICON_ANIMATION_FRAME_METADATA_BUFFER, (u32*)DIALOGUE_ICON_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x86, 80.0f, 32.0f, 256.0f);
-    setBilinearFiltering(0x86, 1);
+    setBilinearFiltering(0x86, TRUE);
     setSpriteColor(0x86, 255, 255, 255, 255);
     startSpriteAnimation(0x86, 0, 0);
     
     dmaSprite(0x82, (u32)&_dialogueButtonIconsTextureSegmentRomStart, (u32)&_dialogueButtonIconsTextureSegmentRomEnd, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomStart, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)DIALOGUE_ICON_TEXTURE_BUFFER, NULL, (u16*)DIALOGUE_ICON_PALETTE_BUFFER, (AnimationFrameMetadata*)DIALOGUE_ICON_ANIMATION_FRAME_METADATA_BUFFER, (u32*)DIALOGUE_ICON_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x82, 80.0f, 32.0f, 256.0f);
-    setBilinearFiltering(0x82, 1);
+    setBilinearFiltering(0x82, TRUE);
     setSpriteColor(0x82, 255, 255, 255, 255);
     startSpriteAnimation(0x82, 0, 1);
     
     dmaSprite(0x83, (u32)&_dialogueButtonIconsTextureSegmentRomStart, (u32)&_dialogueButtonIconsTextureSegmentRomEnd, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomStart, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)DIALOGUE_ICON_TEXTURE_BUFFER, NULL, (u16*)DIALOGUE_ICON_PALETTE_BUFFER, (AnimationFrameMetadata*)DIALOGUE_ICON_ANIMATION_FRAME_METADATA_BUFFER, (u32*)DIALOGUE_ICON_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x83, 80.0f, 32.0f, 256.0f);
-    setBilinearFiltering(0x83, 1);
+    setBilinearFiltering(0x83, TRUE);
     setSpriteColor(0x83, 255, 255, 255, 255);
     startSpriteAnimation(0x83, 0, 3);
     
     dmaSprite(0x84, (u32)&_dialogueButtonIconsTextureSegmentRomStart, (u32)&_dialogueButtonIconsTextureSegmentRomEnd, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomStart, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)DIALOGUE_ICON_TEXTURE_BUFFER, NULL, (u16*)DIALOGUE_ICON_PALETTE_BUFFER, (AnimationFrameMetadata*)DIALOGUE_ICON_ANIMATION_FRAME_METADATA_BUFFER, (u32*)DIALOGUE_ICON_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x84, 80.0f, 32.0f, 256.0f);
-    setBilinearFiltering(0x84, 1);
+    setBilinearFiltering(0x84, TRUE);
     setSpriteColor(0x84, 255, 255, 255, 255);
     startSpriteAnimation(0x84, 0, 5);
     
     dmaSprite(0x85, (u32)&_dialogueButtonIconsTextureSegmentRomStart, (u32)&_dialogueButtonIconsTextureSegmentRomEnd, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomStart, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)DIALOGUE_ICON_TEXTURE_BUFFER, NULL, (u16*)DIALOGUE_ICON_PALETTE_BUFFER, (AnimationFrameMetadata*)DIALOGUE_ICON_ANIMATION_FRAME_METADATA_BUFFER, (u32*)DIALOGUE_ICON_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x85, 80.0f, 32.0f, 256.0f);
-    setBilinearFiltering(0x85, 1);
+    setBilinearFiltering(0x85, TRUE);
     setSpriteColor(0x85, 255, 255, 255, 255);
     startSpriteAnimation(0x85, 0, 7);
     
     updateTVCButtonsByChannel();
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", updateTVCButtonsByChannel);
 
 // update C buttons based on channel currently being watched
 void updateTVCButtonsByChannel(void) {
@@ -1033,7 +1027,6 @@ void updateTVCButtonsByChannel(void) {
 
 /* end TV functions */
 
-
 // set background plus + "g"
 static inline void setMoneySprites() {
 
@@ -1059,10 +1052,7 @@ static inline void setMoneySprites() {
 
 }
 
-
 /* shop functions */
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadShopIcons);
 
 void loadShopIcons(void) {
     
@@ -1111,8 +1101,6 @@ void loadShopIcons(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", updateShopBuyAnimation);
-
 void updateShopBuyAnimation(void) {
 
     if (!shopContext.buySelected) {
@@ -1135,8 +1123,6 @@ void updateShopBuyAnimation(void) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", updateShopQuantityArrows);
-
 void updateShopQuantityArrows(u8 arg0) {
     
     // background
@@ -1158,17 +1144,14 @@ void updateShopQuantityArrows(u8 arg0) {
 
 /* end shop functions */
 
-
 /* load game/select game functions */
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadDiarySelectScreen);
 
 void loadDiarySelectScreen(void) {
 
     dmaSprite(CHECKERBOARD_BACKGROUND, (u32)&_checkerboardBackgroundTextureSegmentRomStart, (u32)&_checkerboardBackgroundTextureSegmentRomEnd, (u32)&_checkerboardBackgroundAssetsIndexSegmentRomStart, (u32)&_checkerboardBackgroundAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_BACKGROUND_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_BACKGROUND_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_BACKGROUND_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_BACKGROUND_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(CHECKERBOARD_BACKGROUND, 0.0f, 0.0f, 0.0f);
     setSpriteScale(CHECKERBOARD_BACKGROUND, 2.0f, 2.0f, 1.0f);
-    setBilinearFiltering(CHECKERBOARD_BACKGROUND, 1);
+    setBilinearFiltering(CHECKERBOARD_BACKGROUND, TRUE);
     setSpriteColor(CHECKERBOARD_BACKGROUND, 0, 0, 0, 0);
     startSpriteAnimation(CHECKERBOARD_BACKGROUND, 0, 0);
     
@@ -1178,32 +1161,40 @@ void loadDiarySelectScreen(void) {
         dmaSprite(0x82, (u32)&_loadGameScreenTextureSegmentRomStart, (u32)&_loadGameScreenTextureSegmentRomEnd, (u32)&_loadGameScreenAssetsIndexSegmentRomStart, (u32)&_loadGameScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0x82, 0.0f, 0.0f, 8.0f);
         setSpriteColor(0x82, 0, 0, 0, 0);
-        setSpriteBlendMode(0x82, 3);
-        setBilinearFiltering(0x82, 1);
+        setSpriteBlendMode(0x82, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0x82, TRUE);
         startSpriteAnimation(0x82, 0, 0);
         
         // DELETE button
         dmaSprite(0x83, (u32)&_loadGameScreenTextureSegmentRomStart, (u32)&_loadGameScreenTextureSegmentRomEnd, (u32)&_loadGameScreenAssetsIndexSegmentRomStart, (u32)&_loadGameScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0x83, 0.0f, 0.0f, 8.0f);
         setSpriteColor(0x83, 0, 0, 0, 0);
-        setSpriteBlendMode(0x83, 3);
-        setBilinearFiltering(0x83, 1);
+        setSpriteBlendMode(0x83, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0x83, TRUE);
         startSpriteAnimation(0x83, 3, 0);
         
         // MOVE button
         dmaSprite(0x84, (u32)&_loadGameScreenTextureSegmentRomStart, (u32)&_loadGameScreenTextureSegmentRomEnd, (u32)&_loadGameScreenAssetsIndexSegmentRomStart, (u32)&_loadGameScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0x84, 0.0f, 0.0f, 8.0f);
         setSpriteColor(0x84, 0, 0, 0, 0);
-        setSpriteBlendMode(0x84, 3);
-        setBilinearFiltering(0x84, 1);
+        setSpriteBlendMode(0x84, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0x84, TRUE);
         startSpriteAnimation(0x84, 1, 0);
+
+        // Ranking button
+        dmaSprite(0xAD, (u32)&_loadGameScreenTextureSegmentRomStart, (u32)&_loadGameScreenTextureSegmentRomEnd, (u32)&_loadGameScreenAssetsIndexSegmentRomStart, (u32)&_loadGameScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
+        setSpriteViewSpacePosition(0xAD, 0.0f, 0.0f, 8.0f);
+        setSpriteColor(0xAD, 0, 0, 0, 0);
+        setSpriteBlendMode(0xAD, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0xAD, TRUE);
+        startSpriteAnimation(0xAD, 6, 0);
         
         // diary book 1
         dmaSprite(0xA3, (u32)&_loadGameScreenTextureSegmentRomStart, (u32)&_loadGameScreenTextureSegmentRomEnd, (u32)&_loadGameScreenAssetsIndexSegmentRomStart, (u32)&_loadGameScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0xA3, 0.0f, 0.0f, 8.0f);
         setSpriteColor(0xA3, 0, 0, 0, 0);
-        setSpriteBlendMode(0xA3, 3);
-        setBilinearFiltering(0xA3, 1);
+        setSpriteBlendMode(0xA3, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0xA3, TRUE);
         setSpritePaletteIndex(0xA3, 2);
         startSpriteAnimation(0xA3, 4, 0);
         
@@ -1211,8 +1202,8 @@ void loadDiarySelectScreen(void) {
         dmaSprite(0xA4, (u32)&_loadGameScreenTextureSegmentRomStart, (u32)&_loadGameScreenTextureSegmentRomEnd, (u32)&_loadGameScreenAssetsIndexSegmentRomStart, (u32)&_loadGameScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0xA4, 0.0f, -44.0f, 8.0f);
         setSpriteColor(0xA4, 0, 0, 0, 0);
-        setSpriteBlendMode(0xA4, 3);
-        setBilinearFiltering(0xA4, 1);
+        setSpriteBlendMode(0xA4, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0xA4, TRUE);
         setSpritePaletteIndex(0xA4, 3);
         startSpriteAnimation(0xA4, 4, 0);
         
@@ -1220,8 +1211,8 @@ void loadDiarySelectScreen(void) {
         dmaSprite(0xA5, (u32)&_loadGameScreenTextureSegmentRomStart, (u32)&_loadGameScreenTextureSegmentRomEnd, (u32)&_loadGameScreenAssetsIndexSegmentRomStart, (u32)&_loadGameScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0xA5, 0.0f, -88.0f, 8.0f);
         setSpriteColor(0xA5, 0, 0, 0, 0);
-        setSpriteBlendMode(0xA5, 3);
-        setBilinearFiltering(0xA5, 1);
+        setSpriteBlendMode(0xA5, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0xA5, TRUE);
         setSpritePaletteIndex(0xA5, 4);
         startSpriteAnimation(0xA5, 4, 0);
         
@@ -1229,8 +1220,8 @@ void loadDiarySelectScreen(void) {
         dmaSprite(0xA6, (u32)&_loadGameScreenTextureSegmentRomStart, (u32)&_loadGameScreenTextureSegmentRomEnd, (u32)&_loadGameScreenAssetsIndexSegmentRomStart, (u32)&_loadGameScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0xA6, 0.0f, -132.0f, 8.0f);
         setSpriteColor(0xA6, 0, 0, 0, 0);
-        setSpriteBlendMode(0xA6, 3);
-        setBilinearFiltering(0xA6, 1);
+        setSpriteBlendMode(0xA6, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0xA6, TRUE);
         setSpritePaletteIndex(0xA6, 5);
         startSpriteAnimation(0xA6, 4, 0);
         
@@ -1238,40 +1229,40 @@ void loadDiarySelectScreen(void) {
         dmaSprite(0xA7, (u32)&_loadGameScreenTextureSegmentRomStart, (u32)&_loadGameScreenTextureSegmentRomEnd, (u32)&_loadGameScreenAssetsIndexSegmentRomStart, (u32)&_loadGameScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0xA7, 0.0f, 0.0f, 16.0f);
         setSpriteColor(0xA7, 0, 0, 0, 0);
-        setSpriteBlendMode(0xA7, 3);
-        setBilinearFiltering(0xA7, 1);
+        setSpriteBlendMode(0xA7, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0xA7, TRUE);
         startSpriteAnimation(0xA7, 5, 0);
         
         // numbers
         dmaSprite(0xA8, (u32)&_loadGameScreenTextureSegmentRomStart, (u32)&_loadGameScreenTextureSegmentRomEnd, (u32)&_loadGameScreenAssetsIndexSegmentRomStart, (u32)&_loadGameScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0xA8, 0.0f, 0.0f, 16.0f);
         setSpriteColor(0xA8, 0, 0, 0, 0);
-        setSpriteBlendMode(0xA8, 3);
-        setBilinearFiltering(0xA8, 1);
+        setSpriteBlendMode(0xA8, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0xA8, TRUE);
         startSpriteAnimation(0xA8, 5, 2);
         
         // numbers
         dmaSprite(0xA9, (u32)&_loadGameScreenTextureSegmentRomStart, (u32)&_loadGameScreenTextureSegmentRomEnd, (u32)&_loadGameScreenAssetsIndexSegmentRomStart, (u32)&_loadGameScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0xA9, 0.0f, 0.0f, 16.0f);
         setSpriteColor(0xA9, 0, 0, 0, 0);
-        setSpriteBlendMode(0xA9, 3);
-        setBilinearFiltering(0xA9, 1);
+        setSpriteBlendMode(0xA9, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0xA9, TRUE);
         startSpriteAnimation(0xA9, 5, 4);
 
         // numbers
         dmaSprite(0xAA, (u32)&_loadGameScreenTextureSegmentRomStart, (u32)&_loadGameScreenTextureSegmentRomEnd, (u32)&_loadGameScreenAssetsIndexSegmentRomStart, (u32)&_loadGameScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0xAA, 0.0f, 0.0f, 16.0f);
         setSpriteColor(0xAA, 0, 0, 0, 0);
-        setSpriteBlendMode(0xAA, 3);
-        setBilinearFiltering(0xAA, 1);
+        setSpriteBlendMode(0xAA, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0xAA, TRUE);
         startSpriteAnimation(0xAA, 5, 6);
-        
+
         // row background
         dmaSprite(0x85, (u32)&_loadGameScreenTextureSegmentRomStart, (u32)&_loadGameScreenTextureSegmentRomEnd, (u32)&_loadGameScreenAssetsIndexSegmentRomStart, (u32)&_loadGameScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0x85, 0.0f, 0.0f, 4.0f);
         setSpriteColor(0x85, 0, 0, 0, 0);
-        setSpriteBlendMode(0x85, 3);
-        setBilinearFiltering(0x85, 1);
+        setSpriteBlendMode(0x85, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0x85, TRUE);
         setSpritePaletteIndex(0x85, 1);
         startSpriteAnimation(0x85, 2, 0);
         
@@ -1279,8 +1270,8 @@ void loadDiarySelectScreen(void) {
         dmaSprite(0x86, (u32)&_loadGameScreenTextureSegmentRomStart, (u32)&_loadGameScreenTextureSegmentRomEnd, (u32)&_loadGameScreenAssetsIndexSegmentRomStart, (u32)&_loadGameScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0x86, 0.0f, -44.0f, 4.0f);
         setSpriteColor(0x86, 0, 0, 0, 0);
-        setSpriteBlendMode(0x86, 3);
-        setBilinearFiltering(0x86, 1);
+        setSpriteBlendMode(0x86, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0x86, TRUE);
         setSpritePaletteIndex(0x86, 1);
         startSpriteAnimation(0x86, 2, 0);
         
@@ -1288,8 +1279,8 @@ void loadDiarySelectScreen(void) {
         dmaSprite(0x87, (u32)&_loadGameScreenTextureSegmentRomStart, (u32)&_loadGameScreenTextureSegmentRomEnd, (u32)&_loadGameScreenAssetsIndexSegmentRomStart, (u32)&_loadGameScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0x87, 0.0f, -88.0f, 4.0f);
         setSpriteColor(0x87, 0, 0, 0, 0);
-        setSpriteBlendMode(0x87, 3);
-        setBilinearFiltering(0x87, 1);
+        setSpriteBlendMode(0x87, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0x87, TRUE);
         setSpritePaletteIndex(0x87, 1);
         startSpriteAnimation(0x87, 2, 0);
         
@@ -1297,30 +1288,29 @@ void loadDiarySelectScreen(void) {
         dmaSprite(0x88, (u32)&_loadGameScreenTextureSegmentRomStart, (u32)&_loadGameScreenTextureSegmentRomEnd, (u32)&_loadGameScreenAssetsIndexSegmentRomStart, (u32)&_loadGameScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0x88, 0.0f, -132.0f, 4.0f);
         setSpriteColor(0x88, 0, 0, 0, 0);
-        setSpriteBlendMode(0x88, 3);
-        setBilinearFiltering(0x88, 1);
+        setSpriteBlendMode(0x88, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0x88, TRUE);
         setSpritePaletteIndex(0x88, 1);
         startSpriteAnimation(0x88, 2, 0);
         
         dmaSprite(CURSOR_HAND, (u32)&_dialogueButtonIconsTextureSegmentRomStart, (u32)&_dialogueButtonIconsTextureSegmentRomEnd, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomStart, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)DIALOGUE_ICON_TEXTURE_BUFFER, NULL, (u16*)DIALOGUE_ICON_PALETTE_BUFFER, (AnimationFrameMetadata*)DIALOGUE_ICON_ANIMATION_FRAME_METADATA_BUFFER, (u32*)DIALOGUE_ICON_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(CURSOR_HAND, 0.0f, 0.0f, 32.0f);
-        setBilinearFiltering(CURSOR_HAND, 1);
+        setBilinearFiltering(CURSOR_HAND, TRUE);
         setSpriteColor(CURSOR_HAND, 255, 255, 255, 255);
-        setSpriteBlendMode(CURSOR_HAND, 3);
+        setSpriteBlendMode(CURSOR_HAND, SPRITE_BLEND_ALPHA_DECAL);
         
         dmaSprite(0xB2, (u32)&_dialogueButtonIconsTextureSegmentRomStart, (u32)&_dialogueButtonIconsTextureSegmentRomEnd, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomStart, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)DIALOGUE_ICON_TEXTURE_BUFFER, NULL, (u16*)DIALOGUE_ICON_PALETTE_BUFFER, (AnimationFrameMetadata*)DIALOGUE_ICON_ANIMATION_FRAME_METADATA_BUFFER, (u32*)DIALOGUE_ICON_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0xB2, 0.0f, 0.0f, 32.0f);
-        setBilinearFiltering(0xB2, 1);
+        setBilinearFiltering(0xB2, TRUE);
         setSpriteColor(0xB2, 0xFF, 0xFF, 0xFF, 0x80);
         setSpriteBlendMode(0xB2, SPRITE_BLEND_ALPHA_MODULATED);
 
         dmaSprite(0xAC, (u32)&_dialogueButtonIconsTextureSegmentRomStart, (u32)&_dialogueButtonIconsTextureSegmentRomEnd, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomStart, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)DIALOGUE_ICON_TEXTURE_BUFFER, NULL, (u16*)DIALOGUE_ICON_PALETTE_BUFFER, (AnimationFrameMetadata*)DIALOGUE_ICON_ANIMATION_FRAME_METADATA_BUFFER, (u32*)DIALOGUE_ICON_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0xAC, 0.0f, 0.0f, 32.0f);
-        setBilinearFiltering(0xAC, 1);
+        setBilinearFiltering(0xAC, TRUE);
         setSpriteColor(0xAC, 255, 255, 255, 255);
-        setSpriteBlendMode(0xAC, 3);
+        setSpriteBlendMode(0xAC, SPRITE_BLEND_ALPHA_DECAL);
         
-        // arrows
         loadNavigationArrows();
         
     } else {
@@ -1329,41 +1319,48 @@ void loadDiarySelectScreen(void) {
         dmaSprite(0x82, (u32)&_loadGameScreenTextureSegmentRomStart, (u32)&_loadGameScreenTextureSegmentRomEnd, (u32)&_loadGameScreenAssetsIndexSegmentRomStart, (u32)&_loadGameScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0x82, 0.0f, 0.0f, 8.0f);
         setSpriteColor(0x82, 0, 0, 0, 0);
-        setSpriteBlendMode(0x82, 3);
-        setBilinearFiltering(0x82, 1);
+        setSpriteBlendMode(0x82, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0x82, TRUE);
         startSpriteAnimation(0x82, 7, 0);
         
         // DELETE button
         dmaSprite(0x83, (u32)&_loadGameScreenTextureSegmentRomStart, (u32)&_loadGameScreenTextureSegmentRomEnd, (u32)&_loadGameScreenAssetsIndexSegmentRomStart, (u32)&_loadGameScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0x83, 0.0f, 0.0f, 8.0f);
         setSpriteColor(0x83, 0, 0, 0, 0);
-        setSpriteBlendMode(0x83, 3);
-        setBilinearFiltering(0x83, 1);
+        setSpriteBlendMode(0x83, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0x83, TRUE);
         startSpriteAnimation(0x83, 3, 0);
         
         // MOVE button
         dmaSprite(0x84, (u32)&_loadGameScreenTextureSegmentRomStart, (u32)&_loadGameScreenTextureSegmentRomEnd, (u32)&_loadGameScreenAssetsIndexSegmentRomStart, (u32)&_loadGameScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0x84, 0.0f, 0.0f, 8.0f);
         setSpriteColor(0x84, 0, 0, 0, 0);
-        setSpriteBlendMode(0x84, 3);
-        setBilinearFiltering(0x84, 1);
+        setSpriteBlendMode(0x84, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0x84, TRUE);
         startSpriteAnimation(0x84, 1, 0);
-        
+
+        dmaSprite(0xAD, (u32)&_loadGameScreenTextureSegmentRomStart, (u32)&_loadGameScreenTextureSegmentRomEnd, (u32)&_loadGameScreenAssetsIndexSegmentRomStart, (u32)&_loadGameScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
+        setSpriteViewSpacePosition(0xAD, 0.0f, 0.0f, 8.0f);
+        setSpriteColor(0xAD, 0, 0, 0, 0);
+        setSpriteBlendMode(0xAD, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0xAD, TRUE);
+        startSpriteAnimation(0xAD, 6, 0);
+
         // data book icons
 
         dmaSprite(0xA3, (u32)&_loadGameScreenTextureSegmentRomStart, (u32)&_loadGameScreenTextureSegmentRomEnd, (u32)&_loadGameScreenAssetsIndexSegmentRomStart, (u32)&_loadGameScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0xA3, 0.0f, 0.0f, 8.0f);
         setSpriteColor(0xA3, 0, 0, 0, 0);
-        setSpriteBlendMode(0xA3, 3);
-        setBilinearFiltering(0xA3, 1);
+        setSpriteBlendMode(0xA3, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0xA3, TRUE);
         setSpritePaletteIndex(0xA3, 2);
         startSpriteAnimation(0xA3, 8, 0);
         
         dmaSprite(0xA4, (u32)&_loadGameScreenTextureSegmentRomStart, (u32)&_loadGameScreenTextureSegmentRomEnd, (u32)&_loadGameScreenAssetsIndexSegmentRomStart, (u32)&_loadGameScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0xA4, 0.0f, -44.0f, 8.0f);
         setSpriteColor(0xA4, 0, 0, 0, 0);
-        setSpriteBlendMode(0xA4, 3);
-        setBilinearFiltering(0xA4, 1);
+        setSpriteBlendMode(0xA4, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0xA4, TRUE);
         setSpritePaletteIndex(0xA4, 3);
         startSpriteAnimation(0xA4, 8, 0);
         
@@ -1372,31 +1369,31 @@ void loadDiarySelectScreen(void) {
         dmaSprite(0xA7, (u32)&_loadGameScreenTextureSegmentRomStart, (u32)&_loadGameScreenTextureSegmentRomEnd, (u32)&_loadGameScreenAssetsIndexSegmentRomStart, (u32)&_loadGameScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0xA7, 0.0f, 0.0f, 16.0f);
         setSpriteColor(0xA7, 0, 0, 0, 0);
-        setSpriteBlendMode(0xA7, 3);
-        setBilinearFiltering(0xA7, 1);
+        setSpriteBlendMode(0xA7, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0xA7, TRUE);
         startSpriteAnimation(0xA7, 5, 0);
         
         dmaSprite(0xA8, (u32)&_loadGameScreenTextureSegmentRomStart, (u32)&_loadGameScreenTextureSegmentRomEnd, (u32)&_loadGameScreenAssetsIndexSegmentRomStart, (u32)&_loadGameScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0xA8, 0.0f, 0.0f, 16.0f);
         setSpriteColor(0xA8, 0, 0, 0, 0);
-        setSpriteBlendMode(0xA8, 3);
-        setBilinearFiltering(0xA8, 1);
+        setSpriteBlendMode(0xA8, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0xA8, TRUE);
         startSpriteAnimation(0xA8, 5, 2);
         
         // extra rows for game pak
         dmaSprite(0x85, (u32)&_loadGameScreenTextureSegmentRomStart, (u32)&_loadGameScreenTextureSegmentRomEnd, (u32)&_loadGameScreenAssetsIndexSegmentRomStart, (u32)&_loadGameScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0x85, 0.0f, 0.0f, 4.0f);
         setSpriteColor(0x85, 0, 0, 0, 0);
-        setSpriteBlendMode(0x85, 3);
-        setBilinearFiltering(0x85, 1);
+        setSpriteBlendMode(0x85, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0x85, TRUE);
         setSpritePaletteIndex(0x85, 1);
         startSpriteAnimation(0x85, 2, 0);
         
         dmaSprite(0x86, (u32)&_loadGameScreenTextureSegmentRomStart, (u32)&_loadGameScreenTextureSegmentRomEnd, (u32)&_loadGameScreenAssetsIndexSegmentRomStart, (u32)&_loadGameScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0x86, 0.0f, -44.0f, 4.0f);
         setSpriteColor(0x86, 0, 0, 0, 0);
-        setSpriteBlendMode(0x86, 3);
-        setBilinearFiltering(0x86, 1);
+        setSpriteBlendMode(0x86, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0x86, TRUE);
         setSpritePaletteIndex(0x86, 1);
         startSpriteAnimation(0x86, 2, 0);
         
@@ -1404,27 +1401,27 @@ void loadDiarySelectScreen(void) {
         dmaSprite(0xAB, (u32)&_loadGameScreenTextureSegmentRomStart, (u32)&_loadGameScreenTextureSegmentRomEnd, (u32)&_loadGameScreenAssetsIndexSegmentRomStart, (u32)&_loadGameScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0xAB, 0.0f, 0.0f, 8.0f);
         setSpriteColor(0xAB, 0, 0, 0, 0);
-        setSpriteBlendMode(0xAB, 3);
-        setBilinearFiltering(0xAB, 1);
+        setSpriteBlendMode(0xAB, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0xAB, TRUE);
         startSpriteAnimation(0xAB, 9, 0);
         
         dmaSprite(CURSOR_HAND, (u32)&_dialogueButtonIconsTextureSegmentRomStart, (u32)&_dialogueButtonIconsTextureSegmentRomEnd, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomStart, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)DIALOGUE_ICON_TEXTURE_BUFFER, NULL, (u16*)DIALOGUE_ICON_PALETTE_BUFFER, (AnimationFrameMetadata*)DIALOGUE_ICON_ANIMATION_FRAME_METADATA_BUFFER, (u32*)DIALOGUE_ICON_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(CURSOR_HAND, 0.0f, 0.0f, 32.0f);
-        setBilinearFiltering(CURSOR_HAND, 1);
+        setBilinearFiltering(CURSOR_HAND, TRUE);
         setSpriteColor(CURSOR_HAND, 255, 255, 255, 255);
-        setSpriteBlendMode(CURSOR_HAND, 3);
+        setSpriteBlendMode(CURSOR_HAND, SPRITE_BLEND_ALPHA_DECAL);
         
         dmaSprite(0xB2, (u32)&_dialogueButtonIconsTextureSegmentRomStart, (u32)&_dialogueButtonIconsTextureSegmentRomEnd, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomStart, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)DIALOGUE_ICON_TEXTURE_BUFFER, NULL, (u16*)DIALOGUE_ICON_PALETTE_BUFFER, (AnimationFrameMetadata*)DIALOGUE_ICON_ANIMATION_FRAME_METADATA_BUFFER, (u32*)DIALOGUE_ICON_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0xB2, 0.0f, 0.0f, 32.0f);
-        setBilinearFiltering(0xB2, 1);
+        setBilinearFiltering(0xB2, TRUE);
         setSpriteColor(0xB2, 0xFF, 0xFF, 0xFF, 0x80);
         setSpriteBlendMode(0xB2, SPRITE_BLEND_ALPHA_MODULATED);
 
         dmaSprite(0xAC, (u32)&_dialogueButtonIconsTextureSegmentRomStart, (u32)&_dialogueButtonIconsTextureSegmentRomEnd, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomStart, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)DIALOGUE_ICON_TEXTURE_BUFFER, NULL, (u16*)DIALOGUE_ICON_PALETTE_BUFFER, (AnimationFrameMetadata*)DIALOGUE_ICON_ANIMATION_FRAME_METADATA_BUFFER, (u32*)DIALOGUE_ICON_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0xAC, 0.0f, 0.0f, 32.0f);
-        setBilinearFiltering(0xAC, 1);
+        setBilinearFiltering(0xAC, TRUE);
         setSpriteColor(0xAC, 255, 255, 255, 255);
-        setSpriteBlendMode(0xAC, 3);
+        setSpriteBlendMode(0xAC, SPRITE_BLEND_ALPHA_DECAL);
         
         loadNavigationArrows();
         
@@ -1432,13 +1429,12 @@ void loadDiarySelectScreen(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeInLoadGameScreen);
-
 void fadeInLoadGameScreen(void) {
     updateSpriteRGBA(0x80, 255, 255, 255, 255, 24);
     updateSpriteRGBA(0x82, 255, 255, 255, 255, 24);
     updateSpriteRGBA(0x83, 255, 255, 255, 255, 24);
     updateSpriteRGBA(0x84, 255, 255, 255, 255, 24);
+    updateSpriteRGBA(0xA2, 255, 255, 255, 255, 24);
     updateSpriteRGBA(0xA3, 255, 255, 255, 255, 24);
     updateSpriteRGBA(0xA4, 255, 255, 255, 255, 24);
     updateSpriteRGBA(0xA5, 255, 255, 255, 255, 24);
@@ -1454,8 +1450,6 @@ void fadeInLoadGameScreen(void) {
     updateSpriteRGBA(0xAB, 255, 255, 255, 255, 24);
     updateSpriteRGBA(0xAD, 255, 255, 255, 255, 24);
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", setLoadGameScreenFullAlpha);
 
 void setLoadGameScreenFullAlpha(void) {
     setSpriteColor(0x80, 255, 255, 255, 255);
@@ -1478,13 +1472,12 @@ void setLoadGameScreenFullAlpha(void) {
     setSpriteColor(0xAD, 255, 255, 255, 255);
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeOutLoadGameScreen);
-
 void fadeOutLoadGameScreen(void) {
     updateSpriteRGBA(0x80, 0, 0, 0, 0, 24);
     updateSpriteRGBA(0x82, 0, 0, 0, 0, 24);
     updateSpriteRGBA(0x83, 0, 0, 0, 0, 24);
     updateSpriteRGBA(0x84, 0, 0, 0, 0, 24);
+    updateSpriteRGBA(0xA2, 0, 0, 0, 0, 24);
     updateSpriteRGBA(0xA3, 0, 0, 0, 0, 24);
     updateSpriteRGBA(0xA4, 0, 0, 0, 0, 24);
     updateSpriteRGBA(0xA5, 0, 0, 0, 0, 24);
@@ -1500,8 +1493,6 @@ void fadeOutLoadGameScreen(void) {
     updateSpriteRGBA(0xAB, 0, 0, 0, 0, 24);
     updateSpriteRGBA(0xAD, 0, 0, 0, 0, 24);
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", setDiaryCursorPosition);
 
 void setDiaryCursorPosition(u8 arg0, u8 diaryHighlighted, u8 actionColumnHighlighted) {
 
@@ -1536,8 +1527,6 @@ void setDiaryCursorPosition(u8 arg0, u8 diaryHighlighted, u8 actionColumnHighlig
         }
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", updateDiaryHighlighted);
 
 void updateDiaryHighlighted(u8 diaryHighlighted, u8 actionColumnHighlighted, bool arg2) {
 
@@ -1703,8 +1692,6 @@ void updateDiaryHighlighted(u8 diaryHighlighted, u8 actionColumnHighlighted, boo
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", animateDiarySelected);
-
 void animateDiarySelected(u8 diaryHighlighted, u8 actionColumnHighlighted) {
 
     if (!loadGameScreenContext.showControllerPakScreen) {
@@ -1776,10 +1763,7 @@ void animateDiarySelected(u8 diaryHighlighted, u8 actionColumnHighlighted) {
     
 }
 
-
 /* farm ranking functions */
-
-// INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadFarmRankingsListScreen);
 
 void loadFarmRankingsListScreen(void) {
     
@@ -1787,7 +1771,7 @@ void loadFarmRankingsListScreen(void) {
     dmaSprite(0x80, (u32)&_namingScreenBackgroundTextureSegmentRomStart, (u32)&_namingScreenBackgroundTextureSegmentRomEnd, (u32)&_namingScreenBackgroundAssetsIndexSegmentRomStart, (u32)&_namingScreenBackgroundAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_BACKGROUND_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_BACKGROUND_PALETTE_BUFFER, (u32*)OVERLAY_SCREEN_BACKGROUND_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_BACKGROUND_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x80, 0.0f, 0.0f, 0.0f);
     setSpriteScale(0x80, 2.0f, 2.0f, 1.0f);
-    setBilinearFiltering(0x80, 1);
+    setBilinearFiltering(0x80, TRUE);
     setSpriteColor(0x80, 0, 0, 0, 0);
     startSpriteAnimation(0x80, 0, 0);
     
@@ -1796,43 +1780,43 @@ void loadFarmRankingsListScreen(void) {
     setSpriteViewSpacePosition(0x82, 0.0f, 0.0f, 8.0f);
     setSpriteColor(0x82, 0, 0, 0, 0);
     setSpriteBlendMode(0x82, SPRITE_BLEND_ALPHA_MODULATED);
-    setBilinearFiltering(0x82, 1);
+    setBilinearFiltering(0x82, TRUE);
     startSpriteAnimation(0x82, 0, 0);
     
     // slots
     dmaSprite(0x83, (u32)&_rankingsTextureSegmentRomStart, (u32)&_rankingsTextureSegmentRomEnd, (u32)&_rankingsAssetsIndexSegmentRomStart, (u32)&_rankingsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x83, 0.0f, 40.0f, 8.0f);
     setSpriteColor(0x83, 0, 0, 0, 0);
-    setSpriteBlendMode(0x83, 3);
-    setBilinearFiltering(0x83, 1);
+    setSpriteBlendMode(0x83, SPRITE_BLEND_ALPHA_DECAL);
+    setBilinearFiltering(0x83, TRUE);
     startSpriteAnimation(0x83, 1, 0);
     
     dmaSprite(0x84, (u32)&_rankingsTextureSegmentRomStart, (u32)&_rankingsTextureSegmentRomEnd, (u32)&_rankingsAssetsIndexSegmentRomStart, (u32)&_rankingsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x84, 0.0f, 8.0f, 8.0f);
     setSpriteColor(0x84, 0, 0, 0, 0);
-    setSpriteBlendMode(0x84, 3);
-    setBilinearFiltering(0x84, 1);
+    setSpriteBlendMode(0x84, SPRITE_BLEND_ALPHA_DECAL);
+    setBilinearFiltering(0x84, TRUE);
     startSpriteAnimation(0x84, 1, 1);
     
     dmaSprite(0x85, (u32)&_rankingsTextureSegmentRomStart, (u32)&_rankingsTextureSegmentRomEnd, (u32)&_rankingsAssetsIndexSegmentRomStart, (u32)&_rankingsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x85, 0.0f, -24.0f, 8.0f);
     setSpriteColor(0x85, 0, 0, 0, 0);
-    setSpriteBlendMode(0x85, 3);
-    setBilinearFiltering(0x85, 1);
+    setSpriteBlendMode(0x85, SPRITE_BLEND_ALPHA_DECAL);
+    setBilinearFiltering(0x85, TRUE);
     startSpriteAnimation(0x85, 1, 2);
     
     dmaSprite(0x86, (u32)&_rankingsTextureSegmentRomStart, (u32)&_rankingsTextureSegmentRomEnd, (u32)&_rankingsAssetsIndexSegmentRomStart, (u32)&_rankingsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x86, 0.0f, -56.0f, 8.0f);
     setSpriteColor(0x86, 0, 0, 0, 0);
-    setSpriteBlendMode(0x86, 3);
-    setBilinearFiltering(0x86, 1);
+    setSpriteBlendMode(0x86, SPRITE_BLEND_ALPHA_DECAL);
+    setBilinearFiltering(0x86, TRUE);
     startSpriteAnimation(0x86, 1, 3);
     
     dmaSprite(0x87, (u32)&_rankingsTextureSegmentRomStart, (u32)&_rankingsTextureSegmentRomEnd, (u32)&_rankingsAssetsIndexSegmentRomStart, (u32)&_rankingsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x87, 0.0f, -88.0f, 8.0f);
     setSpriteColor(0x87, 0, 0, 0, 0);
-    setSpriteBlendMode(0x87, 3);
-    setBilinearFiltering(0x87, 1);
+    setSpriteBlendMode(0x87, SPRITE_BLEND_ALPHA_DECAL);
+    setBilinearFiltering(0x87, TRUE);
     startSpriteAnimation(0x87, 1, 4);
 
     // if slot has active game, load sprite
@@ -1841,8 +1825,8 @@ void loadFarmRankingsListScreen(void) {
         dmaSprite(0xAE, (u32)&_rankingsTextureSegmentRomStart, (u32)&_rankingsTextureSegmentRomEnd, (u32)&_rankingsAssetsIndexSegmentRomStart, (u32)&_rankingsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0xAE, -4.0f, 40.0f, 16.0f);
         setSpriteColor(0xAE, 0, 0, 0, 0);
-        setSpriteBlendMode(0xAE, 3);
-        setBilinearFiltering(0xAE, 1);
+        setSpriteBlendMode(0xAE, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0xAE, TRUE);
         startSpriteAnimation(0xAE, 7, gFarmRankingData.seasons[0] - 1);
     }
     
@@ -1850,8 +1834,8 @@ void loadFarmRankingsListScreen(void) {
         dmaSprite(0xAF, (u32)&_rankingsTextureSegmentRomStart, (u32)&_rankingsTextureSegmentRomEnd, (u32)&_rankingsAssetsIndexSegmentRomStart, (u32)&_rankingsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0xAF, -4.0f, 8.0f, 16.0f);
         setSpriteColor(0xAF, 0, 0, 0, 0);
-        setSpriteBlendMode(0xAF, 3);
-        setBilinearFiltering(0xAF, 1);
+        setSpriteBlendMode(0xAF, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0xAF, TRUE);
         startSpriteAnimation(0xAF, 7, gFarmRankingData.seasons[1] - 1);
     }
     
@@ -1859,8 +1843,8 @@ void loadFarmRankingsListScreen(void) {
         dmaSprite(0xB0, (u32)&_rankingsTextureSegmentRomStart, (u32)&_rankingsTextureSegmentRomEnd, (u32)&_rankingsAssetsIndexSegmentRomStart, (u32)&_rankingsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0xB0, -4.0f, -24.0f, 16.0f);
         setSpriteColor(0xB0, 0, 0, 0, 0);
-        setSpriteBlendMode(0xB0, 3);
-        setBilinearFiltering(0xB0, 1);
+        setSpriteBlendMode(0xB0, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0xB0, TRUE);
         startSpriteAnimation(0xB0, 7, gFarmRankingData.seasons[2] - 1);
     }
     
@@ -1868,8 +1852,8 @@ void loadFarmRankingsListScreen(void) {
         dmaSprite(0xB1, (u32)&_rankingsTextureSegmentRomStart, (u32)&_rankingsTextureSegmentRomEnd, (u32)&_rankingsAssetsIndexSegmentRomStart, (u32)&_rankingsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0xB1, -4.0f, -56.0f, 16.0f);
         setSpriteColor(0xB1, 0, 0, 0, 0);
-        setSpriteBlendMode(0xB1, 3);
-        setBilinearFiltering(0xB1, 1);
+        setSpriteBlendMode(0xB1, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0xB1, TRUE);
         startSpriteAnimation(0xB1, 7, gFarmRankingData.seasons[3] - 1);
     }
     
@@ -1877,20 +1861,18 @@ void loadFarmRankingsListScreen(void) {
         dmaSprite(0xB2, (u32)&_rankingsTextureSegmentRomStart, (u32)&_rankingsTextureSegmentRomEnd, (u32)&_rankingsAssetsIndexSegmentRomStart, (u32)&_rankingsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0xB2, -4.0f, -88.0f, 16.0f);
         setSpriteColor(0xB2, 0, 0, 0, 0);
-        setSpriteBlendMode(0xB2, 3);
-        setBilinearFiltering(0xB2, 1);
+        setSpriteBlendMode(0xB2, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0xB2, TRUE);
         startSpriteAnimation(0xB2, 7, gFarmRankingData.seasons[4] - 1);
     }
     
     dmaSprite(CURSOR_HAND, (u32)&_dialogueButtonIconsTextureSegmentRomStart, (u32)&_dialogueButtonIconsTextureSegmentRomEnd, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomStart, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)DIALOGUE_ICON_TEXTURE_BUFFER, NULL, (u16*)DIALOGUE_ICON_PALETTE_BUFFER, (AnimationFrameMetadata*)DIALOGUE_ICON_ANIMATION_FRAME_METADATA_BUFFER, (u32*)DIALOGUE_ICON_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(CURSOR_HAND, 0.0f, 0.0f, 32.0f);
-    setBilinearFiltering(CURSOR_HAND, 1);
+    setBilinearFiltering(CURSOR_HAND, TRUE);
     setSpriteColor(CURSOR_HAND, 255, 255, 255, 255);
-    setSpriteBlendMode(CURSOR_HAND, 3);
+    setSpriteBlendMode(CURSOR_HAND, SPRITE_BLEND_ALPHA_DECAL);
     
 }
-
-// INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadIndividualRankingScreen);
 
 // individual ranking screen
 void loadIndividualRankingScreen(u8 arg0) {
@@ -1899,8 +1881,8 @@ void loadIndividualRankingScreen(u8 arg0) {
     dmaSprite(0x82, (u32)&_rankingsTextureSegmentRomStart, (u32)&_rankingsTextureSegmentRomEnd, (u32)&_rankingsAssetsIndexSegmentRomStart, (u32)&_rankingsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x82, 0.0f, 80.0f, 8.0f);
     setSpriteColor(0x82, 255, 255, 255, 255);
-    setSpriteBlendMode(0x82, 3);
-    setBilinearFiltering(0x82, 1);
+    setSpriteBlendMode(0x82, SPRITE_BLEND_ALPHA_DECAL);
+    setBilinearFiltering(0x82, TRUE);
     startSpriteAnimation(0x82, 1, arg0);
     
     // "Farm ranking" and background
@@ -1908,7 +1890,7 @@ void loadIndividualRankingScreen(u8 arg0) {
     setSpriteViewSpacePosition(0x81, 0.0f, -16.0f, 8.0f);
     setSpriteColor(0x81, 255, 255, 255, 255);
     setSpriteBlendMode(0x81, SPRITE_BLEND_ALPHA_MODULATED);
-    setBilinearFiltering(0x81, 1);
+    setBilinearFiltering(0x81, TRUE);
     startSpriteAnimation(0x81, 0, 0);
     
     // player icon
@@ -1916,7 +1898,7 @@ void loadIndividualRankingScreen(u8 arg0) {
     setSpriteViewSpacePosition(0x83, 0.0f, 0.0f, 8.0f);
     setSpriteColor(0x83, 255, 255, 255, 255);
     setSpriteBlendMode(0x83, SPRITE_BLEND_ALPHA_MODULATED);
-    setBilinearFiltering(0x83, 1);
+    setBilinearFiltering(0x83, TRUE);
     startSpriteAnimation(0x83, 2, 0);
 
     if (gFarmRankingData.flags[arg0] & RANKING_FLAG_MARRIED) {
@@ -1924,16 +1906,16 @@ void loadIndividualRankingScreen(u8 arg0) {
         dmaSprite(0x84, (u32)&_rankingsTextureSegmentRomStart, (u32)&_rankingsTextureSegmentRomEnd, (u32)&_rankingsAssetsIndexSegmentRomStart, (u32)&_rankingsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0x84, 0.0f, 0.0f, 8.0f);
         setSpriteColor(0x84, 255, 255, 255, 255);
-        setSpriteBlendMode(0x84, 3);
-        setBilinearFiltering(0x84, 1);
+        setSpriteBlendMode(0x84, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0x84, TRUE);
         // get frame based on wife
         startSpriteAnimation(0x84, 3, gFarmRankingData.wife[arg0]);
         
         dmaSprite(0xAE, (u32)&_rankingsTextureSegmentRomStart, (u32)&_rankingsTextureSegmentRomEnd, (u32)&_rankingsAssetsIndexSegmentRomStart, (u32)&_rankingsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0xAE, 0.0f, 32.0f, 8.0f);
         setSpriteColor(0xAE, 255, 255, 255, 255);
-        setSpriteBlendMode(0xAE, 3);
-        setBilinearFiltering(0xAE, 1);
+        setSpriteBlendMode(0xAE, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0xAE, TRUE);
         
         if (gFarmRankingData.wifeAffection[arg0] == 0xFF) {
             startSpriteAnimation(0xAE, 6, 0xFE);
@@ -1949,16 +1931,16 @@ void loadIndividualRankingScreen(u8 arg0) {
         dmaSprite(0x85, (u32)&_rankingsTextureSegmentRomStart, (u32)&_rankingsTextureSegmentRomEnd, (u32)&_rankingsAssetsIndexSegmentRomStart, (u32)&_rankingsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0x85, 0.0f, 0.0f, 8.0f);
         setSpriteColor(0x85, 255, 255, 255, 255);
-        setSpriteBlendMode(0x85, 3);
-        setBilinearFiltering(0x85, 1);
+        setSpriteBlendMode(0x85, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0x85, TRUE);
         startSpriteAnimation(0x85, 3, 5);
         
         // heart
         dmaSprite(0xAF, (u32)&_rankingsTextureSegmentRomStart, (u32)&_rankingsTextureSegmentRomEnd, (u32)&_rankingsAssetsIndexSegmentRomStart, (u32)&_rankingsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0xAF, 0.0f, 16.0f, 8.0f);
         setSpriteColor(0xAF, 255, 255, 255, 255);
-        setSpriteBlendMode(0xAF, 3);
-        setBilinearFiltering(0xAF, 1);
+        setSpriteBlendMode(0xAF, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0xAF, TRUE);
 
         if (gFarmRankingData.babyAffection[arg0] == 0xFF) {
             startSpriteAnimation(0xAF, 6, 0xFE);
@@ -1974,16 +1956,16 @@ void loadIndividualRankingScreen(u8 arg0) {
         dmaSprite(0x86, (u32)&_rankingsTextureSegmentRomStart, (u32)&_rankingsTextureSegmentRomEnd, (u32)&_rankingsAssetsIndexSegmentRomStart, (u32)&_rankingsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0x86, 0.0f, 0.0f, 8.0f);
         setSpriteColor(0x86, 255, 255, 255, 255);
-        setSpriteBlendMode(0x86, 3);
-        setBilinearFiltering(0x86, 1);
+        setSpriteBlendMode(0x86, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0x86, TRUE);
         startSpriteAnimation(0x86, 3, 6);
         
         // heart
         dmaSprite(0xB1, (u32)&_rankingsTextureSegmentRomStart, (u32)&_rankingsTextureSegmentRomEnd, (u32)&_rankingsAssetsIndexSegmentRomStart, (u32)&_rankingsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0xB1, 0.0f, -16.0f, 8.0f);
         setSpriteColor(0xB1, 255, 255, 255, 255);
-        setSpriteBlendMode(0xB1, 3);
-        setBilinearFiltering(0xB1, 1);
+        setSpriteBlendMode(0xB1, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0xB1, TRUE);
         
         // hearts
         if (gFarmRankingData.horseAffection[arg0] == 0xFF) {
@@ -1999,8 +1981,8 @@ void loadIndividualRankingScreen(u8 arg0) {
     dmaSprite(0xB0, (u32)&_rankingsTextureSegmentRomStart, (u32)&_rankingsTextureSegmentRomEnd, (u32)&_rankingsAssetsIndexSegmentRomStart, (u32)&_rankingsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0xB0, 0.0f, 0.0f, 8.0f);
     setSpriteColor(0xB0, 255, 255, 255, 255);
-    setSpriteBlendMode(0xB0, 3);
-    setBilinearFiltering(0xB0, 1);
+    setSpriteBlendMode(0xB0, SPRITE_BLEND_ALPHA_DECAL);
+    setBilinearFiltering(0xB0, TRUE);
     
     if (gFarmRankingData.dogAffection[arg0] == 0xFF) {
         startSpriteAnimation(0xB0, 6, 0xFE);
@@ -2012,14 +1994,12 @@ void loadIndividualRankingScreen(u8 arg0) {
         dmaSprite(0xB2, (u32)&_rankingsTextureSegmentRomStart, (u32)&_rankingsTextureSegmentRomEnd, (u32)&_rankingsAssetsIndexSegmentRomStart, (u32)&_rankingsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0xB2, -4.0f, 80.0f, 16.0f);
         setSpriteColor(0xB2, 255, 255, 255, 255);
-        setSpriteBlendMode(0xB2, 3);
-        setBilinearFiltering(0xB2, 1);
+        setSpriteBlendMode(0xB2, SPRITE_BLEND_ALPHA_DECAL);
+        setBilinearFiltering(0xB2, TRUE);
         startSpriteAnimation(0xB2, 7, gFarmRankingData.seasons[arg0] - 1);
     }
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeInFarmRankingScreen);
 
 void fadeInFarmRankingScreen(void) {
     updateSpriteRGBA(0x80, 255, 255, 255, 255, 24);
@@ -2036,8 +2016,6 @@ void fadeInFarmRankingScreen(void) {
     updateSpriteRGBA(0xB2, 255, 255, 255, 255, 24);
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeOutFarmRankingScreen);
-
 void fadeOutFarmRankingScreen(void) {
     updateSpriteRGBA(0x80, 0, 0, 0, 0, 24);
     updateSpriteRGBA(0x82, 0, 0, 0, 0, 24);
@@ -2052,8 +2030,6 @@ void fadeOutFarmRankingScreen(void) {
     updateSpriteRGBA(0xB1, 0, 0, 0, 0, 24);
     updateSpriteRGBA(0xB2, 0, 0, 0, 0, 24);
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", setFarmRankingScreenFullAlpha);
 
 void setFarmRankingScreenFullAlpha(void) {
     setSpriteColor(0x80, 255, 255, 255, 255);
@@ -2070,8 +2046,6 @@ void setFarmRankingScreenFullAlpha(void) {
     setSpriteColor(0xB2, 255, 255, 255, 255);
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", setFarmRankingCursorPosition);
-
 void setFarmRankingCursorPosition(u8 arg0) {
 
     if (arg0 != 0xFF) {
@@ -2081,8 +2055,6 @@ void setFarmRankingCursorPosition(u8 arg0) {
     startSpriteAnimation(CURSOR_HAND, 3, 0);
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", setFarmRankingItemPalette);
 
 void setFarmRankingItemPalette(u8 arg0, u8 arg1) {
 
@@ -2096,8 +2068,6 @@ void setFarmRankingItemPalette(u8 arg0, u8 arg1) {
 
 }
 
-
-
 static inline void initializeOverlayScreenTable(void) {
 
     overlayScreenTable.cellIndex = 0;
@@ -2108,11 +2078,8 @@ static inline void initializeOverlayScreenTable(void) {
 
 }
 
-
 /* main loop load screen callbacks */
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadEstimateScreenCallback);
- 
 void loadEstimateScreenCallback(void) {
     
     openOverlayScreen();
@@ -2129,8 +2096,6 @@ void loadEstimateScreenCallback(void) {
     setMainLoopCallbackFunctionIndex(ESTIMATE);
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadKitchenPictureCallback);
 
 void loadKitchenPictureCallback(void) {
 
@@ -2153,8 +2118,6 @@ void loadKitchenPictureCallback(void) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadHouseExtensionsSelectionCallback);
-
 void loadHouseExtensionsSelectionCallback(void) {
 
     openOverlayScreen();
@@ -2171,8 +2134,6 @@ void loadHouseExtensionsSelectionCallback(void) {
     setMainLoopCallbackFunctionIndex(HOME_EXTENSIONS_SELECT);
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadCalendarScreenCallback);
 
 void loadCalendarScreenCallback(void) {
 
@@ -2195,8 +2156,6 @@ void loadCalendarScreenCallback(void) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadRecipeBookScreenCallback);
-
 void loadRecipeBookScreenCallback(void) {
     
     openOverlayScreen();
@@ -2217,8 +2176,6 @@ void loadRecipeBookScreenCallback(void) {
     setMainLoopCallbackFunctionIndex(RECIPE_BOOK);
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadAlbumScreenCallback);
 
 void loadAlbumScreenCallback(void) {
     
@@ -2246,19 +2203,13 @@ void loadAlbumScreenCallback(void) {
     
 }
 
-
-
 /* pause screen functions */
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadPauseScreenCallback);
 
 // pause screen load callback
 void loadPauseScreenCallback(void) {
     openOverlayScreen();
     initializePauseScreenBackground();
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", initializePauseScreenBackground);
 
 void initializePauseScreenBackground(void) {
     
@@ -2279,8 +2230,6 @@ void initializePauseScreenBackground(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadPauseScreenSprites);
-
 void loadPauseScreenSprites(void) {
 
     // update misc. game state
@@ -2294,7 +2243,7 @@ void loadPauseScreenSprites(void) {
     setSpriteViewSpacePosition(0x83, 0.0f, 0.0f, 8.0f);
     setSpriteColor(0x83, 0xFF, 0xFF, 0xFF, 0);
     setSpriteBlendMode(0x83, SPRITE_BLEND_ALPHA_MODULATED);
-    setBilinearFiltering(0x83, 1);
+    setBilinearFiltering(0x83, TRUE);
     startSpriteAnimation(0x83, 0, 0);
 
     // tool/item slots
@@ -2302,7 +2251,7 @@ void loadPauseScreenSprites(void) {
     setSpriteViewSpacePosition(0x84, 0.0f, -80.0f, 8.0f);
     setSpriteColor(0x84, 0x80, 0x80, 0x80, 0);
     setSpriteBlendMode(0x84, SPRITE_BLEND_ALPHA_MODULATED);
-    setBilinearFiltering(0x84, 1);
+    setBilinearFiltering(0x84, TRUE);
     startSpriteAnimation(0x84, 0, 0);
     
     // key item slots
@@ -2310,7 +2259,7 @@ void loadPauseScreenSprites(void) {
     setSpriteViewSpacePosition(0x85, 0.0f, 0.0f, 8.0f);
     setSpriteColor(0x85, 0x80, 0x80, 0x80, 0);
     setSpriteBlendMode(0x85, SPRITE_BLEND_ALPHA_MODULATED);
-    setBilinearFiltering(0x85, 1);
+    setBilinearFiltering(0x85, TRUE);
     startSpriteAnimation(0x85, 1, 0);
     
     // tool and belongings labels
@@ -2326,7 +2275,7 @@ void loadPauseScreenSprites(void) {
     setSpriteViewSpacePosition(0x87, -28.0f, 80.0f, 8.0f);
     setSpriteColor(0x87, 0xFF, 0xFF, 0xFF, 0);
     setSpriteBlendMode(0x87, SPRITE_BLEND_ALPHA_MODULATED);
-    setBilinearFiltering(0x87, 1);
+    setBilinearFiltering(0x87, TRUE);
     startSpriteAnimation(0x87, 2, 0);
     setSpritePaletteIndex(0x87, 3);
     
@@ -2334,18 +2283,18 @@ void loadPauseScreenSprites(void) {
     setSpriteViewSpacePosition(0x88, 20.0f, 80.0f, 8.0f);
     setSpriteColor(0x88, 0xFF, 0xFF, 0xFF, 0);
     setSpriteBlendMode(0x88, SPRITE_BLEND_ALPHA_MODULATED);
-    setBilinearFiltering(0x88, 1);
+    setBilinearFiltering(0x88, TRUE);
     startSpriteAnimation(0x88, 2, 0);
     setSpritePaletteIndex(0x88, 2);
     
     dmaSprite(CURSOR_HAND, (u32)&_dialogueButtonIconsTextureSegmentRomStart, (u32)&_dialogueButtonIconsTextureSegmentRomEnd, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomStart, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)DIALOGUE_ICON_TEXTURE_BUFFER, NULL, (u16*)DIALOGUE_ICON_PALETTE_BUFFER, (AnimationFrameMetadata*)DIALOGUE_ICON_ANIMATION_FRAME_METADATA_BUFFER, (u32*)DIALOGUE_ICON_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
-    setBilinearFiltering(CURSOR_HAND, 1);
+    setBilinearFiltering(CURSOR_HAND, TRUE);
     setSpriteColor(CURSOR_HAND, 255, 255, 255, 255);
     
     // selected tool/item
     dmaSprite(0x82, (u32)&_inventoryScreenTextureSegmentRomStart, (u32)&_inventoryScreenTextureSegmentRomEnd, (u32)&_inventoryScreenAssetsIndexSegmentRomStart, (u32)&_inventoryScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x82, 0.0f, 0.0f, 24.0f);
-    setBilinearFiltering(0x82, 1);
+    setBilinearFiltering(0x82, TRUE);
     setSpriteColor(0x82, 255, 255, 255, 255);
     
     loadNavigationArrows();
@@ -2353,8 +2302,6 @@ void loadPauseScreenSprites(void) {
     fadeInPauseScreenSprites();
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadPauseScreenItemSprites);
 
 void loadPauseScreenItemSprites(void) {
 
@@ -2376,8 +2323,8 @@ void loadPauseScreenItemSprites(void) {
             setSpriteViewSpacePosition(TOOL_SPRITES_BASE + i, pauseScreenToolXPositions[j % 4], pauseScreenToolYPositions[j / 4], 256.0f);
 
             setSpriteColor(TOOL_SPRITES_BASE + i, 0xFF, 0xFF, 0xFF, 0);
-            setSpriteBlendMode(TOOL_SPRITES_BASE + i, 2);
-            setBilinearFiltering(TOOL_SPRITES_BASE + i, 1);
+            setSpriteBlendMode(TOOL_SPRITES_BASE + i, SPRITE_BLEND_ALPHA_MODULATED);
+            setBilinearFiltering(TOOL_SPRITES_BASE + i, TRUE);
             startSpriteAnimation(TOOL_SPRITES_BASE + i, getAnimationOffsetFromScript(toolsAnimationScripts, toolAnimationIndices[gPlayer.toolSlots[i]] + getToolLevelForAnimation(gPlayer.toolSlots[i])), 0);
         
         }
@@ -2389,8 +2336,8 @@ void loadPauseScreenItemSprites(void) {
         dmaSprite(TOOL_SPRITES_BASE + i, (u32)&_toolsTextureSegmentRomStart, (u32)&_toolsTextureSegmentRomEnd, (u32)&_toolsAssetsIndexSegmentRomStart, (u32)&_toolsAssetsIndexSegmentRomEnd, (u32) &_toolsSpritesheetIndexSegmentRomStart, (u32)&_toolsSpritesheetIndexSegmentRomEnd, (i * (OVERLAY_SCREEN_TOOL_SPRITES_TEXTURE_SIZE * 2)) + OVERLAY_SCREEN_TOOL_SPRITES_TEXTURE_1_BASE, (i * (OVERLAY_SCREEN_TOOL_SPRITES_TEXTURE_SIZE * 2)) + OVERLAY_SCREEN_TOOL_SPRITES_TEXTURE_2_BASE, (u16*)OVERLAY_SCREEN_TOOL_SPRITES_PALETTE, (u16*)OVERLAY_SCREEN_TOOL_SPRITES_ANIM_METADATA, (u8*)OVERLAY_SCREEN_TOOL_SPRITES_SPRITESHEET_INDEX, (u32*)OVERLAY_SCREEN_TOOL_SPRITES_TEXTURE_TO_PALETTE_LOOKUP, 1, 0);
         setSpriteViewSpacePosition(TOOL_SPRITES_BASE + i, pauseScreenCurrentToolXPosition, pauseScreenCurrentToolYPosition, 256.0f);
         setSpriteColor(TOOL_SPRITES_BASE + i, 0xFF, 0xFF, 0xFF, 0);
-        setSpriteBlendMode(TOOL_SPRITES_BASE + i, 2);
-        setBilinearFiltering(TOOL_SPRITES_BASE + i, 1);
+        setSpriteBlendMode(TOOL_SPRITES_BASE + i, SPRITE_BLEND_ALPHA_MODULATED);
+        setBilinearFiltering(TOOL_SPRITES_BASE + i, TRUE);
         
         startSpriteAnimation(TOOL_SPRITES_BASE + i, getAnimationOffsetFromScript(toolsAnimationScripts, toolAnimationIndices[gPlayer.currentTool] + getToolLevelForAnimation(gPlayer.currentTool)), 0);
 
@@ -2411,9 +2358,9 @@ void loadPauseScreenItemSprites(void) {
             setSpriteViewSpacePosition(HOLDABLE_ITEMS_BASE + i, pauseScreenBelongingsXPosition[j % 4], pauseScreenBelongingsYPosition[j / 4], 256.0f);
 
             setSpriteColor(HOLDABLE_ITEMS_BASE + i, 0xFF, 0xFF, 0xFF, 0);
-            setSpriteBlendMode(HOLDABLE_ITEMS_BASE + i, 2);
-            setBilinearFiltering(HOLDABLE_ITEMS_BASE + i, 1);
-            startSpriteAnimation(HOLDABLE_ITEMS_BASE + i, getAnimationOffsetFromScript(shopItemsAnimationScripts, getItemAnimationIndex(gPlayer.belongingsSlots[i])), 0);
+            setSpriteBlendMode(HOLDABLE_ITEMS_BASE + i, SPRITE_BLEND_ALPHA_MODULATED);
+            setBilinearFiltering(HOLDABLE_ITEMS_BASE + i, TRUE);
+            startSpriteAnimation(HOLDABLE_ITEMS_BASE + i, getAnimationOffsetFromScript(heldItemsAnimationScripts, getItemAnimationIndex(gPlayer.belongingsSlots[i])), 0);
         
         }
         
@@ -2423,9 +2370,9 @@ void loadPauseScreenItemSprites(void) {
         dmaSprite(HOLDABLE_ITEMS_BASE + i, (u32)&_holdableItemsTextureSegmentRomStart, (u32)&_holdableItemsTextureSegmentRomEnd, (u32)&_holdableItemsAssetsIndexSegmentRomStart, (u32)&_holdableItemsAssetsIndexSegmentRomEnd, (u32) &_holdableItemsSpritesheetIndexSegmentRomStart, (u32)&_holdableItemsSpritesheetIndexSegmentRomEnd, (i * (OVERLAY_SCREEN_HOLDABLE_ITEMS_TEXTURE_SIZE * 2)) + OVERLAY_SCREEN_HOLDABLE_ITEMS_TEXTURE_1_BASE, (i * (OVERLAY_SCREEN_HOLDABLE_ITEMS_TEXTURE_SIZE * 2)) + OVERLAY_SCREEN_HOLDABLE_ITEMS_TEXTURE_2_BASE, (u16*)OVERLAY_SCREEN_ITEMS_GRID_PALETTE, (u16*)OVERLAY_SCREEN_ITEMS_GRID_ANIM_METADATA, (u8*)OVERLAY_SCREEN_ITEMS_GRID_SPRITESHEET_INDEX, (u32*)OVERLAY_SCREEN_ITEMS_GRID_TEXTURE_TO_PALETTE_LOOKUP, 1, 0);
         setSpriteViewSpacePosition(HOLDABLE_ITEMS_BASE + i, pauseScreenHeldItemXPosition, pauseScreenHeldItemYPosition, 256.0f);
         setSpriteColor(HOLDABLE_ITEMS_BASE + i, 0xFF, 0xFF, 0xFF, 0);
-        setSpriteBlendMode(HOLDABLE_ITEMS_BASE + i, 2);
-        setBilinearFiltering(HOLDABLE_ITEMS_BASE + i, 1);
-        startSpriteAnimation(HOLDABLE_ITEMS_BASE + i, getAnimationOffsetFromScript(shopItemsAnimationScripts, getItemAnimationIndex(gPlayer.heldItem)), 0);
+        setSpriteBlendMode(HOLDABLE_ITEMS_BASE + i, SPRITE_BLEND_ALPHA_MODULATED);
+        setBilinearFiltering(HOLDABLE_ITEMS_BASE + i, TRUE);
+        startSpriteAnimation(HOLDABLE_ITEMS_BASE + i, getAnimationOffsetFromScript(heldItemsAnimationScripts, getItemAnimationIndex(gPlayer.heldItem)), 0);
     }
 
     for (i = 0; i < 8; i++) {
@@ -2441,10 +2388,10 @@ void loadPauseScreenItemSprites(void) {
             dmaSprite(KEY_ITEMS_BASE + i, (u32)&_holdableItemsTextureSegmentRomStart, (u32)&_holdableItemsTextureSegmentRomEnd, (u32)&_holdableItemsAssetsIndexSegmentRomStart, (u32)&_holdableItemsAssetsIndexSegmentRomEnd, (u32) &_holdableItemsSpritesheetIndexSegmentRomStart, (u32)&_holdableItemsSpritesheetIndexSegmentRomEnd, (i * (OVERLAY_SCREEN_HOLDABLE_ITEMS_TEXTURE_SIZE * 2)) + OVERLAY_SCREEN_KEY_ITEMS_TEXTURE_1_BASE, (i * (OVERLAY_SCREEN_HOLDABLE_ITEMS_TEXTURE_SIZE * 2)) + OVERLAY_SCREEN_KEY_ITEMS_TEXTURE_2_BASE, (u16*)OVERLAY_SCREEN_ITEMS_GRID_PALETTE, (u16*)OVERLAY_SCREEN_ITEMS_GRID_ANIM_METADATA, (u8*)OVERLAY_SCREEN_ITEMS_GRID_SPRITESHEET_INDEX, (u32*)OVERLAY_SCREEN_ITEMS_GRID_TEXTURE_TO_PALETTE_LOOKUP, 1, 0);
             setSpriteViewSpacePosition(KEY_ITEMS_BASE + i, pauseScreenKeyItemsXPosition [k & 1], pauseScreenKeyItemsYPosition[k >> 1], 256.0f);
             setSpriteColor(KEY_ITEMS_BASE + i, 0xFF, 0xFF, 0xFF, 0);
-            setSpriteBlendMode(KEY_ITEMS_BASE + i, 2);
-            setBilinearFiltering(KEY_ITEMS_BASE + i, 1);
+            setSpriteBlendMode(KEY_ITEMS_BASE + i, SPRITE_BLEND_ALPHA_MODULATED);
+            setBilinearFiltering(KEY_ITEMS_BASE + i, TRUE);
 
-            startSpriteAnimation(KEY_ITEMS_BASE + i, getAnimationOffsetFromScript(shopItemsAnimationScripts, keyItemAnimationIndices[gPlayer.keyItemSlots[overlayScreenTable.pageNumber * 8 + i]]), 0);
+            startSpriteAnimation(KEY_ITEMS_BASE + i, getAnimationOffsetFromScript(heldItemsAnimationScripts, keyItemAnimationIndices[gPlayer.keyItemSlots[overlayScreenTable.pageNumber * 8 + i]]), 0);
         
         }
         
@@ -2484,8 +2431,6 @@ reset:
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeInPauseScreenElements);
-
 void fadeInPauseScreenSprites(void) {
 
     u8 i;
@@ -2519,8 +2464,6 @@ void fadeInPauseScreenSprites(void) {
     }
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeOutPauseScreenElements);
 
 void fadeOutPauseScreenSprites(void) {
 
@@ -2560,12 +2503,10 @@ void fadeOutPauseScreenSprites(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", pauseScreenCallback);
-
 void pauseScreenCallback(void) {
 
     bool set = FALSE;
-    bool flag;
+    bool itemType;
 
     u8 tempItem;
     u32 temp2;
@@ -2612,7 +2553,7 @@ void pauseScreenCallback(void) {
                     if (overlayScreenTable.cellIndex == 8) {
                         
                         overlayScreenTable.cellIndex = overlayScreenTable.unk_3;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                         
                     } else {
                         
@@ -2620,11 +2561,11 @@ void pauseScreenCallback(void) {
                         
                         if (overlayScreenTable.cellIndex < 4) {
                             overlayScreenTable.cellIndex += 4;
-                            playSfx(2);
+                            playSfx(MOVE_CURSOR_SFX);
                         } else if (overlayScreenTable.unk_3 == 0xFF) {
                             overlayScreenTable.cellIndex -= 4;
                             overlayScreenTable.screenState = 6;
-                            playSfx(2);
+                            playSfx(MOVE_CURSOR_SFX);
                         }
                     
                     }
@@ -2645,7 +2586,7 @@ void pauseScreenCallback(void) {
                         
                         if (overlayScreenTable.cellIndex >= 4) {
                             overlayScreenTable.cellIndex -= 4;
-                            playSfx(2);
+                            playSfx(MOVE_CURSOR_SFX);
                         }
                     
                         set = TRUE;
@@ -2666,7 +2607,7 @@ void pauseScreenCallback(void) {
                         if ((overlayScreenTable.cellIndex != 3) && (overlayScreenTable.cellIndex != 7)) {
                             
                             overlayScreenTable.cellIndex++;
-                            playSfx(2);
+                            playSfx(MOVE_CURSOR_SFX);
                             
                         } else if (overlayScreenTable.unk_3 == 0xFF) {
                             
@@ -2679,7 +2620,7 @@ void pauseScreenCallback(void) {
                             }
                         
                             overlayScreenTable.screenState = 7;
-                            playSfx(2);
+                            playSfx(MOVE_CURSOR_SFX);
                         
                         }
                         
@@ -2700,7 +2641,7 @@ void pauseScreenCallback(void) {
                         
                         if (overlayScreenTable.cellIndex && (overlayScreenTable.cellIndex != 4)) {
                             overlayScreenTable.cellIndex = overlayScreenTable.cellIndex - 1;
-                            playSfx(2);
+                            playSfx(MOVE_CURSOR_SFX);
                         }
                         
                         set = TRUE;
@@ -2732,10 +2673,10 @@ void pauseScreenCallback(void) {
                     
                     if (overlayScreenTable.cellIndex == 8) {
                         overlayScreenTable.cellIndex = overlayScreenTable.unk_3;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                     } else if (overlayScreenTable.cellIndex < 4) {
                         overlayScreenTable.cellIndex += 4;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                     }
                     
                     set = TRUE;
@@ -2753,12 +2694,12 @@ void pauseScreenCallback(void) {
                         if (overlayScreenTable.cellIndex >= 4) {
                             
                             overlayScreenTable.cellIndex -= 4;
-                            playSfx(2);
+                            playSfx(MOVE_CURSOR_SFX);
                         
                         } else if (overlayScreenTable.unk_3 == 0xFF) {
                             overlayScreenTable.cellIndex += 4;
                             overlayScreenTable.screenState = 5;
-                            playSfx(2);
+                            playSfx(MOVE_CURSOR_SFX);
                         }
                         
                         set = TRUE;
@@ -2778,7 +2719,7 @@ void pauseScreenCallback(void) {
                         if (overlayScreenTable.cellIndex != 3 && overlayScreenTable.cellIndex != 7) {
                             
                             overlayScreenTable.cellIndex++;
-                            playSfx(2);
+                            playSfx(MOVE_CURSOR_SFX);
                             
                         } else if (overlayScreenTable.unk_3 == 0xFF) {
                             
@@ -2790,7 +2731,7 @@ void pauseScreenCallback(void) {
                             }
                             
                             overlayScreenTable.screenState = 7;
-                            playSfx(2);
+                            playSfx(MOVE_CURSOR_SFX);
                             
                         }
                         
@@ -2810,7 +2751,7 @@ void pauseScreenCallback(void) {
                         
                         if (overlayScreenTable.cellIndex && overlayScreenTable.cellIndex != 4) {
                             overlayScreenTable.cellIndex--;
-                            playSfx(2);
+                            playSfx(MOVE_CURSOR_SFX);
                         }
                         
                         set = TRUE;
@@ -2843,13 +2784,13 @@ void pauseScreenCallback(void) {
                 
                     if (overlayScreenTable.cellIndex < 6) {
                         overlayScreenTable.cellIndex += 2;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                     } else if (overlayScreenTable.pageNumber != 2) {
                         overlayScreenTable.pageNumber++;
                         overlayScreenTable.cellIndex -= 6;
                         loadPauseScreenItemSprites();
                         updatePauseScreenSelectionHighlight();
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                     }
                         
                     set = TRUE;
@@ -2864,13 +2805,13 @@ void pauseScreenCallback(void) {
                     
                     if (overlayScreenTable.cellIndex >= 2) {
                         overlayScreenTable.cellIndex -= 2;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                     } else if (overlayScreenTable.pageNumber) {
                         overlayScreenTable.pageNumber--;
                         overlayScreenTable.cellIndex += 6;
                         loadPauseScreenItemSprites();
                         updatePauseScreenSelectionHighlight();
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                     }
                     
                     set = TRUE;
@@ -2884,7 +2825,7 @@ void pauseScreenCallback(void) {
                 
                     if (!(overlayScreenTable.cellIndex & 1)) {
                         overlayScreenTable.cellIndex++;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                     }
                     
                     set = TRUE;
@@ -2901,7 +2842,7 @@ void pauseScreenCallback(void) {
                     if (temp2 & 1) {
                         
                         overlayScreenTable.cellIndex--;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                         
                     } else if (overlayScreenTable.unk_3 == 0xFF) {
                         
@@ -2925,7 +2866,7 @@ void pauseScreenCallback(void) {
                             }
                         }
                         
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                         
                     }
                     
@@ -2987,12 +2928,13 @@ void pauseScreenCallback(void) {
                     overlayScreenTable.screenState = 2;
                 }
                 
-                playSfx(1);
+                playSfx(CLOSE_SFX);
                 set = TRUE;
 
             }
             
         }
+
 
         if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
             
@@ -3048,7 +2990,7 @@ void pauseScreenCallback(void) {
                     
                 }
                 
-                playSfx(0);
+                playSfx(SELECT_1_SFX);
                 set = TRUE;
                 
             }
@@ -3065,22 +3007,22 @@ void pauseScreenCallback(void) {
 
                     case 5:
                         tempItem = gPlayer.toolSlots[overlayScreenTable.cellIndex];
-                        flag = 0;
+                        itemType = 0;
                         break;
                     case 6:
                         tempItem = gPlayer.belongingsSlots[overlayScreenTable.cellIndex];
-                        flag = 1;
+                        itemType = 1;
                         break;
                     case 7:
                         tempItem = gPlayer.keyItemSlots[(overlayScreenTable.pageNumber * 8) + overlayScreenTable.cellIndex];
-                        flag = 2;
+                        itemType = 2;
                         break;
                     
                 }
 
                 if (tempItem) {
                     
-                    setItemDescriptionVariable(flag, tempItem);
+                    setItemDescriptionVariable(itemType, tempItem);
 
                     overlayScreenTable.unk_7 = overlayScreenTable.screenState;
                     overlayScreenTable.screenState = 4;
@@ -3099,8 +3041,6 @@ void pauseScreenCallback(void) {
     }
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", getPauseScreenItemXCoordinate);
 
 f32 getPauseScreenItemXCoordinate(u8 arg0, u32 arg1) {
 
@@ -3141,8 +3081,6 @@ f32 getPauseScreenItemXCoordinate(u8 arg0, u32 arg1) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", getPauseScreenItemYCoordinate);
-
 f32 getPauseScreenItemYCoordinate(u8 arg0, u8 arg1) {
 
     f32 res;
@@ -3177,8 +3115,6 @@ f32 getPauseScreenItemYCoordinate(u8 arg0, u8 arg1) {
     return res;
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", resetPauseScreenSpriteColors);
 
 void resetPauseScreenSpriteColors(void) {
 
@@ -3221,8 +3157,6 @@ void resetPauseScreenSpriteColors(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", wapPauseScreenItems);
-
 void swapPauseScreenItems(void) {
     
     u8 temp;
@@ -3251,13 +3185,9 @@ void swapPauseScreenItems(void) {
     
 }
 
-
 /* end pause screen functions */
 
-
 /* toolbox functions */
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadToolboxScreenCallback);
 
 void loadToolboxScreenCallback(void) {
     
@@ -3267,7 +3197,7 @@ void loadToolboxScreenCallback(void) {
     
     setSpriteViewSpacePosition(CHECKERBOARD_BACKGROUND, 0.0f, 0.0f, 0.0f);
     setSpriteScale(CHECKERBOARD_BACKGROUND, 2.0f, 2.0f, 1.0f);
-    setBilinearFiltering(CHECKERBOARD_BACKGROUND, 1);
+    setBilinearFiltering(CHECKERBOARD_BACKGROUND, TRUE);
     setSpriteColor(CHECKERBOARD_BACKGROUND, 255, 255, 255, 255);
     startSpriteAnimation(CHECKERBOARD_BACKGROUND, 0, 0);
     
@@ -3282,11 +3212,8 @@ void loadToolboxScreenCallback(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadToolboxScreenSprites);
-
 void loadToolboxScreenSprites(void) {
 
-    
     loadClockSprites();
     
     setMoneySprites();
@@ -3296,42 +3223,42 @@ void loadToolboxScreenSprites(void) {
     dmaSprite(0x83, (u32)&_inventoryScreenTextureSegmentRomStart, (u32)&_inventoryScreenTextureSegmentRomEnd, (u32)&_inventoryScreenAssetsIndexSegmentRomStart, (u32)&_inventoryScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x83, 42.0f, 0.0f, 8.0f);
     setSpriteColor(0x83, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x83, 2);
-    setBilinearFiltering(0x83, 1);
+    setSpriteBlendMode(0x83, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0x83, TRUE);
     startSpriteAnimation(0x83, 0, 0);
 
     dmaSprite(0x84, (u32)&_inventoryScreenTextureSegmentRomStart, (u32)&_inventoryScreenTextureSegmentRomEnd, (u32)&_inventoryScreenAssetsIndexSegmentRomStart, (u32)&_inventoryScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x84, 42.0f, -80.0f, 8.0f);
     setSpriteColor(0x84, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x84, 2);
-    setBilinearFiltering(0x84, 1);
+    setSpriteBlendMode(0x84, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0x84, TRUE);
     startSpriteAnimation(0x84, 0, 0);
     
     // toolbox and rucksack labels
     dmaSprite(TOOL_AND_RUCKSACK_LABELS, (u32)&_inventoryScreenTextureSegmentRomStart, (u32)&_inventoryScreenTextureSegmentRomEnd, (u32)&_inventoryScreenAssetsIndexSegmentRomStart, (u32)&_inventoryScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(TOOL_AND_RUCKSACK_LABELS, 0.0f, 0.0f, 16.0f);
     setSpriteColor(TOOL_AND_RUCKSACK_LABELS, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(TOOL_AND_RUCKSACK_LABELS, 2);
-    setBilinearFiltering(TOOL_AND_RUCKSACK_LABELS, 1);
+    setSpriteBlendMode(TOOL_AND_RUCKSACK_LABELS, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(TOOL_AND_RUCKSACK_LABELS, TRUE);
     startSpriteAnimation(TOOL_AND_RUCKSACK_LABELS, 5, 1);
 
     // selected square
     dmaSprite(0x87, (u32)&_inventoryScreenTextureSegmentRomStart, (u32)&_inventoryScreenTextureSegmentRomEnd, (u32)&_inventoryScreenAssetsIndexSegmentRomStart, (u32)&_inventoryScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x87, 0.0f, 80.0f, 8.0f);
     setSpriteColor(0x87, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x87, 2);
-    setBilinearFiltering(0x87, 1);
+    setSpriteBlendMode(0x87, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0x87, TRUE);
     startSpriteAnimation(0x87, 2, 0);
     setSpritePaletteIndex(0x87, 3);
     
     dmaSprite(CURSOR_HAND, (u32)&_dialogueButtonIconsTextureSegmentRomStart, (u32)&_dialogueButtonIconsTextureSegmentRomEnd, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomStart, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)DIALOGUE_ICON_TEXTURE_BUFFER, NULL, (u16*)DIALOGUE_ICON_PALETTE_BUFFER, (AnimationFrameMetadata*)DIALOGUE_ICON_ANIMATION_FRAME_METADATA_BUFFER, (u32*)DIALOGUE_ICON_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(CURSOR_HAND, getToolboxItemXCoordinate(overlayScreenTable.screenState, overlayScreenTable.cellIndex) - 16.0f, getToolboxItemYCoordinate(overlayScreenTable.screenState, overlayScreenTable.cellIndex) - 8.0f, 32.0f);
-    setBilinearFiltering(CURSOR_HAND, 1);
+    setBilinearFiltering(CURSOR_HAND, TRUE);
     setSpriteColor(CURSOR_HAND, 255, 255, 255, 255);
     
     dmaSprite(0x82, (u32)&_inventoryScreenTextureSegmentRomStart, (u32)&_inventoryScreenTextureSegmentRomEnd, (u32)&_inventoryScreenAssetsIndexSegmentRomStart, (u32)&_inventoryScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x82, 0.0f, 0.0f, 24.0f);
-    setBilinearFiltering(0x82, 1);
+    setBilinearFiltering(0x82, TRUE);
     setSpriteColor(0x82, 255, 255, 255, 255);
     
     // up and down arrows
@@ -3343,8 +3270,6 @@ void loadToolboxScreenSprites(void) {
     fadeInToolboxSprites();
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadToolboxToolSprites);
 
 void loadToolboxToolSprites(void) {
 
@@ -3364,8 +3289,8 @@ void loadToolboxToolSprites(void) {
             dmaSprite(TOOL_SPRITES_BASE + i, (u32)&_toolsTextureSegmentRomStart, (u32)&_toolsTextureSegmentRomEnd, (u32)&_toolsAssetsIndexSegmentRomStart, (u32)&_toolsAssetsIndexSegmentRomEnd, (u32) &_toolsSpritesheetIndexSegmentRomStart, (u32)&_toolsSpritesheetIndexSegmentRomEnd, (u8*)((i * (OVERLAY_SCREEN_TOOL_SPRITES_TEXTURE_SIZE * 2)) + OVERLAY_SCREEN_TOOL_SPRITES_TEXTURE_1_BASE), (u8*)((i * (OVERLAY_SCREEN_TOOL_SPRITES_TEXTURE_SIZE * 2)) + OVERLAY_SCREEN_TOOL_SPRITES_TEXTURE_2_BASE), (u16*)OVERLAY_SCREEN_TOOL_SPRITES_PALETTE, (u16*)OVERLAY_SCREEN_TOOL_SPRITES_ANIM_METADATA, (u8*)OVERLAY_SCREEN_TOOL_SPRITES_SPRITESHEET_INDEX, (u32*)OVERLAY_SCREEN_TOOL_SPRITES_TEXTURE_TO_PALETTE_LOOKUP, 1, 0);
             setSpriteViewSpacePosition(TOOL_SPRITES_BASE + i, toolboxToolSlotsXPosition[j % 4], toolboxToolSlotsYPosition[j / 4], 256.0f);
             setSpriteColor(TOOL_SPRITES_BASE + i, 0xFF, 0xFF, 0xFF, 0);
-            setSpriteBlendMode(TOOL_SPRITES_BASE + i, 2);
-            setBilinearFiltering(TOOL_SPRITES_BASE + i, 1);
+            setSpriteBlendMode(TOOL_SPRITES_BASE + i, SPRITE_BLEND_ALPHA_MODULATED);
+            setBilinearFiltering(TOOL_SPRITES_BASE + i, TRUE);
             
             startSpriteAnimation(TOOL_SPRITES_BASE + i, getAnimationOffsetFromScript(toolsAnimationScripts,  toolAnimationIndices[gToolboxSlots[(overlayScreenTable.pageNumber * 8) + i]] + getToolLevelForAnimation(gToolboxSlots[(overlayScreenTable.pageNumber * 8) + i])), 0);
             
@@ -3388,8 +3313,8 @@ void loadToolboxToolSprites(void) {
             setSpriteViewSpacePosition(0xAC + i, toolboxPlayerToolSlotsXPosition[j % 4], toolboxPlayerToolSlotsYPosition[j / 4], 256.0f);
 
             setSpriteColor(0xAC + i, 0xFF, 0xFF, 0xFF, 0);
-            setSpriteBlendMode(0xAC + i, 2);
-            setBilinearFiltering(0xAC + i, 1);
+            setSpriteBlendMode(0xAC + i, SPRITE_BLEND_ALPHA_MODULATED);
+            setBilinearFiltering(0xAC + i, TRUE);
             startSpriteAnimation(0xAC + i, getAnimationOffsetFromScript(toolsAnimationScripts, toolAnimationIndices[gPlayer.toolSlots[i]] + getToolLevelForAnimation(gPlayer.toolSlots[i])), 0);
         
         }
@@ -3401,16 +3326,14 @@ void loadToolboxToolSprites(void) {
         dmaSprite(0xAC + i, (u32)&_toolsTextureSegmentRomStart, (u32)&_toolsTextureSegmentRomEnd, (u32)&_toolsAssetsIndexSegmentRomStart, (u32)&_toolsAssetsIndexSegmentRomEnd, (u32) &_toolsSpritesheetIndexSegmentRomStart, (u32)&_toolsSpritesheetIndexSegmentRomEnd, (i * (OVERLAY_SCREEN_HOLDABLE_ITEMS_TEXTURE_SIZE * 2)) + OVERLAY_SCREEN_HOLDABLE_ITEMS_TEXTURE_1_BASE, (i * (OVERLAY_SCREEN_HOLDABLE_ITEMS_TEXTURE_SIZE * 2)) + OVERLAY_SCREEN_HOLDABLE_ITEMS_TEXTURE_2_BASE, (u16*)OVERLAY_SCREEN_ITEMS_GRID_PALETTE, (u16*)OVERLAY_SCREEN_ITEMS_GRID_ANIM_METADATA, (u8*)OVERLAY_SCREEN_ITEMS_GRID_SPRITESHEET_INDEX, (u32*)OVERLAY_SCREEN_ITEMS_GRID_TEXTURE_TO_PALETTE_LOOKUP, 1, 0);
         setSpriteViewSpacePosition(0xAC + i, toolboxCurrentToolXPosition, toolboxCurrentToolYPosition, 256.0f);
         setSpriteColor(0xAC + i, 0xFF, 0xFF, 0xFF, 0);
-        setSpriteBlendMode(0xAC + i, 2);
-        setBilinearFiltering(0xAC + i, 1);
+        setSpriteBlendMode(0xAC + i, SPRITE_BLEND_ALPHA_MODULATED);
+        setBilinearFiltering(0xAC + i, TRUE);
 
         startSpriteAnimation(0xAC + i, getAnimationOffsetFromScript(toolsAnimationScripts, toolAnimationIndices[gPlayer.currentTool] + getToolLevelForAnimation(gPlayer.currentTool)), 0);
 
     }
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", updateToolboxSelectionHighlight);
 
 void updateToolboxSelectionHighlight(void) {
 
@@ -3450,8 +3373,6 @@ void updateToolboxSelectionHighlight(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeInToolboxElements);
-
 void fadeInToolboxSprites(void) {
     
     u8 i;
@@ -3479,8 +3400,6 @@ void fadeInToolboxSprites(void) {
     }
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeOutToolboxElements);
 
 void fadeOutToolboxSprites(void) {
 
@@ -3513,8 +3432,6 @@ void fadeOutToolboxSprites(void) {
     deactivateNumberSprites(1);
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", toolboxScreenCallback);
 
 void toolboxScreenCallback(void) {
 
@@ -3565,7 +3482,7 @@ void toolboxScreenCallback(void) {
                     
                     if (overlayScreenTable.cellIndex < 4) {
                         overlayScreenTable.cellIndex += 4;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                     }
 
                     set = TRUE;
@@ -3587,7 +3504,7 @@ void toolboxScreenCallback(void) {
                         overlayScreenTable.screenState = 6;
                     }
                 
-                    playSfx(2);
+                    playSfx(MOVE_CURSOR_SFX);
                     set = TRUE;
                 
                 }
@@ -3603,7 +3520,7 @@ void toolboxScreenCallback(void) {
                     if ((overlayScreenTable.cellIndex != 3) && (overlayScreenTable.cellIndex != 7)) {
                         
                         overlayScreenTable.cellIndex++;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                         
                     } else if (overlayScreenTable.pageNumber != 3) {
                         
@@ -3618,7 +3535,7 @@ void toolboxScreenCallback(void) {
                         loadToolboxToolSprites();
                         updateToolboxSelectionHighlight();
                         
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                         
                     }
                     
@@ -3639,7 +3556,7 @@ void toolboxScreenCallback(void) {
                         if (overlayScreenTable.cellIndex && overlayScreenTable.cellIndex != 4) {
                             
                             overlayScreenTable.cellIndex--;
-                            playSfx(2);
+                            playSfx(MOVE_CURSOR_SFX);
                             
                         } else if (overlayScreenTable.pageNumber) {
 
@@ -3653,7 +3570,7 @@ void toolboxScreenCallback(void) {
                             loadToolboxToolSprites();
                             updateToolboxSelectionHighlight();
 
-                            playSfx(2);
+                            playSfx(MOVE_CURSOR_SFX);
                             
                         }
 
@@ -3693,7 +3610,7 @@ void toolboxScreenCallback(void) {
                         overlayScreenTable.screenState = 5;
                     }
                     
-                    playSfx(2);
+                    playSfx(MOVE_CURSOR_SFX);
                     set = TRUE;
                 
                 }
@@ -3712,7 +3629,7 @@ void toolboxScreenCallback(void) {
                             overlayScreenTable.cellIndex = 8;
                         }
                         
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                         set = TRUE;
                     
                     }
@@ -3729,7 +3646,7 @@ void toolboxScreenCallback(void) {
                         
                         if ((overlayScreenTable.cellIndex != 3) && (overlayScreenTable.cellIndex != 7)) {
                             overlayScreenTable.cellIndex++;
-                            playSfx(2);
+                            playSfx(MOVE_CURSOR_SFX);
                         }
                     
                         set = TRUE;
@@ -3747,7 +3664,7 @@ void toolboxScreenCallback(void) {
                         
                         if (overlayScreenTable.cellIndex && overlayScreenTable.cellIndex != 4) {
                             overlayScreenTable.cellIndex--;
-                            playSfx(2);
+                            playSfx(MOVE_CURSOR_SFX);
                         }
                         
                         set = TRUE;
@@ -3798,7 +3715,7 @@ void toolboxScreenCallback(void) {
                     overlayScreenTable.screenState = 2;
                 }
     
-                playSfx(1);
+                playSfx(CLOSE_SFX);
                 set = TRUE;
             }
             
@@ -3827,7 +3744,7 @@ void toolboxScreenCallback(void) {
                 
                 updateToolboxSelectionHighlight();
                 
-                playSfx(0);
+                playSfx(SELECT_1_SFX);
                 set = TRUE;
             
             }
@@ -3870,8 +3787,6 @@ void toolboxScreenCallback(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", getToolboxItemXCoordinate);
-
 f32 getToolboxItemXCoordinate(u8 arg0, u32 arg1) {
 
     f32 res;
@@ -3899,8 +3814,6 @@ f32 getToolboxItemXCoordinate(u8 arg0, u32 arg1) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", getToolboxItemYCoordinate);
-
 f32 getToolboxItemYCoordinate(u8 arg0, u8 arg1) {
 
     f32 res;
@@ -3927,8 +3840,6 @@ f32 getToolboxItemYCoordinate(u8 arg0, u8 arg1) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", resetToolboxSpriteColors);
-
 void resetToolboxSpriteColors(void) {
 
     u8 i;
@@ -3953,11 +3864,8 @@ void resetToolboxSpriteColors(void) {
         }
         
     }
-    
-    
-}
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", swapToolboxTools);
+}
 
 // swap tools
 void swapToolboxTools(void) {
@@ -4006,10 +3914,7 @@ void swapToolboxTools(void) {
 
 /* end toolbox funcs */
 
-
 /* freezer */
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadFreezerScreenCallback);
 
 // freezer load callback
 void loadFreezerScreenCallback(void) {
@@ -4034,8 +3939,6 @@ void loadFreezerScreenCallback(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadFreezerScreenSprites);
-
 void loadFreezerScreenSprites(void) {
     
     loadClockSprites();
@@ -4046,40 +3949,40 @@ void loadFreezerScreenSprites(void) {
 
     setSpriteViewSpacePosition(0x83, 42.0f, 0.0f, 8.0f);
     setSpriteColor(0x83, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x83, 2);
+    setSpriteBlendMode(0x83, SPRITE_BLEND_ALPHA_MODULATED);
     setBilinearFiltering(0x83, TRUE);
     startSpriteAnimation(0x83, 0, 0);
 
     dmaSprite(0x84, (u32)&_inventoryScreenTextureSegmentRomStart, (u32)&_inventoryScreenTextureSegmentRomEnd, (u32)&_inventoryScreenAssetsIndexSegmentRomStart, (u32)&_inventoryScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, 0);
     setSpriteViewSpacePosition(0x84, 42.0f, -80.0f, 8.0f);
     setSpriteColor(0x84, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x84, 2);
-    setBilinearFiltering(0x84, 1);
+    setSpriteBlendMode(0x84, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0x84, TRUE);
     startSpriteAnimation(0x84, 0, 0);
     
     dmaSprite(FREEZER_AND_RUCKSACK_LABELS, (u32)&_inventoryScreenTextureSegmentRomStart, (u32)&_inventoryScreenTextureSegmentRomEnd, (u32)&_inventoryScreenAssetsIndexSegmentRomStart, (u32)&_inventoryScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, 0);
     setSpriteViewSpacePosition(FREEZER_AND_RUCKSACK_LABELS, 0.0f, 0.0f, 16.0f);
     setSpriteColor(FREEZER_AND_RUCKSACK_LABELS, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(FREEZER_AND_RUCKSACK_LABELS, 2);
-    setBilinearFiltering(FREEZER_AND_RUCKSACK_LABELS, 1);
+    setSpriteBlendMode(FREEZER_AND_RUCKSACK_LABELS, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(FREEZER_AND_RUCKSACK_LABELS, TRUE);
     startSpriteAnimation(FREEZER_AND_RUCKSACK_LABELS, 5, 2);
     
     dmaSprite(0x87, (u32)&_inventoryScreenTextureSegmentRomStart, (u32)&_inventoryScreenTextureSegmentRomEnd, (u32)&_inventoryScreenAssetsIndexSegmentRomStart, (u32)&_inventoryScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, 0);
     setSpriteViewSpacePosition(0x87, 0.0f, 80.0f, 8.0f);
     setSpriteColor(0x87, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x87, 2);
-    setBilinearFiltering(0x87, 1);
+    setSpriteBlendMode(0x87, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0x87, TRUE);
     startSpriteAnimation(0x87, 2, 0);
     setSpritePaletteIndex(0x87, 2);
     
     dmaSprite(CURSOR_HAND, &_dialogueButtonIconsTextureSegmentRomStart, &_dialogueButtonIconsTextureSegmentRomEnd, &_dialogueButtonIconsAssetsIndexSegmentRomStart, &_dialogueButtonIconsAssetsIndexSegmentRomEnd, NULL, NULL, (u8* )DIALOGUE_ICON_TEXTURE_BUFFER, NULL, (u16* )(u16*)DIALOGUE_ICON_PALETTE_BUFFER, (u16* )(AnimationFrameMetadata*)DIALOGUE_ICON_ANIMATION_FRAME_METADATA_BUFFER, (u8* )DIALOGUE_ICON_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, 0);
     setSpriteViewSpacePosition(CURSOR_HAND, getFreezerItemXCoordinate(overlayScreenTable.screenState, overlayScreenTable.cellIndex) - 16.0f, getFreezerItemYCoordinate(overlayScreenTable.screenState, overlayScreenTable.cellIndex) - 8.0f, 32.0f);
-    setBilinearFiltering(CURSOR_HAND, 1);
+    setBilinearFiltering(CURSOR_HAND, TRUE);
     setSpriteColor(CURSOR_HAND, 255, 255, 255, 255);
     
     dmaSprite(0x82, (u32)&_inventoryScreenTextureSegmentRomStart, (u32)&_inventoryScreenTextureSegmentRomEnd,  (u32)&_inventoryScreenAssetsIndexSegmentRomStart, (u32)&_inventoryScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, 0);
     setSpriteViewSpacePosition(0x82, 0.0f, 0.0f, 24.0f);
-    setBilinearFiltering(0x82, 1);
+    setBilinearFiltering(0x82, TRUE);
     setSpriteColor(0x82, 255, 255, 255, 255);
     
     loadNavigationArrows();
@@ -4101,16 +4004,16 @@ void loadFreezerItemSprites(void) {
 
         j = i;
         
-        if (D_80237420[(overlayScreenTable.pageNumber * 8) + i]) {
+        if (freezerItemSlots[(overlayScreenTable.pageNumber * 8) + i]) {
             
             dmaSprite(0xA3 + i, (u32)&_holdableItemsTextureSegmentRomStart, (u32)&_holdableItemsTextureSegmentRomEnd, (u32)&_holdableItemsAssetsIndexSegmentRomStart, (u32)&_holdableItemsAssetsIndexSegmentRomEnd, (u32) &_holdableItemsSpritesheetIndexSegmentRomStart, (u32)&_holdableItemsSpritesheetIndexSegmentRomEnd, (((i * 2) + i) << 9) + OVERLAY_SCREEN_TOOL_SPRITES_TEXTURE_1_BASE, (((i * 2) + i) << 9) + OVERLAY_SCREEN_TOOL_SPRITES_TEXTURE_2_BASE, (u16*)OVERLAY_SCREEN_TOOL_SPRITES_PALETTE, (u16*)OVERLAY_SCREEN_TOOL_SPRITES_ANIM_METADATA, (u8*)OVERLAY_SCREEN_TOOL_SPRITES_SPRITESHEET_INDEX, (u32*)OVERLAY_SCREEN_TOOL_SPRITES_TEXTURE_TO_PALETTE_LOOKUP, 1, 0);
             
             setSpriteViewSpacePosition(0xA3 + i,freezerSlotsXCoordinates[j % 4], freezerSlotsYCoordinates[j / 4], 256.0f);
 
             setSpriteColor(0xA3 + i, 0xFF, 0xFF, 0xFF, 0);
-            setSpriteBlendMode(0xA3 + i, 2);
-            setBilinearFiltering(0xA3 + i, 1);
-            startSpriteAnimation(0xA3 + i, getAnimationOffsetFromScript(shopItemsAnimationScripts, getItemAnimationIndex(D_80237420[(overlayScreenTable.pageNumber * 8) + i])), 0);
+            setSpriteBlendMode(0xA3 + i, SPRITE_BLEND_ALPHA_MODULATED);
+            setBilinearFiltering(0xA3 + i, TRUE);
+            startSpriteAnimation(0xA3 + i, getAnimationOffsetFromScript(heldItemsAnimationScripts, getItemAnimationIndex(freezerItemSlots[(overlayScreenTable.pageNumber * 8) + i])), 0);
         
         }
         
@@ -4131,9 +4034,9 @@ void loadFreezerItemSprites(void) {
             dmaSprite(HOLDABLE_ITEMS_BASE + i, (u32)&_holdableItemsTextureSegmentRomStart, (u32)&_holdableItemsTextureSegmentRomEnd, (u32)&_holdableItemsAssetsIndexSegmentRomStart, (u32)&_holdableItemsAssetsIndexSegmentRomEnd, (u32) &_holdableItemsSpritesheetIndexSegmentRomStart, (u32)&_holdableItemsSpritesheetIndexSegmentRomEnd, (i * (OVERLAY_SCREEN_HOLDABLE_ITEMS_TEXTURE_SIZE * 2)) + OVERLAY_SCREEN_HOLDABLE_ITEMS_TEXTURE_1_BASE, (i * (OVERLAY_SCREEN_HOLDABLE_ITEMS_TEXTURE_SIZE * 2)) + OVERLAY_SCREEN_HOLDABLE_ITEMS_TEXTURE_2_BASE, (u16*)OVERLAY_SCREEN_ITEMS_GRID_PALETTE, (u16*)OVERLAY_SCREEN_ITEMS_GRID_ANIM_METADATA, (u8*)OVERLAY_SCREEN_ITEMS_GRID_SPRITESHEET_INDEX, (u32*)OVERLAY_SCREEN_ITEMS_GRID_TEXTURE_TO_PALETTE_LOOKUP, 1, 0);
             setSpriteViewSpacePosition(HOLDABLE_ITEMS_BASE + i, belongingXCoords[j % 4], *(f32*)((u8*)belongingYCoords + (j & 0xFC)), 256.0f);
             setSpriteColor(HOLDABLE_ITEMS_BASE + i, 0xFF, 0xFF, 0xFF, 0);
-            setSpriteBlendMode(HOLDABLE_ITEMS_BASE + i, 2);
-            setBilinearFiltering(HOLDABLE_ITEMS_BASE + i, 1);
-            startSpriteAnimation(HOLDABLE_ITEMS_BASE + i, getAnimationOffsetFromScript(shopItemsAnimationScripts, getItemAnimationIndex(gPlayer.belongingsSlots[i])), 0);
+            setSpriteBlendMode(HOLDABLE_ITEMS_BASE + i, SPRITE_BLEND_ALPHA_MODULATED);
+            setBilinearFiltering(HOLDABLE_ITEMS_BASE + i, TRUE);
+            startSpriteAnimation(HOLDABLE_ITEMS_BASE + i, getAnimationOffsetFromScript(heldItemsAnimationScripts, getItemAnimationIndex(gPlayer.belongingsSlots[i])), 0);
         
         }
         
@@ -4143,9 +4046,9 @@ void loadFreezerItemSprites(void) {
         dmaSprite(HOLDABLE_ITEMS_BASE + i, (u32)&_holdableItemsTextureSegmentRomStart, (u32)&_holdableItemsTextureSegmentRomEnd, (u32)&_holdableItemsAssetsIndexSegmentRomStart, (u32)&_holdableItemsAssetsIndexSegmentRomEnd, (u32) &_holdableItemsSpritesheetIndexSegmentRomStart, (u32)&_holdableItemsSpritesheetIndexSegmentRomEnd, (i * (OVERLAY_SCREEN_HOLDABLE_ITEMS_TEXTURE_SIZE * 2)) + OVERLAY_SCREEN_HOLDABLE_ITEMS_TEXTURE_1_BASE, (i * (OVERLAY_SCREEN_HOLDABLE_ITEMS_TEXTURE_SIZE * 2)) + OVERLAY_SCREEN_HOLDABLE_ITEMS_TEXTURE_2_BASE, (u16*)OVERLAY_SCREEN_ITEMS_GRID_PALETTE, (u16*)OVERLAY_SCREEN_ITEMS_GRID_ANIM_METADATA, (u8*)OVERLAY_SCREEN_ITEMS_GRID_SPRITESHEET_INDEX, (u32*)OVERLAY_SCREEN_ITEMS_GRID_TEXTURE_TO_PALETTE_LOOKUP, 1, 0);
         setSpriteViewSpacePosition(HOLDABLE_ITEMS_BASE + i, freezerHeldItemXCoordinate, freezerHeldItemYCoordinate, 256.0f);
         setSpriteColor(HOLDABLE_ITEMS_BASE + i, 0xFF, 0xFF, 0xFF, 0);
-        setSpriteBlendMode(HOLDABLE_ITEMS_BASE + i, 2);
-        setBilinearFiltering(HOLDABLE_ITEMS_BASE + i, 1);
-        startSpriteAnimation(HOLDABLE_ITEMS_BASE + i, getAnimationOffsetFromScript(shopItemsAnimationScripts, getItemAnimationIndex(gPlayer.heldItem)), 0);
+        setSpriteBlendMode(HOLDABLE_ITEMS_BASE + i, SPRITE_BLEND_ALPHA_MODULATED);
+        setBilinearFiltering(HOLDABLE_ITEMS_BASE + i, TRUE);
+        startSpriteAnimation(HOLDABLE_ITEMS_BASE + i, getAnimationOffsetFromScript(heldItemsAnimationScripts, getItemAnimationIndex(gPlayer.heldItem)), 0);
     }
 
 }
@@ -4189,8 +4092,6 @@ reset:
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeInFreezerElements);
-
 void fadeInFreezerSprites(void) {
     
     u8 i;
@@ -4206,7 +4107,7 @@ void fadeInFreezerSprites(void) {
     updateSpriteAlpha(0x88, 0xFF, 24);
     
     for (i = 0; i < 9; i++) {
-        if (D_80237420[(overlayScreenTable.pageNumber * 8) + i]) {
+        if (freezerItemSlots[(overlayScreenTable.pageNumber * 8) + i]) {
             updateSpriteAlpha(0xA3 + i, 0xFF, 24);
         }
     }
@@ -4232,7 +4133,7 @@ void fadeOutFreezerSprites(void) {
     updateSpriteAlpha(0x88, 0, 24);
 
     for (i = 0; i < 9; i++) {
-        if (D_80237420[(overlayScreenTable.pageNumber * 8) + i]) {
+        if (freezerItemSlots[(overlayScreenTable.pageNumber * 8) + i]) {
             updateSpriteAlpha(0xA3 + i, 0, 24);
         }
     }
@@ -4303,7 +4204,7 @@ void freezerScreenCallback(void) {
                         overlayScreenTable.screenState = 6;
                     }
 
-                    playSfx(2);
+                    playSfx(MOVE_CURSOR_SFX);
                     set = TRUE;
                     
                 }
@@ -4323,7 +4224,7 @@ void freezerScreenCallback(void) {
                         overlayScreenTable.screenState = 6;
                     }
                 
-                    playSfx(2);
+                    playSfx(MOVE_CURSOR_SFX);
                     set = TRUE;
                 
                 }
@@ -4339,7 +4240,7 @@ void freezerScreenCallback(void) {
                     if ((overlayScreenTable.cellIndex != 3) && (overlayScreenTable.cellIndex != 7)) {
                         
                         overlayScreenTable.cellIndex++;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                         
                     } else if (overlayScreenTable.pageNumber != 3) {
                         
@@ -4354,7 +4255,7 @@ void freezerScreenCallback(void) {
                         loadFreezerItemSprites();
                         updateFreezerSelectionHighlight();
                         
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                         
                     }
                     
@@ -4375,7 +4276,7 @@ void freezerScreenCallback(void) {
                         if (overlayScreenTable.cellIndex && overlayScreenTable.cellIndex != 4) {
                             
                             overlayScreenTable.cellIndex--;
-                            playSfx(2);
+                            playSfx(MOVE_CURSOR_SFX);
                             
                         } else if (overlayScreenTable.pageNumber) {
 
@@ -4390,7 +4291,7 @@ void freezerScreenCallback(void) {
                             loadFreezerItemSprites();
                             updateFreezerSelectionHighlight();
 
-                            playSfx(2);
+                            playSfx(MOVE_CURSOR_SFX);
                             
                         }
 
@@ -4428,7 +4329,7 @@ void freezerScreenCallback(void) {
                         overlayScreenTable.cellIndex += 4;
                     }
                     
-                    playSfx(2);
+                    playSfx(MOVE_CURSOR_SFX);
                     set = TRUE;
                 
                 }
@@ -4448,7 +4349,7 @@ void freezerScreenCallback(void) {
                             overlayScreenTable.screenState = 5;
                         }
                         
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                         set = TRUE;
                     
                     }
@@ -4464,7 +4365,7 @@ void freezerScreenCallback(void) {
                         
                         if ((overlayScreenTable.cellIndex != 3) && (overlayScreenTable.cellIndex != 7)) {
                             overlayScreenTable.cellIndex++;
-                            playSfx(2);
+                            playSfx(MOVE_CURSOR_SFX);
                         }
                     
                         set = TRUE;
@@ -4482,7 +4383,7 @@ void freezerScreenCallback(void) {
                         
                         if (overlayScreenTable.cellIndex && overlayScreenTable.cellIndex != 4) {
                             overlayScreenTable.cellIndex--;
-                            playSfx(2);
+                            playSfx(MOVE_CURSOR_SFX);
                         }
                         
                         set = TRUE;
@@ -4530,7 +4431,7 @@ void freezerScreenCallback(void) {
                     overlayScreenTable.screenState = 2;
                 }
     
-                playSfx(1);
+                playSfx(CLOSE_SFX);
                 set = TRUE;
                 
             }
@@ -4551,9 +4452,9 @@ void freezerScreenCallback(void) {
                         overlayScreenTable.pageNumber = overlayScreenTable.unk_4;
                         loadFreezerItemSprites();
                         updateFreezerSelectionHighlight();
-                        playSfx(0);
+                        playSfx(SELECT_1_SFX);
                     } else {
-                        playSfx(3);
+                        playSfx(INVALID_BUZZ_SFX);
                     }
                     
                 } else {
@@ -4563,12 +4464,11 @@ void freezerScreenCallback(void) {
                         overlayScreenTable.unk_5 = overlayScreenTable.screenState;
                         overlayScreenTable.unk_4 = overlayScreenTable.pageNumber;
                         updateFreezerSelectionHighlight();
-                        playSfx(0);
+                        playSfx(SELECT_1_SFX);
                     } else {
-                        playSfx(3);
+                        playSfx(INVALID_BUZZ_SFX);
                     }
-                    
-                    
+
                 }
     
                 set = TRUE;
@@ -4591,7 +4491,7 @@ void freezerScreenCallback(void) {
                         break;
                     
                     case 5:
-                        temp = D_80237420[(overlayScreenTable.pageNumber * 8) + overlayScreenTable.cellIndex];
+                        temp = freezerItemSlots[(overlayScreenTable.pageNumber * 8) + overlayScreenTable.cellIndex];
                         break;
                     
                 }
@@ -4614,8 +4514,6 @@ void freezerScreenCallback(void) {
     }
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", getFreezerItemXCoordinate);
 
 inline f32 getFreezerItemXCoordinate(u8 arg0, u8 arg1) {
 
@@ -4642,8 +4540,6 @@ inline f32 getFreezerItemXCoordinate(u8 arg0, u8 arg1) {
     return res;
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", getFreezerItemYCoordinate);
 
 inline f32 getFreezerItemYCoordinate(u8 arg0, u8 arg1) {
 
@@ -4682,7 +4578,7 @@ void resetFreezerSpriteColors(void) {
 
     for (i = 0; i < 9; i++) {
 
-        if (D_80237420[(overlayScreenTable.pageNumber * 8) + i]) {
+        if (freezerItemSlots[(overlayScreenTable.pageNumber * 8) + i]) {
             setSpriteColor(0xA3 + i, 255, 255, 255, 255);
         }
         
@@ -4698,8 +4594,6 @@ void resetFreezerSpriteColors(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", isFreezerItemSwappable);
-
 bool isFreezerItemSwappable(void) {
     
     bool result = FALSE;
@@ -4708,7 +4602,7 @@ bool isFreezerItemSwappable(void) {
     switch (overlayScreenTable.screenState) {
 
         case 5:
-            temp = D_80237420[(overlayScreenTable.pageNumber * 8) + overlayScreenTable.cellIndex];
+            temp = freezerItemSlots[(overlayScreenTable.pageNumber * 8) + overlayScreenTable.cellIndex];
             break;
         case 6:
             temp = gPlayer.belongingsSlots[overlayScreenTable.cellIndex];
@@ -4736,13 +4630,13 @@ void swapFreezerItems(void) {
 
         case 5:
 
-            temp = D_80237420[(overlayScreenTable.pageNumber * 8) + overlayScreenTable.cellIndex];
+            temp = freezerItemSlots[(overlayScreenTable.pageNumber * 8) + overlayScreenTable.cellIndex];
             
             if (overlayScreenTable.unk_5 == overlayScreenTable.screenState) {
-                D_80237420[(overlayScreenTable.pageNumber * 8) + overlayScreenTable.cellIndex] = D_80237420[(overlayScreenTable.unk_4 * 8) + overlayScreenTable.unk_3];
-                D_80237420[(overlayScreenTable.unk_4 * 8) + overlayScreenTable.unk_3] = temp;
+                freezerItemSlots[(overlayScreenTable.pageNumber * 8) + overlayScreenTable.cellIndex] = freezerItemSlots[(overlayScreenTable.unk_4 * 8) + overlayScreenTable.unk_3];
+                freezerItemSlots[(overlayScreenTable.unk_4 * 8) + overlayScreenTable.unk_3] = temp;
             } else {
-                D_80237420[(overlayScreenTable.pageNumber * 8) + overlayScreenTable.cellIndex] = gPlayer.belongingsSlots[overlayScreenTable.unk_3];
+                freezerItemSlots[(overlayScreenTable.pageNumber * 8) + overlayScreenTable.cellIndex] = gPlayer.belongingsSlots[overlayScreenTable.unk_3];
                 gPlayer.belongingsSlots[overlayScreenTable.unk_3] = temp;
             }
 
@@ -4756,8 +4650,8 @@ void swapFreezerItems(void) {
                 gPlayer.belongingsSlots[overlayScreenTable.cellIndex] = gPlayer.belongingsSlots[overlayScreenTable.unk_3];
                 gPlayer.belongingsSlots[overlayScreenTable.unk_3] = temp;
             } else {
-                gPlayer.belongingsSlots[overlayScreenTable.cellIndex] = D_80237420[(overlayScreenTable.unk_4 * 8) + overlayScreenTable.unk_3];
-                D_80237420[(overlayScreenTable.unk_4 * 8) + overlayScreenTable.unk_3] = temp;
+                gPlayer.belongingsSlots[overlayScreenTable.cellIndex] = freezerItemSlots[(overlayScreenTable.unk_4 * 8) + overlayScreenTable.unk_3];
+                freezerItemSlots[(overlayScreenTable.unk_4 * 8) + overlayScreenTable.unk_3] = temp;
             }
 
         break;
@@ -4768,7 +4662,6 @@ void swapFreezerItems(void) {
 
 /* end of freezer functions */
 
-
 /* cabinet functions */
 
 void loadCabinetScreenCallback(void) {
@@ -4778,7 +4671,7 @@ void loadCabinetScreenCallback(void) {
     dmaSprite(CHECKERBOARD_BACKGROUND, (u32)&_checkerboardBackgroundTextureSegmentRomStart, (u32)&_checkerboardBackgroundTextureSegmentRomEnd, (u32)&_checkerboardBackgroundAssetsIndexSegmentRomStart, (u32)&_checkerboardBackgroundAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_BACKGROUND_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_BACKGROUND_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_BACKGROUND_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_BACKGROUND_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(CHECKERBOARD_BACKGROUND, 0.0f, 0.0f, 0.0f);
     setSpriteScale(CHECKERBOARD_BACKGROUND, 2.0f, 2.0f, 1.0f);
-    setBilinearFiltering(CHECKERBOARD_BACKGROUND, 1);
+    setBilinearFiltering(CHECKERBOARD_BACKGROUND, TRUE);
     setSpriteColor(CHECKERBOARD_BACKGROUND, 255, 255, 255, 255);
     startSpriteAnimation(CHECKERBOARD_BACKGROUND, 0, 0);
     
@@ -4802,28 +4695,28 @@ void loadCabinetScreenSprites(void) {
     dmaSprite(0x83, (u32)&_inventoryScreenTextureSegmentRomStart, (u32)&_inventoryScreenTextureSegmentRomEnd, (u32)&_inventoryScreenAssetsIndexSegmentRomStart, (u32)&_inventoryScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x83, 42.0f, 0.0f, 8.0f);
     setSpriteColor(0x83, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x83, 2);
+    setSpriteBlendMode(0x83, SPRITE_BLEND_ALPHA_MODULATED);
     setBilinearFiltering(0x83, TRUE);
     startSpriteAnimation(0x83, 0, 0);
     
     dmaSprite(0x84, (u32)&_inventoryScreenTextureSegmentRomStart, (u32)&_inventoryScreenTextureSegmentRomEnd, (u32)&_inventoryScreenAssetsIndexSegmentRomStart, (u32)&_inventoryScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x84, 42.0f, -80.0f, 8.0f);
     setSpriteColor(0x84, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x84, 2);
+    setSpriteBlendMode(0x84, SPRITE_BLEND_ALPHA_MODULATED);
     setBilinearFiltering(0x84, TRUE);
     startSpriteAnimation(0x84, 0, 0);
 
     dmaSprite(CABINET_AND_RUCKSACK_LABELS, (u32)&_inventoryScreenTextureSegmentRomStart, (u32)&_inventoryScreenTextureSegmentRomEnd, (u32)&_inventoryScreenAssetsIndexSegmentRomStart, (u32)&_inventoryScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(CABINET_AND_RUCKSACK_LABELS, 0.0f, 0.0f, 16.0f);
     setSpriteColor(CABINET_AND_RUCKSACK_LABELS, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(CABINET_AND_RUCKSACK_LABELS, 2);
-    setBilinearFiltering(CABINET_AND_RUCKSACK_LABELS, 1);
+    setSpriteBlendMode(CABINET_AND_RUCKSACK_LABELS, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(CABINET_AND_RUCKSACK_LABELS, TRUE);
     startSpriteAnimation(CABINET_AND_RUCKSACK_LABELS, 5, 3);
     
     dmaSprite(0x87, (u32)&_inventoryScreenTextureSegmentRomStart, (u32)&_inventoryScreenTextureSegmentRomEnd, (u32)&_inventoryScreenAssetsIndexSegmentRomStart, (u32)&_inventoryScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x87, 0.0f, 80.0f, 8.0f);
     setSpriteColor(0x87, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x87, 2);
+    setSpriteBlendMode(0x87, SPRITE_BLEND_ALPHA_MODULATED);
     setBilinearFiltering(0x87, TRUE);
     startSpriteAnimation(0x87, 2, 0);
     setSpritePaletteIndex(0x87, 2);
@@ -4846,8 +4739,6 @@ void loadCabinetScreenSprites(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadCabinetItemSprites);
-
 // cabinet
 void loadCabinetItemSprites(void) {
 
@@ -4862,16 +4753,16 @@ void loadCabinetItemSprites(void) {
 
         j = i;
         
-        if (D_801890E8[(overlayScreenTable.pageNumber * 8) + i]) {
+        if (cabinetItemSlots[(overlayScreenTable.pageNumber * 8) + i]) {
             
             dmaSprite(0xA3 + i, (u32)&_holdableItemsTextureSegmentRomStart, (u32)&_holdableItemsTextureSegmentRomEnd, (u32)&_holdableItemsAssetsIndexSegmentRomStart, (u32)&_holdableItemsAssetsIndexSegmentRomEnd, (u32) &_holdableItemsSpritesheetIndexSegmentRomStart, (u32)&_holdableItemsSpritesheetIndexSegmentRomEnd, (((i * 2) + i) << 9) + OVERLAY_SCREEN_TOOL_SPRITES_TEXTURE_1_BASE, (((i * 2) + i) << 9) + OVERLAY_SCREEN_TOOL_SPRITES_TEXTURE_2_BASE, (u16*)OVERLAY_SCREEN_TOOL_SPRITES_PALETTE, (u16*)OVERLAY_SCREEN_TOOL_SPRITES_ANIM_METADATA, (u8*)OVERLAY_SCREEN_TOOL_SPRITES_SPRITESHEET_INDEX, (u32*)OVERLAY_SCREEN_TOOL_SPRITES_TEXTURE_TO_PALETTE_LOOKUP, 1, 0);
             
             setSpriteViewSpacePosition(0xA3 + i, cabinetSlotsXCoordinates[j % 4], cabinetSlotsYCoordinates[j / 4], 256.0f);
 
             setSpriteColor(0xA3 + i, 0xFF, 0xFF, 0xFF, 0);
-            setSpriteBlendMode(0xA3 + i, 2);
-            setBilinearFiltering(0xA3 + i, 1);
-            startSpriteAnimation(0xA3 + i, getAnimationOffsetFromScript(shopItemsAnimationScripts, getItemAnimationIndex(D_801890E8[(overlayScreenTable.pageNumber * 8) + i])), 0);
+            setSpriteBlendMode(0xA3 + i, SPRITE_BLEND_ALPHA_MODULATED);
+            setBilinearFiltering(0xA3 + i, TRUE);
+            startSpriteAnimation(0xA3 + i, getAnimationOffsetFromScript(heldItemsAnimationScripts, getItemAnimationIndex(cabinetItemSlots[(overlayScreenTable.pageNumber * 8) + i])), 0);
         
         }
         
@@ -4894,9 +4785,9 @@ void loadCabinetItemSprites(void) {
             setSpriteViewSpacePosition(HOLDABLE_ITEMS_BASE + i, cabinetBelongingsSlotsXCoordinates[j % 4], cabinetBelongingsSlotsYCoordinates[j / 4], 256.0f);
 
             setSpriteColor(HOLDABLE_ITEMS_BASE + i, 0xFF, 0xFF, 0xFF, 0);
-            setSpriteBlendMode(HOLDABLE_ITEMS_BASE + i, 2);
-            setBilinearFiltering(HOLDABLE_ITEMS_BASE + i, 1);
-            startSpriteAnimation(HOLDABLE_ITEMS_BASE + i, getAnimationOffsetFromScript(shopItemsAnimationScripts, getItemAnimationIndex(gPlayer.belongingsSlots[i])), 0);
+            setSpriteBlendMode(HOLDABLE_ITEMS_BASE + i, SPRITE_BLEND_ALPHA_MODULATED);
+            setBilinearFiltering(HOLDABLE_ITEMS_BASE + i, TRUE);
+            startSpriteAnimation(HOLDABLE_ITEMS_BASE + i, getAnimationOffsetFromScript(heldItemsAnimationScripts, getItemAnimationIndex(gPlayer.belongingsSlots[i])), 0);
         
         }
         
@@ -4906,14 +4797,12 @@ void loadCabinetItemSprites(void) {
         dmaSprite(HOLDABLE_ITEMS_BASE + i, (u32)&_holdableItemsTextureSegmentRomStart, (u32)&_holdableItemsTextureSegmentRomEnd, (u32)&_holdableItemsAssetsIndexSegmentRomStart, (u32)&_holdableItemsAssetsIndexSegmentRomEnd, (u32) &_holdableItemsSpritesheetIndexSegmentRomStart, (u32)&_holdableItemsSpritesheetIndexSegmentRomEnd, (i * (OVERLAY_SCREEN_HOLDABLE_ITEMS_TEXTURE_SIZE * 2)) + OVERLAY_SCREEN_HOLDABLE_ITEMS_TEXTURE_1_BASE, (i * (OVERLAY_SCREEN_HOLDABLE_ITEMS_TEXTURE_SIZE * 2)) + OVERLAY_SCREEN_HOLDABLE_ITEMS_TEXTURE_2_BASE, (u16*)OVERLAY_SCREEN_ITEMS_GRID_PALETTE, (u16*)OVERLAY_SCREEN_ITEMS_GRID_ANIM_METADATA, (u8*)OVERLAY_SCREEN_ITEMS_GRID_SPRITESHEET_INDEX, (u32*)OVERLAY_SCREEN_ITEMS_GRID_TEXTURE_TO_PALETTE_LOOKUP, 1, 0);
         setSpriteViewSpacePosition(HOLDABLE_ITEMS_BASE + i, cabinetHeldItemXCoordinate, cabinetHeldItemYCoordinate, 256.0f);
         setSpriteColor(HOLDABLE_ITEMS_BASE + i, 0xFF, 0xFF, 0xFF, 0);
-        setSpriteBlendMode(HOLDABLE_ITEMS_BASE + i, 2);
-        setBilinearFiltering(HOLDABLE_ITEMS_BASE + i, 1);
-        startSpriteAnimation(HOLDABLE_ITEMS_BASE + i, getAnimationOffsetFromScript(shopItemsAnimationScripts, getItemAnimationIndex(gPlayer.heldItem)), 0);
+        setSpriteBlendMode(HOLDABLE_ITEMS_BASE + i, SPRITE_BLEND_ALPHA_MODULATED);
+        setBilinearFiltering(HOLDABLE_ITEMS_BASE + i, TRUE);
+        startSpriteAnimation(HOLDABLE_ITEMS_BASE + i, getAnimationOffsetFromScript(heldItemsAnimationScripts, getItemAnimationIndex(gPlayer.heldItem)), 0);
     }
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", updateCabinetSelectionHighlight);
 
 void updateCabinetSelectionHighlight(void) {
 
@@ -4946,8 +4835,6 @@ reset:
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeInCabinetElements);
-
 void fadeInCabinetSprites(void) {
     
     u8 i;
@@ -4963,7 +4850,7 @@ void fadeInCabinetSprites(void) {
     updateSpriteAlpha(0x88, 0xFF, 24);
 
     for (i = 0; i < 9; i++) {
-        if (D_801890E8[(overlayScreenTable.pageNumber * 8) + i]) {
+        if (cabinetItemSlots[(overlayScreenTable.pageNumber * 8) + i]) {
             updateSpriteAlpha(0xA3 + i, 0xFF, 24);
         }
     }
@@ -4975,8 +4862,6 @@ void fadeInCabinetSprites(void) {
     }
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeOutCabinetElements);
 
 void fadeOutCabinetSprites(void) {
 
@@ -4993,7 +4878,7 @@ void fadeOutCabinetSprites(void) {
 
     for (i = 0; i < 9; i++) {
 
-        if (D_801890E8[(overlayScreenTable.pageNumber * 8) + i]) {
+        if (cabinetItemSlots[(overlayScreenTable.pageNumber * 8) + i]) {
             updateSpriteAlpha(0xA3 + i, 0, 24);
         }
         
@@ -5011,8 +4896,6 @@ void fadeOutCabinetSprites(void) {
     deactivateNumberSprites(1);
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", cabinetScreenCallback);
 
 // cabinet screen main loop callback
 void cabinetScreenCallback(void) {
@@ -5070,7 +4953,7 @@ void cabinetScreenCallback(void) {
                         overlayScreenTable.screenState = 101;
                     }
 
-                    playSfx(2);
+                    playSfx(MOVE_CURSOR_SFX);
                     set = TRUE;
                     
                 }
@@ -5090,7 +4973,7 @@ void cabinetScreenCallback(void) {
                         overlayScreenTable.screenState = 101;
                     }
                 
-                    playSfx(2);
+                    playSfx(MOVE_CURSOR_SFX);
                     set = TRUE;
                 
                 }
@@ -5106,7 +4989,7 @@ void cabinetScreenCallback(void) {
                     if ((overlayScreenTable.cellIndex != 3) && (overlayScreenTable.cellIndex != 7)) {
                         
                         overlayScreenTable.cellIndex++;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                         
                     } else if (overlayScreenTable.pageNumber != 3) {
                         
@@ -5121,7 +5004,7 @@ void cabinetScreenCallback(void) {
                         loadCabinetItemSprites();
                         updateCabinetSelectionHighlight();
                         
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                         
                     }
                     
@@ -5142,7 +5025,7 @@ void cabinetScreenCallback(void) {
                         if (overlayScreenTable.cellIndex && overlayScreenTable.cellIndex != 4) {
                             
                             overlayScreenTable.cellIndex--;
-                            playSfx(2);
+                            playSfx(MOVE_CURSOR_SFX);
                             
                         } else if (overlayScreenTable.pageNumber) {
 
@@ -5156,7 +5039,7 @@ void cabinetScreenCallback(void) {
                             loadCabinetItemSprites();
                             updateCabinetSelectionHighlight();
 
-                            playSfx(2);
+                            playSfx(MOVE_CURSOR_SFX);
                             
                         }
 
@@ -5190,10 +5073,10 @@ void cabinetScreenCallback(void) {
                     if (overlayScreenTable.cellIndex == 8) {
                         overlayScreenTable.cellIndex = 1;
                         overlayScreenTable.screenState = 5;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                     } else if (overlayScreenTable.cellIndex < 4) {
                         overlayScreenTable.cellIndex += 4;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                     }
 
                     set = TRUE;
@@ -5205,9 +5088,8 @@ void cabinetScreenCallback(void) {
             if (checkButtonRepeat(CONTROLLER_1, BUTTON_STICK_NORTHEAST)) {
             
                 if (!set) {
-                    
-                    
-                    if (overlayScreenTable.cellIndex != 8) {
+
+if (overlayScreenTable.cellIndex != 8) {
 
                         if (overlayScreenTable.cellIndex >= 4) {
                             overlayScreenTable.cellIndex -= 4;
@@ -5216,7 +5098,7 @@ void cabinetScreenCallback(void) {
                             overlayScreenTable.screenState = 5;
                         }
                         
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                         set = TRUE;
                         
                     }
@@ -5233,7 +5115,7 @@ void cabinetScreenCallback(void) {
 
                         if (overlayScreenTable.cellIndex != 3 && overlayScreenTable.cellIndex != 7) {
                             overlayScreenTable.cellIndex++;
-                            playSfx(2);
+                            playSfx(MOVE_CURSOR_SFX);
                         }
                         
                         set = TRUE;
@@ -5252,7 +5134,7 @@ void cabinetScreenCallback(void) {
 
                         if (overlayScreenTable.cellIndex != 0 && overlayScreenTable.cellIndex != 4) {
                             overlayScreenTable.cellIndex--;
-                            playSfx(2);
+                            playSfx(MOVE_CURSOR_SFX);
                         }
 
                         set = TRUE;
@@ -5302,7 +5184,7 @@ void cabinetScreenCallback(void) {
                     overlayScreenTable.screenState = 2;
                 }
 
-                playSfx(1);
+                playSfx(CLOSE_SFX);
                 set = TRUE;
                 
             }
@@ -5327,10 +5209,10 @@ void cabinetScreenCallback(void) {
                         loadCabinetItemSprites();
                         updateCabinetSelectionHighlight();
 
-                        playSfx(0);
+                        playSfx(SELECT_1_SFX);
                         
                     } else {
-                        playSfx(3);
+                        playSfx(INVALID_BUZZ_SFX);
                     }
                     
                 } else if (isCabinetItemSwappable()) {
@@ -5338,9 +5220,9 @@ void cabinetScreenCallback(void) {
                     overlayScreenTable.unk_5 = overlayScreenTable.screenState;
                     overlayScreenTable.unk_4 = overlayScreenTable.pageNumber;
                     updateCabinetSelectionHighlight();
-                    playSfx(0);
+                    playSfx(SELECT_1_SFX);
                 } else {
-                    playSfx(3);
+                    playSfx(INVALID_BUZZ_SFX);
                 }
 
                 set = TRUE;
@@ -5363,7 +5245,7 @@ void cabinetScreenCallback(void) {
                     }
                     
                 } else {
-                    temp = D_801890E8[(overlayScreenTable.pageNumber * 8) + overlayScreenTable.cellIndex];
+                    temp = cabinetItemSlots[(overlayScreenTable.pageNumber * 8) + overlayScreenTable.cellIndex];
                 }
 
                 if (temp) {
@@ -5384,8 +5266,6 @@ void cabinetScreenCallback(void) {
     }
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", getCabinetItemXCoordinate);
 
 f32 getCabinetItemXCoordinate(u8 arg0, u8 arg1) {
 
@@ -5413,8 +5293,6 @@ f32 getCabinetItemXCoordinate(u8 arg0, u8 arg1) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", getCabinetItemYCoordinate);
-
 f32 getCabinetItemYCoordinate(u8 arg0, u8 arg1) {
 
    f32 res;
@@ -5440,8 +5318,6 @@ f32 getCabinetItemYCoordinate(u8 arg0, u8 arg1) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", resetCabinetSpriteColors);
-
 void resetCabinetSpriteColors(void) {
 
     u8 i;
@@ -5453,7 +5329,7 @@ void resetCabinetSpriteColors(void) {
 
     for (i = 0; i < 9; i++) {
 
-        if (D_801890E8[(overlayScreenTable.pageNumber * 8) + i]) {
+        if (cabinetItemSlots[(overlayScreenTable.pageNumber * 8) + i]) {
             setSpriteColor(0xA3 + i, 255, 255, 255, 255);
         }
         
@@ -5469,8 +5345,6 @@ void resetCabinetSpriteColors(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", isCabinetItemSwappable);
-
 bool isCabinetItemSwappable(void) {
 
     bool result = FALSE;
@@ -5479,7 +5353,7 @@ bool isCabinetItemSwappable(void) {
     switch (overlayScreenTable.screenState) {
 
         case 5:
-            temp = D_801890E8[(overlayScreenTable.pageNumber * 8) + overlayScreenTable.cellIndex];
+            temp = cabinetItemSlots[(overlayScreenTable.pageNumber * 8) + overlayScreenTable.cellIndex];
             break;
         case 101:
             temp = gPlayer.belongingsSlots[overlayScreenTable.cellIndex];
@@ -5499,8 +5373,6 @@ bool isCabinetItemSwappable(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", swapCabinetItems);
-
 void swapCabinetItems(void) {
 
     u8 temp;
@@ -5509,17 +5381,17 @@ void swapCabinetItems(void) {
 
         case 5:
             
-            temp = D_801890E8[(overlayScreenTable.pageNumber * 8) + overlayScreenTable.cellIndex];
+            temp = cabinetItemSlots[(overlayScreenTable.pageNumber * 8) + overlayScreenTable.cellIndex];
             
             if (overlayScreenTable.unk_5 == overlayScreenTable.screenState) {
                 
-                D_801890E8[(overlayScreenTable.pageNumber * 8) + overlayScreenTable.cellIndex] = 
-                    D_801890E8[(overlayScreenTable.unk_4 * 8) + overlayScreenTable.unk_3];
+                cabinetItemSlots[(overlayScreenTable.pageNumber * 8) + overlayScreenTable.cellIndex] = 
+                    cabinetItemSlots[(overlayScreenTable.unk_4 * 8) + overlayScreenTable.unk_3];
                 
-                D_801890E8[(overlayScreenTable.unk_4 * 8) + overlayScreenTable.unk_3] = temp;
+                cabinetItemSlots[(overlayScreenTable.unk_4 * 8) + overlayScreenTable.unk_3] = temp;
                 
             } else {
-                D_801890E8[(overlayScreenTable.pageNumber * 8) + overlayScreenTable.cellIndex] = gPlayer.belongingsSlots[overlayScreenTable.unk_3];
+                cabinetItemSlots[(overlayScreenTable.pageNumber * 8) + overlayScreenTable.cellIndex] = gPlayer.belongingsSlots[overlayScreenTable.unk_3];
                 gPlayer.belongingsSlots[overlayScreenTable.unk_3] = temp;
             }
 
@@ -5535,8 +5407,8 @@ void swapCabinetItems(void) {
                 gPlayer.belongingsSlots[overlayScreenTable.unk_3] = temp;
                 
             } else {
-                gPlayer.belongingsSlots[overlayScreenTable.cellIndex] = D_801890E8[(overlayScreenTable.unk_4 * 8) + overlayScreenTable.unk_3];
-                D_801890E8[(overlayScreenTable.unk_4 * 8) + overlayScreenTable.unk_3] = temp;
+                gPlayer.belongingsSlots[overlayScreenTable.cellIndex] = cabinetItemSlots[(overlayScreenTable.unk_4 * 8) + overlayScreenTable.unk_3];
+                cabinetItemSlots[(overlayScreenTable.unk_4 * 8) + overlayScreenTable.unk_3] = temp;
             }
             
             break;
@@ -5547,10 +5419,7 @@ void swapCabinetItems(void) {
 
 /* end of cabinet functions */
 
-
 // misc. helper
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", getToolLevelForAnimation);
 
 u8 getToolLevelForAnimation(u8 tool) {
     
@@ -5583,10 +5452,7 @@ u8 getToolLevelForAnimation(u8 tool) {
     
 }
 
-
 /* house extension selection functions */
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadHouseExtensionsScreenSprites);
 
 void loadHouseExtensionsScreenSprites(void) {
     
@@ -5598,7 +5464,7 @@ void loadHouseExtensionsScreenSprites(void) {
     dmaSprite(HOUSE_EXTENSIONS_LIST, (u32)&_houseExtensionSelectionTextureSegmentRomStart, (u32)&_houseExtensionSelectionTextureSegmentRomEnd, (u32)&_houseExtensionSelectionAssetsIndexSegmentRomStart, (u32)&_houseExtensionSelectionAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(HOUSE_EXTENSIONS_LIST, 0.0f, 0.0f, 8.0f);
     setSpriteColor(HOUSE_EXTENSIONS_LIST, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(HOUSE_EXTENSIONS_LIST, 2);
+    setSpriteBlendMode(HOUSE_EXTENSIONS_LIST, SPRITE_BLEND_ALPHA_MODULATED);
     setBilinearFiltering(HOUSE_EXTENSIONS_LIST, TRUE);
     startSpriteAnimation(HOUSE_EXTENSIONS_LIST, 0, 0);
 
@@ -5606,49 +5472,49 @@ void loadHouseExtensionsScreenSprites(void) {
     dmaSprite(0x83, (u32)&_houseExtensionSelectionTextureSegmentRomStart, (u32)&_houseExtensionSelectionTextureSegmentRomEnd, (u32)&_houseExtensionSelectionAssetsIndexSegmentRomStart, (u32)&_houseExtensionSelectionAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x83, 0.0f, 0.0f, 8.0f);
     setSpriteColor(0x83, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x83, 2);
+    setSpriteBlendMode(0x83, SPRITE_BLEND_ALPHA_MODULATED);
     setBilinearFiltering(0x83, TRUE);
     startSpriteAnimation(0x83, 1, 0);
     
     dmaSprite(0x84, (u32)&_houseExtensionSelectionTextureSegmentRomStart, (u32)&_houseExtensionSelectionTextureSegmentRomEnd, (u32)&_houseExtensionSelectionAssetsIndexSegmentRomStart, (u32)&_houseExtensionSelectionAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x84, 0.0f, -16.0f, 8.0f);
     setSpriteColor(0x84, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x84, 2);
+    setSpriteBlendMode(0x84, SPRITE_BLEND_ALPHA_MODULATED);
     setBilinearFiltering(0x84, TRUE);
     startSpriteAnimation(0x84, 1, 0);
     
     dmaSprite(0x85, (u32)&_houseExtensionSelectionTextureSegmentRomStart, (u32)&_houseExtensionSelectionTextureSegmentRomEnd, (u32)&_houseExtensionSelectionAssetsIndexSegmentRomStart, (u32)&_houseExtensionSelectionAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x85, 0.0f, -32.0f, 8.0f);
     setSpriteColor(0x85, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x85, 2);
+    setSpriteBlendMode(0x85, SPRITE_BLEND_ALPHA_MODULATED);
     setBilinearFiltering(0x85, TRUE);
     startSpriteAnimation(0x85, 1, 0);
     
     dmaSprite(0x86, (u32)&_houseExtensionSelectionTextureSegmentRomStart, (u32)&_houseExtensionSelectionTextureSegmentRomEnd, (u32)&_houseExtensionSelectionAssetsIndexSegmentRomStart, (u32)&_houseExtensionSelectionAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x86, 0.0f, -48.0f, 8.0f);
     setSpriteColor(0x86, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x86, 2);
+    setSpriteBlendMode(0x86, SPRITE_BLEND_ALPHA_MODULATED);
     setBilinearFiltering(0x86, TRUE);
     startSpriteAnimation(0x86, 1, 0);
     
     dmaSprite(0x87, (u32)&_houseExtensionSelectionTextureSegmentRomStart, (u32)&_houseExtensionSelectionTextureSegmentRomEnd, (u32)&_houseExtensionSelectionAssetsIndexSegmentRomStart, (u32)&_houseExtensionSelectionAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x87, 0.0f, -64.0f, 8.0f);
     setSpriteColor(0x87, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x87, 2);
+    setSpriteBlendMode(0x87, SPRITE_BLEND_ALPHA_MODULATED);
     setBilinearFiltering(0x87, TRUE);
     startSpriteAnimation(0x87, 1, 0);
     
     dmaSprite(0x88, (u32)&_houseExtensionSelectionTextureSegmentRomStart, (u32)&_houseExtensionSelectionTextureSegmentRomEnd, (u32)&_houseExtensionSelectionAssetsIndexSegmentRomStart, (u32)&_houseExtensionSelectionAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x88, 0.0f, -80.0f, 8.0f);
     setSpriteColor(0x88, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x88, 2);
+    setSpriteBlendMode(0x88, SPRITE_BLEND_ALPHA_MODULATED);
     setBilinearFiltering(0x88, TRUE);
     startSpriteAnimation(0x88, 1, 0);
         
     dmaSprite(HOUSE_EXTENSIONS_BACKGROUND, (u32)&_photoSmallTextureSegmentRomStart, (u32)&_photoSmallTextureSegmentRomEnd, (u32)&_photoSmallAssetsIndexSegmentRomStart, (u32)&_photoSmallAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_SNAPSHOT_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_SNAPSHOT_PALETTE, (u16*)OVERLAY_SCREEN_SNAPSHOT_ANIM_METADATA, (u32*)OVERLAY_SCREEN_SNAPSHOT_SPRITESHEET_INDEX, NULL, 0, FALSE);
     setSpriteViewSpacePosition(HOUSE_EXTENSIONS_BACKGROUND, 0.0f, 0.0f, 8.0f);
     setSpriteColor(HOUSE_EXTENSIONS_BACKGROUND, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(HOUSE_EXTENSIONS_BACKGROUND, 2);
+    setSpriteBlendMode(HOUSE_EXTENSIONS_BACKGROUND, SPRITE_BLEND_ALPHA_MODULATED);
     setBilinearFiltering(HOUSE_EXTENSIONS_BACKGROUND, TRUE);
     startSpriteAnimation(HOUSE_EXTENSIONS_BACKGROUND, 0, 0);
 
@@ -5659,8 +5525,6 @@ void loadHouseExtensionsScreenSprites(void) {
     fadeInHouseExtensionsSelectionSprites();
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeInHouseExtensionsSelectionSprites);
 
 void fadeInHouseExtensionsSelectionSprites(void) {
     
@@ -5744,10 +5608,10 @@ void houseExtensionsSelectionScreenCallback(void) {
                 
                 switch (overlayScreenTable.pageNumber) {                      
                     case 0:                                 
-                        initializeMessageBox(0, 6, 0x83, 0);
+                        initializeMessageBox(0, LEVEL_INTERACTIONS_TEXT_INDEX, 131, 0);
                         break;
                     case 1:                                 
-                        initializeMessageBox(0, 6, 0x84, 0);
+                        initializeMessageBox(0, LEVEL_INTERACTIONS_TEXT_INDEX, 132, 0);
                     }
                 
                 overlayScreenTable.screenState = 5;
@@ -5777,7 +5641,7 @@ void houseExtensionsSelectionScreenCallback(void) {
                         resetAnimationState(CURSOR_HAND);
                         overlayScreenTable.screenState = 2;
                         gHouseExtensionSelection = overlayScreenTable.cellIndex;
-                        setDailyEventBit(8);
+                        setDailyEventBit(HOUSE_EXTENSION_SELECTED);
                         break;
 
                     case 1:
@@ -5808,7 +5672,7 @@ void houseExtensionsSelectionScreenCallback(void) {
                     
                     if (overlayScreenTable.cellIndex != 5) {
                         overlayScreenTable.cellIndex++;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                     }
             
                     set = TRUE;
@@ -5822,7 +5686,7 @@ void houseExtensionsSelectionScreenCallback(void) {
                 if (!set) {
                     if (overlayScreenTable.cellIndex != 0) {
                         overlayScreenTable.cellIndex--;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                     }
                     
                     set = TRUE;
@@ -5839,14 +5703,14 @@ void houseExtensionsSelectionScreenCallback(void) {
                 setMessageBoxInterpolationWithFlags(0, -4, 0);
                 
                 if (checkLifeEventBit(D_80121D74[overlayScreenTable.cellIndex])) {
-                    initializeMessageBox(0, 6, 0x6D, 0);
+                    initializeMessageBox(0, LEVEL_INTERACTIONS_TEXT_INDEX, 109, 0);
                     overlayScreenTable.screenState = 6;
                 } else {
                     initializeDialogueSession(0, DIALOGUE_SHOP, 33, 0x40);
                     overlayScreenTable.screenState = 4;
                 }
                 
-                playSfx(0);
+                playSfx(SELECT_1_SFX);
                 set = TRUE;
                 
             }
@@ -5871,15 +5735,12 @@ void houseExtensionsSelectionScreenCallback(void) {
         deactivateNumberSprites(1);
         resetAnimationState(CURSOR_HAND);
         overlayScreenTable.screenState = 2;
-        playSfx(1);
+        playSfx(CLOSE_SFX);
     }
     
 }
 
-
 /* estimate functions */
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens",  loadEstimateScreenSprites);
 
 void loadEstimateScreenSprites(void) {
 
@@ -5893,15 +5754,15 @@ void loadEstimateScreenSprites(void) {
     dmaSprite(0x82, (u32)&_estimateScreenTextureSegmentRomStart, (u32)&_estimateScreenTextureSegmentRomEnd, (u32)&_estimateScreenAssetsIndexSegmentRomStart, (u32)&_estimateScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x82, 0.0f, 0.0f, 8.0f);
     setSpriteColor(0x82, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x82, 2);
-    setBilinearFiltering(0x82, 1);
+    setSpriteBlendMode(0x82, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0x82, TRUE);
     startSpriteAnimation(0x82, 0, 0);
 
     dmaSprite(ESTIMATE_BACKGROUND, (u32)&_photoLargeTextureSegmentRomStart, (u32)&_photoLargeTextureSegmentRomEnd, (u32)&_photoLargeAssetsIndexSegmentRomStart, (u32)&_photoLargeAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_SNAPSHOT_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_SNAPSHOT_PALETTE, (u16*)OVERLAY_SCREEN_SNAPSHOT_ANIM_METADATA, (u32*)OVERLAY_SCREEN_SNAPSHOT_SPRITESHEET_INDEX, NULL, 0, FALSE);
     setSpriteViewSpacePosition(ESTIMATE_BACKGROUND, 0.0f, 0.0f, 8.0f);
     setSpriteColor(ESTIMATE_BACKGROUND, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(ESTIMATE_BACKGROUND, 2);
-    setBilinearFiltering(ESTIMATE_BACKGROUND, 1);
+    setSpriteBlendMode(ESTIMATE_BACKGROUND, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(ESTIMATE_BACKGROUND, TRUE);
     startSpriteAnimation(ESTIMATE_BACKGROUND, 0, 0);
 
     temp = getDogBestRacePlacement();
@@ -5910,8 +5771,8 @@ void loadEstimateScreenSprites(void) {
         dmaSprite(0x83, (u32)&_estimateScreenTextureSegmentRomStart, (u32)&_estimateScreenTextureSegmentRomEnd, (u32)&_estimateScreenAssetsIndexSegmentRomStart, (u32)&_estimateScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0x83, 32.0f, 36.0f, 16.0f);
         setSpriteColor(0x83, 0xFF, 0xFF, 0xFF, 0);
-        setSpriteBlendMode(0x83, 2);
-        setBilinearFiltering(0x83, 1);
+        setSpriteBlendMode(0x83, SPRITE_BLEND_ALPHA_MODULATED);
+        setBilinearFiltering(0x83, TRUE);
         startSpriteAnimation(0x83, temp + 1, 0);
     }
 
@@ -5921,8 +5782,8 @@ void loadEstimateScreenSprites(void) {
         dmaSprite(0x84, (u32)&_estimateScreenTextureSegmentRomStart, (u32)&_estimateScreenTextureSegmentRomEnd, (u32)&_estimateScreenAssetsIndexSegmentRomStart, (u32)&_estimateScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0x84, 32.0f, 20.0f, 8.0f);
         setSpriteColor(0x84, 0xFF, 0xFF, 0xFF, 0);
-        setSpriteBlendMode(0x84, 2);
-        setBilinearFiltering(0x84, 1);
+        setSpriteBlendMode(0x84, SPRITE_BLEND_ALPHA_MODULATED);
+        setBilinearFiltering(0x84, TRUE);
         startSpriteAnimation(0x84, temp + 1, 0);
     }
 
@@ -5932,8 +5793,8 @@ void loadEstimateScreenSprites(void) {
         dmaSprite(0x85, (u32)&_estimateScreenTextureSegmentRomStart, (u32)&_estimateScreenTextureSegmentRomEnd, (u32)&_estimateScreenAssetsIndexSegmentRomStart, (u32)&_estimateScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
         setSpriteViewSpacePosition(0x85, -24.0f, 4.0f, 8.0f);
         setSpriteColor(0x85, 0xFF, 0xFF, 0xFF, 0);
-        setSpriteBlendMode(0x85, 2);
-        setBilinearFiltering(0x85, 1);
+        setSpriteBlendMode(0x85, SPRITE_BLEND_ALPHA_MODULATED);
+        setBilinearFiltering(0x85, TRUE);
         startSpriteAnimation(0x85, temp + 1, 0);
     }
     
@@ -5966,9 +5827,6 @@ void loadEstimateScreenSprites(void) {
     
 }
 
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeInEstimateSprites);
-
 void fadeInEstimateSprites(void) {
 
     fadeInClock();
@@ -5979,8 +5837,6 @@ void fadeInEstimateSprites(void) {
     updateSpriteAlpha(0x84, 0xFF, 24);
     updateSpriteAlpha(0x85, 0xFF, 24);
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeOutEstimateSprites);
 
 void fadeOutEstimateSprites(void) {
 
@@ -6005,8 +5861,6 @@ void fadeOutEstimateSprites(void) {
     deactivateNumberSprites(6);
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", estimateScreenCallback);
 
 void estimateScreenCallback(void) {
 
@@ -6040,15 +5894,12 @@ void estimateScreenCallback(void) {
     if ((overlayScreenTable.screenState >= 4) && (checkButtonPressed(CONTROLLER_1, BUTTON_B)) && (temp == 0)) {
         fadeOutEstimateSprites();
         overlayScreenTable.screenState = 2;
-        playSfx(1);
+        playSfx(CLOSE_SFX);
     }
     
 }
 
-
 /* kitchen picture functions */
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadKitchenPictureScreenSprites);
 
 void loadKitchenPictureScreenSprites(void) {
     
@@ -6057,7 +5908,7 @@ void loadKitchenPictureScreenSprites(void) {
     dmaSprite(0x82, (u32)&_powerNutTreeDrawingTextureSegmentRomStart, (u32)&_powerNutTreeDrawingTextureSegmentRomEnd, (u32)&_powerNutTreeDrawingAssetsIndexSegmentRomStart, (u32)&_powerNutTreeDrawingAssetsIndexSegmentRomEnd,  0, 0, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x82, 0.0f, 0.0f, 8.0f);
     setSpriteColor(0x82, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x82, 2);
+    setSpriteBlendMode(0x82, SPRITE_BLEND_ALPHA_MODULATED);
     setBilinearFiltering(0x82, TRUE);
     startSpriteAnimation(0x82, 0, 0);
     
@@ -6069,8 +5920,6 @@ void loadKitchenPictureScreenSprites(void) {
     fadeInKitchenPictureSprites();
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadPowerNutTreeSprites);
 
 void loadPowerNutTreeSprites(void) {
 
@@ -6084,8 +5933,8 @@ void loadPowerNutTreeSprites(void) {
             
             setSpriteViewSpacePosition(0xA3 + i, kitchenPicturePowerNutsXCoordinates[i], kitchenPicturePowerNutsYCoordinates[i], 8.0f);
             setSpriteColor(0xA3 + i, 0xFF, 0xFF, 0xFF, 0);
-            setSpriteBlendMode(0xA3 + i, 2);
-            setBilinearFiltering(0xA3 + i, 1);
+            setSpriteBlendMode(0xA3 + i, SPRITE_BLEND_ALPHA_MODULATED);
+            setBilinearFiltering(0xA3 + i, TRUE);
             startSpriteAnimation(0xA3 + i, 1, 0);
             
         }
@@ -6093,8 +5942,6 @@ void loadPowerNutTreeSprites(void) {
     }
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", updatePowerNutCellAnimations);
 
 void updatePowerNutCellAnimations(void) {
     
@@ -6122,8 +5969,6 @@ void updatePowerNutCellAnimations(void) {
     startSpriteAnimation(0xAC, 1, 0);
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", findPowerNutCellIndex);
 
 u8 findPowerNutCellIndex(u8 cellIndex, u8 arg1) {
 
@@ -6181,17 +6026,14 @@ u8 findPowerNutCellIndex(u8 cellIndex, u8 arg1) {
                 temp--;
             
             }
-                
-            
-            break;
+
+break;
         
     }
 
     return result;
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeInKitchenPictureSprites);
 
 inline void fadeInKitchenPictureSprites(void) {
     
@@ -6211,8 +6053,6 @@ inline void fadeInKitchenPictureSprites(void) {
     updateSpriteAlpha(0xAC, 0xFF, 24);
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeOutKitchenPictureSprites);
 
 void fadeOutKitchenPictureSprites(void) {
 
@@ -6234,8 +6074,6 @@ void fadeOutKitchenPictureSprites(void) {
     deactivateNumberSprites(1);
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", kitchenPictureScreenCallback);
 
 void kitchenPictureScreenCallback(void) {
 
@@ -6283,8 +6121,7 @@ void kitchenPictureScreenCallback(void) {
             }
             break;
 
-
-        case 5:
+case 5:
 
             if (checkButtonRepeat(CONTROLLER_1, BUTTON_STICK_NORTHWEST)) {
                 
@@ -6298,7 +6135,7 @@ void kitchenPictureScreenCallback(void) {
                             overlayScreenTable.cellIndex = temp;
                             setSpriteViewSpacePosition(CURSOR_HAND, kitchenPicturePowerNutsXCoordinates[temp] - 8.0f, kitchenPicturePowerNutsYCoordinates[temp] - 8.0f, 32.0f);
                             updatePowerNutCellAnimations();
-                            playSfx(2);
+                            playSfx(MOVE_CURSOR_SFX);
                         }
     
                     }
@@ -6322,12 +6159,11 @@ void kitchenPictureScreenCallback(void) {
                             overlayScreenTable.cellIndex = temp;
                             setSpriteViewSpacePosition(CURSOR_HAND, kitchenPicturePowerNutsXCoordinates[temp] - 8.0f, kitchenPicturePowerNutsYCoordinates[temp] - 8.0f, 32.0f);
                             updatePowerNutCellAnimations();
-                            playSfx(2);
+                            playSfx(MOVE_CURSOR_SFX);
                             
                         }
-                        
-                
-                    }
+
+}
                 
                     set = TRUE;
                     
@@ -6349,7 +6185,7 @@ void kitchenPictureScreenCallback(void) {
                         controllers[CONTROLLER_1].buttonPressed = 0;
                         overlayScreenTable.screenState = 4;
                         
-                        playSfx(0);
+                        playSfx(SELECT_1_SFX);
                         
                     }
                     
@@ -6367,17 +6203,14 @@ void kitchenPictureScreenCallback(void) {
         resetAnimationState(CURSOR_HAND);
         fadeOutKitchenPictureSprites();
         overlayScreenTable.screenState = 2;
-        playSfx(1);
+        playSfx(CLOSE_SFX);
     }
     
 }
 
 /* end kitchen picture functions */
 
-
 /* calendar functions */
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadCalendarScreenSprites);
 
 void loadCalendarScreenSprites(void) {
     
@@ -6385,7 +6218,7 @@ void loadCalendarScreenSprites(void) {
     dmaSprite(CALENDAR_BACKGROUND, (u32)&_calendarTextureSegmentRomStart, (u32)&_calendarTextureSegmentRomEnd, (u32)&_calendarAssetsIndexSegmentRomStart, (u32)&_calendarAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(CALENDAR_BACKGROUND, 0.0f, 0.0f, 8.0f);
     setSpriteColor(CALENDAR_BACKGROUND, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(CALENDAR_BACKGROUND, 2);
+    setSpriteBlendMode(CALENDAR_BACKGROUND, SPRITE_BLEND_ALPHA_MODULATED);
     setBilinearFiltering(CALENDAR_BACKGROUND, TRUE);
     startSpriteAnimation(CALENDAR_BACKGROUND, 0, 0);
     
@@ -6399,49 +6232,47 @@ void loadCalendarScreenSprites(void) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadCalendarStickers);
-
 void loadCalendarStickers(void) {
 
     u8 i, j, k;
     u8 temp;
     
-    D_80205640[0] = 0;
-    D_80205640[1] = 1;
-    D_80205640[2] = 2;
-    D_80205640[3] = 3;
-    D_80205640[4] = 4;
+    calendarStickers[0] = 0;
+    calendarStickers[1] = 1;
+    calendarStickers[2] = 2;
+    calendarStickers[3] = 3;
+    calendarStickers[4] = 4;
 
-    if (checkLifeEventBit(0x5B)) {
-        D_80205640[5] = 5;
-        D_80205640[6] = 6;
-        D_80205640[7] = 7;
-        D_80205640[8] = 8;
-        D_80205640[9] = 9;
+    if (checkLifeEventBit(WON_CALENDAR_STICKERS_FROM_RAFFLE)) {
+        calendarStickers[5] = 5;
+        calendarStickers[6] = 6;
+        calendarStickers[7] = 7;
+        calendarStickers[8] = 8;
+        calendarStickers[9] = 9;
     } else {
-        D_80205640[5] = 0xFF;
-        D_80205640[6] = 0xFF;
-        D_80205640[7] = 0xFF;
-        D_80205640[8] = 0xFF;
-        D_80205640[9] = 0xFF;
+        calendarStickers[5] = 0xFF;
+        calendarStickers[6] = 0xFF;
+        calendarStickers[7] = 0xFF;
+        calendarStickers[8] = 0xFF;
+        calendarStickers[9] = 0xFF;
     }
 
     for (i = 0; i < 5; i++) {
         
         for (j = 0; j < 7; j++) {
 
-            temp = D_80189108[i][j];
+            temp = calendarStickerGrid[i][j];
 
             if (temp != 0xFF) {
 
-                D_80205640[temp] = 0xFF;
+                calendarStickers[temp] = 0xFF;
                 
                 dmaSprite(CALENDAR_STICKERS_BASE + temp, (u32)&_calendarTextureSegmentRomStart, (u32)&_calendarTextureSegmentRomEnd, (u32)&_calendarAssetsIndexSegmentRomStart, (u32)&_calendarAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
                 setSpriteViewSpacePosition(CALENDAR_STICKERS_BASE + temp, calendarStickersXCoordinates[0], calendarStickersYCoordinates[0], 8.0f);
                 setSpriteViewSpacePosition(CALENDAR_STICKERS_BASE + temp, (j << 5) - 122, -(i * 24) + 0x1A, 4.0f);
                 setSpriteColor(CALENDAR_STICKERS_BASE + temp, 0xFF, 0xFF, 0xFF, 0);
-                setSpriteBlendMode(CALENDAR_STICKERS_BASE + temp, 2);
-                setBilinearFiltering(CALENDAR_STICKERS_BASE + temp, 1);
+                setSpriteBlendMode(CALENDAR_STICKERS_BASE + temp, SPRITE_BLEND_ALPHA_MODULATED);
+                setBilinearFiltering(CALENDAR_STICKERS_BASE + temp, TRUE);
                 startSpriteAnimation(CALENDAR_STICKERS_BASE + temp, 1, temp);
                 
             }
@@ -6450,16 +6281,15 @@ void loadCalendarStickers(void) {
     
     }
 
-    
-    for (k = 0; k < 10; k++) {
+for (k = 0; k < 10; k++) {
 
-        if (D_80205640[k] != 0xFF) {
+        if (calendarStickers[k] != 0xFF) {
 
             dmaSprite(CALENDAR_STICKERS_BASE + k, (u32)&_calendarTextureSegmentRomStart, (u32)&_calendarTextureSegmentRomEnd, (u32)&_calendarAssetsIndexSegmentRomStart, (u32)&_calendarAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
             setSpriteViewSpacePosition(CALENDAR_STICKERS_BASE + k, calendarStickersXCoordinates[k], calendarStickersYCoordinates[k], 8.0f);
             setSpriteColor(CALENDAR_STICKERS_BASE + k, 0xFF, 0xFF, 0xFF, 0);
-            setSpriteBlendMode(CALENDAR_STICKERS_BASE + k, 2);
-            setBilinearFiltering(CALENDAR_STICKERS_BASE + k, 1);
+            setSpriteBlendMode(CALENDAR_STICKERS_BASE + k, SPRITE_BLEND_ALPHA_MODULATED);
+            setBilinearFiltering(CALENDAR_STICKERS_BASE + k, TRUE);
             startSpriteAnimation(CALENDAR_STICKERS_BASE + k, 1, k);
             
         }
@@ -6467,8 +6297,6 @@ void loadCalendarStickers(void) {
     }
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadCalendarDateNumbers);
 
 void loadCalendarDateNumbers(u8 year, u8 season, u8 dayOfMonth) {
     
@@ -6483,8 +6311,8 @@ void loadCalendarDateNumbers(u8 year, u8 season, u8 dayOfMonth) {
     
     setSpriteViewSpacePosition(0x83, 0.0f, 0.0f, 8.0f);
     setSpriteColor(0x83, 255, 255, 255, 0);
-    setSpriteBlendMode(0x83, 2);
-    setBilinearFiltering(0x83, 1);
+    setSpriteBlendMode(0x83, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0x83, TRUE);
     startSpriteAnimation(0x83, 4, season - 1);
 
     skipCount = 0;
@@ -6503,8 +6331,8 @@ void loadCalendarDateNumbers(u8 year, u8 season, u8 dayOfMonth) {
 
                 setSpriteViewSpacePosition(0x8F + dayIndex, (f32)(col * 32), (f32)(-row * 24), 16.0f);
                 setSpriteColor(0x8F + dayIndex, 255, 255, 255, 0);
-                setSpriteBlendMode(0x8F + dayIndex, 2);
-                setBilinearFiltering(0x8F + dayIndex, 1);
+                setSpriteBlendMode(0x8F + dayIndex, SPRITE_BLEND_ALPHA_MODULATED);
+                setBilinearFiltering(0x8F + dayIndex, TRUE);
 
                 if (isSaturdayStart) {
                     if (dayIndex == 22) {
@@ -6522,8 +6350,8 @@ void loadCalendarDateNumbers(u8 year, u8 season, u8 dayOfMonth) {
                     
                     setSpriteViewSpacePosition(0xB7, (f32)(col * 32), (f32)(-row * 24), 32.0f);
                     setSpriteColor(0xB7, 255, 255, 255, 0);
-                    setSpriteBlendMode(0xB7, 2);
-                    setBilinearFiltering(0xB7, 1);
+                    setSpriteBlendMode(0xB7, SPRITE_BLEND_ALPHA_MODULATED);
+                    setBilinearFiltering(0xB7, TRUE);
                     startSpriteAnimation(0xB7, 3, 0);
                 }
 
@@ -6538,8 +6366,6 @@ void loadCalendarDateNumbers(u8 year, u8 season, u8 dayOfMonth) {
     }
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeInCalendarElements);
 
 void fadeInCalendarSprites(void) {
     
@@ -6569,9 +6395,6 @@ void fadeInCalendarSprites(void) {
     
 }
 
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeOutCalendarElements);
-
 void fadeOutCalendarSprites(void) {
 
     u8 i;
@@ -6583,16 +6406,16 @@ void fadeOutCalendarSprites(void) {
 
     updateSpriteAlpha(0xB7, 0, 24);
 
-    setSpriteBlendMode(CALENDAR_STICKERS_BASE, 2);
-    setSpriteBlendMode(CALENDAR_STICKERS_BASE + 1, 2);
-    setSpriteBlendMode(CALENDAR_STICKERS_BASE + 2, 2);
-    setSpriteBlendMode(CALENDAR_STICKERS_BASE + 3, 2);
-    setSpriteBlendMode(CALENDAR_STICKERS_BASE + 4, 2);
-    setSpriteBlendMode(CALENDAR_STICKERS_BASE + 5, 2);
-    setSpriteBlendMode(CALENDAR_STICKERS_BASE + 6, 2);
-    setSpriteBlendMode(CALENDAR_STICKERS_BASE + 7, 2);
-    setSpriteBlendMode(CALENDAR_STICKERS_BASE + 8, 2);
-    setSpriteBlendMode(CALENDAR_STICKERS_BASE + 9, 2);
+    setSpriteBlendMode(CALENDAR_STICKERS_BASE, SPRITE_BLEND_ALPHA_MODULATED);
+    setSpriteBlendMode(CALENDAR_STICKERS_BASE + 1, SPRITE_BLEND_ALPHA_MODULATED);
+    setSpriteBlendMode(CALENDAR_STICKERS_BASE + 2, SPRITE_BLEND_ALPHA_MODULATED);
+    setSpriteBlendMode(CALENDAR_STICKERS_BASE + 3, SPRITE_BLEND_ALPHA_MODULATED);
+    setSpriteBlendMode(CALENDAR_STICKERS_BASE + 4, SPRITE_BLEND_ALPHA_MODULATED);
+    setSpriteBlendMode(CALENDAR_STICKERS_BASE + 5, SPRITE_BLEND_ALPHA_MODULATED);
+    setSpriteBlendMode(CALENDAR_STICKERS_BASE + 6, SPRITE_BLEND_ALPHA_MODULATED);
+    setSpriteBlendMode(CALENDAR_STICKERS_BASE + 7, SPRITE_BLEND_ALPHA_MODULATED);
+    setSpriteBlendMode(CALENDAR_STICKERS_BASE + 8, SPRITE_BLEND_ALPHA_MODULATED);
+    setSpriteBlendMode(CALENDAR_STICKERS_BASE + 9, SPRITE_BLEND_ALPHA_MODULATED);
 
     updateSpriteAlpha(CALENDAR_STICKERS_BASE, 0, 24);
     updateSpriteAlpha(CALENDAR_STICKERS_BASE + 1, 0, 24);
@@ -6614,8 +6437,6 @@ void fadeOutCalendarSprites(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", calendarScreenCallback);
-
 void calendarScreenCallback(void) {
 
     bool set = FALSE;
@@ -6632,16 +6453,16 @@ void calendarScreenCallback(void) {
             
             if (checkSpriteRGBAUpdateFinished(CALENDAR_BACKGROUND)) {
 
-                setSpriteBlendMode(CALENDAR_STICKERS_BASE, 3);
-                setSpriteBlendMode(CALENDAR_STICKERS_BASE + 1, 3);
-                setSpriteBlendMode(CALENDAR_STICKERS_BASE + 2, 3);
-                setSpriteBlendMode(CALENDAR_STICKERS_BASE + 3, 3);
-                setSpriteBlendMode(CALENDAR_STICKERS_BASE + 4, 3);
-                setSpriteBlendMode(CALENDAR_STICKERS_BASE + 5, 3);
-                setSpriteBlendMode(CALENDAR_STICKERS_BASE + 6, 3);
-                setSpriteBlendMode(CALENDAR_STICKERS_BASE + 7, 3);
-                setSpriteBlendMode(CALENDAR_STICKERS_BASE + 8, 3);
-                setSpriteBlendMode(CALENDAR_STICKERS_BASE + 9, 3);
+                setSpriteBlendMode(CALENDAR_STICKERS_BASE, SPRITE_BLEND_ALPHA_DECAL);
+                setSpriteBlendMode(CALENDAR_STICKERS_BASE + 1, SPRITE_BLEND_ALPHA_DECAL);
+                setSpriteBlendMode(CALENDAR_STICKERS_BASE + 2, SPRITE_BLEND_ALPHA_DECAL);
+                setSpriteBlendMode(CALENDAR_STICKERS_BASE + 3, SPRITE_BLEND_ALPHA_DECAL);
+                setSpriteBlendMode(CALENDAR_STICKERS_BASE + 4, SPRITE_BLEND_ALPHA_DECAL);
+                setSpriteBlendMode(CALENDAR_STICKERS_BASE + 5, SPRITE_BLEND_ALPHA_DECAL);
+                setSpriteBlendMode(CALENDAR_STICKERS_BASE + 6, SPRITE_BLEND_ALPHA_DECAL);
+                setSpriteBlendMode(CALENDAR_STICKERS_BASE + 7, SPRITE_BLEND_ALPHA_DECAL);
+                setSpriteBlendMode(CALENDAR_STICKERS_BASE + 8, SPRITE_BLEND_ALPHA_DECAL);
+                setSpriteBlendMode(CALENDAR_STICKERS_BASE + 9, SPRITE_BLEND_ALPHA_DECAL);
 
                 overlayScreenTable.screenState = 5;
                 
@@ -6690,7 +6511,7 @@ void calendarScreenCallback(void) {
                             (f32) (-(overlayScreenTable.unk_9 * 24) + 22), 
                             32.0f);
                         
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                         
                     }
                 
@@ -6713,7 +6534,7 @@ void calendarScreenCallback(void) {
                            (f32) (-(overlayScreenTable.unk_9 * 24) + 22), 
                            32.0f);
                     
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                     
                     }
             
@@ -6736,7 +6557,7 @@ void calendarScreenCallback(void) {
                            (f32) (-(overlayScreenTable.unk_9 * 24) + 22), 
                            32.0f);
                     
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                     
                     }
             
@@ -6759,7 +6580,7 @@ void calendarScreenCallback(void) {
                            (f32) (-(overlayScreenTable.unk_9 * 24) + 22), 
                            32.0f);
                     
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                     
                     }
             
@@ -6775,7 +6596,7 @@ void calendarScreenCallback(void) {
 
                     overlayScreenTable.cellIndex = overlayScreenTable.unk_8 + (overlayScreenTable.unk_9 * 2);
                     
-                    if (D_80205640[overlayScreenTable.cellIndex] != 0xFF) {
+                    if (calendarStickers[overlayScreenTable.cellIndex] != 0xFF) {
                         
                         overlayScreenTable.screenState = 6;
                         
@@ -6789,8 +6610,8 @@ void calendarScreenCallback(void) {
                             32.0f);
                         
                         setSpriteColor(CALENDAR_STICKERS_BASE + overlayScreenTable.cellIndex, 0xFF, 0xFF, 0xFF, 0x80);
-                        setSpriteBlendMode(CALENDAR_STICKERS_BASE + overlayScreenTable.cellIndex, 3);
-                        playSfx(0);
+                        setSpriteBlendMode(CALENDAR_STICKERS_BASE + overlayScreenTable.cellIndex, SPRITE_BLEND_ALPHA_DECAL);
+                        playSfx(SELECT_1_SFX);
                     
                     }
             
@@ -6822,9 +6643,8 @@ void calendarScreenCallback(void) {
                             (f32)(-(overlayScreenTable.unk_B * 24) + 26), 
                             32.0f);
                     
-                        
-                        playSfx(2);
-                        
+                        playSfx(MOVE_CURSOR_SFX);
+
                     }
                 
                     set = TRUE;
@@ -6850,9 +6670,8 @@ void calendarScreenCallback(void) {
                             (f32)((overlayScreenTable.unk_A * 32) - 122), 
                             (f32)(-(overlayScreenTable.unk_B * 24) + 26), 
                             32.0f);
-                    
                         
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                         
                     }
                 
@@ -6879,9 +6698,8 @@ void calendarScreenCallback(void) {
                             (f32)((overlayScreenTable.unk_A * 32) - 122), 
                             (f32)(-(overlayScreenTable.unk_B * 24) + 26), 
                             32.0f);
-                    
                         
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                         
                     }
                 
@@ -6908,9 +6726,8 @@ void calendarScreenCallback(void) {
                             (f32)((overlayScreenTable.unk_A * 32) - 122), 
                             (f32)(-(overlayScreenTable.unk_B * 24) + 26), 
                             32.0f);
-                    
                         
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                         
                     }
                 
@@ -6924,7 +6741,7 @@ void calendarScreenCallback(void) {
             
                 if (!set) {
 
-                    temp = D_80189108[overlayScreenTable.unk_B][overlayScreenTable.unk_A];
+                    temp = calendarStickerGrid[overlayScreenTable.unk_B][overlayScreenTable.unk_A];
                     
                     if (temp == 0xFF) {
                         
@@ -6940,11 +6757,11 @@ void calendarScreenCallback(void) {
                         
                         setSpriteColor(CALENDAR_STICKERS_BASE + overlayScreenTable.cellIndex, 0xFF, 0xFF, 0xFF, temp);
                         
-                        D_80189108[overlayScreenTable.unk_B][overlayScreenTable.unk_A] = overlayScreenTable.cellIndex;
-                        D_80205640[overlayScreenTable.cellIndex] = 0xFF;
+                        calendarStickerGrid[overlayScreenTable.unk_B][overlayScreenTable.unk_A] = overlayScreenTable.cellIndex;
+                        calendarStickers[overlayScreenTable.cellIndex] = 0xFF;
                         
                         overlayScreenTable.screenState = 5;
-                        playSfx(0);
+                        playSfx(SELECT_1_SFX);
                         
                     }
                     
@@ -6965,10 +6782,10 @@ void calendarScreenCallback(void) {
                     
                     setSpriteViewSpacePosition(CALENDAR_STICKERS_BASE + overlayScreenTable.cellIndex, calendarStickersXCoordinates[overlayScreenTable.cellIndex], calendarStickersYCoordinates[overlayScreenTable.cellIndex], 8.0f);
                     setSpriteColor(CALENDAR_STICKERS_BASE + overlayScreenTable.cellIndex, 255, 255, 255, 255);
-                    setSpriteBlendMode(CALENDAR_STICKERS_BASE + overlayScreenTable.cellIndex, 3);
+                    setSpriteBlendMode(CALENDAR_STICKERS_BASE + overlayScreenTable.cellIndex, SPRITE_BLEND_ALPHA_DECAL);
                     overlayScreenTable.screenState = 5;
         
-                    playSfx(1);
+                    playSfx(CLOSE_SFX);
             
                     set = TRUE;
                 
@@ -6984,15 +6801,12 @@ void calendarScreenCallback(void) {
         resetAnimationState(CURSOR_HAND);
         fadeOutCalendarSprites();
         overlayScreenTable.screenState = 2;
-        playSfx(1);
+        playSfx(CLOSE_SFX);
     }
     
 }
 
-
 /* recipe book functions */
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadRecipeBookScreenSprites);
 
 void loadRecipeBookScreenSprites(void) {
     
@@ -7042,8 +6856,6 @@ void loadRecipeBookScreenSprites(void) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadRecipeBookLabels);
-
 // load recipe label sprites for obtained recipes
 void loadRecipeBookLabels(void) {
 
@@ -7065,7 +6877,7 @@ void loadRecipeBookLabels(void) {
                 setSpriteViewSpacePosition(RECIPE_LABELS_BASE + i, (k * 128) + -120.0f, 64.0f - (j * 16), 8.0f);
                 setSpriteColor(RECIPE_LABELS_BASE + i, 255, 255, 255, 255);
                 setSpriteBlendMode(RECIPE_LABELS_BASE + i, SPRITE_BLEND_ALPHA_MODULATED);
-                setBilinearFiltering(RECIPE_LABELS_BASE + i, 1);
+                setBilinearFiltering(RECIPE_LABELS_BASE + i, TRUE);
                 startSpriteAnimation(RECIPE_LABELS_BASE + i, 1, (i + (overlayScreenTable.pageNumber * 16)));
                 
             }
@@ -7077,8 +6889,6 @@ void loadRecipeBookLabels(void) {
     }
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeInRecipeBookElements);
 
 void fadeInRecipeBookSprites(void) {
 
@@ -7105,9 +6915,6 @@ void fadeInRecipeBookSprites(void) {
     updateSpriteAlpha(RECIPE_LABELS_BASE + 15, 0xFF, 24);
 
 }
-
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeOutRecipeBookElements);
 
 void fadeOutRecipeBookSprites(void) {
 
@@ -7137,8 +6944,6 @@ void fadeOutRecipeBookSprites(void) {
     deactivateNumberSprites(1);
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", recipeBookScreenCallback);
 
 void recipeBookScreenCallback(void) {
 
@@ -7174,13 +6979,13 @@ void recipeBookScreenCallback(void) {
         
         case 4:
             
-            if (!(messageBoxes[MAIN_MESSAGE_BOX_INDEX].flags & (0x40 | 0x80))) {
+            if (!(messageBoxes[MAIN_MESSAGE_BOX_INDEX].flags & (MESSAGE_BOX_SCROLLING_DOWN | MESSAGE_BOX_SCROLLING_UP))) {
                 
                 if (checkButtonRepeat(CONTROLLER_1, BUTTON_STICK_SOUTHWEST)) {
                     
                     if (!set) {
                         if (scrollMessageBoxDown(0)) {
-                            playSfx(2);
+                            playSfx(MOVE_CURSOR_SFX);
                         }
                         set = TRUE;
                     }
@@ -7192,7 +6997,7 @@ void recipeBookScreenCallback(void) {
                     if (!set) {
                         
                         if (scrollMessageBoxUp(0)) {
-                            playSfx(2);
+                            playSfx(MOVE_CURSOR_SFX);
                         }
                         
                         set = TRUE;
@@ -7226,7 +7031,7 @@ void recipeBookScreenCallback(void) {
                         setMessageBoxScrollSpeed(0, 1);
                         overlayScreenTable.screenState = 5;
                         
-                        playSfx(0);
+                        playSfx(SELECT_1_SFX);
                         
                         setSpriteViewSpacePosition(CURSOR_HAND, (f32)((overlayScreenTable.unk_8 * 128) - 128), (f32)(56 - (overlayScreenTable.unk_9 * 16)), 32.0f);
                         startSpriteAnimation(CURSOR_HAND, 3, 0);
@@ -7246,12 +7051,12 @@ void recipeBookScreenCallback(void) {
                 if (!set) {
                     if (overlayScreenTable.unk_8) {
                         overlayScreenTable.unk_8--;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                     } else if (overlayScreenTable.pageNumber) {
                         overlayScreenTable.pageNumber--;
                         loadRecipeBookLabels();
                         overlayScreenTable.unk_8 = 1;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                     }
                     
                     setSpriteViewSpacePosition(CURSOR_HAND, (f32)((overlayScreenTable.unk_8* 128) - 128), (f32)(56 - (overlayScreenTable.unk_9 * 16)), 32.0f);
@@ -7267,12 +7072,12 @@ void recipeBookScreenCallback(void) {
                     
                     if (overlayScreenTable.unk_8 != 1) {
                         overlayScreenTable.unk_8++;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                     } else if (overlayScreenTable.pageNumber != 2) {
                         overlayScreenTable.pageNumber++;
                         loadRecipeBookLabels();
                         overlayScreenTable.unk_8 = 0;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                     }
                 
                     setSpriteViewSpacePosition(CURSOR_HAND, (f32)((overlayScreenTable.unk_8* 128) - 128), (f32)(56 - (overlayScreenTable.unk_9 * 16)), 32.0f);
@@ -7280,24 +7085,22 @@ void recipeBookScreenCallback(void) {
                 
                 }
             }
-            
 
-            if (checkButtonRepeat(CONTROLLER_1, BUTTON_STICK_NORTHEAST)) {
+if (checkButtonRepeat(CONTROLLER_1, BUTTON_STICK_NORTHEAST)) {
                 
                 if (!set) {
                     
                     if (overlayScreenTable.unk_9) {
                         overlayScreenTable.unk_9--;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                     }
                 
                     setSpriteViewSpacePosition(CURSOR_HAND, (f32)((overlayScreenTable.unk_8* 128) - 128), (f32)(56 - (overlayScreenTable.unk_9 * 16)), 32.0f);
                     set = TRUE;
                
                 }
-                
-                
-            }
+
+}
             
             if (checkButtonRepeat(CONTROLLER_1, BUTTON_STICK_SOUTHWEST)) {
 
@@ -7305,7 +7108,7 @@ void recipeBookScreenCallback(void) {
                     
                     if (overlayScreenTable.unk_9 != 7) {
                         overlayScreenTable.unk_9++;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                     }
                     
                     setSpriteViewSpacePosition(CURSOR_HAND, (f32)((overlayScreenTable.unk_8* 128) - 128), (f32)(56 - (overlayScreenTable.unk_9 * 16)), 32.0f);
@@ -7327,9 +7130,8 @@ void recipeBookScreenCallback(void) {
             }
 
             break;
-    
-    
-    }
+
+}
 
     if (overlayScreenTable.screenState >= 5 && checkButtonPressed(CONTROLLER_1, BUTTON_B) && !set) {
         hideRightArrow();
@@ -7337,15 +7139,12 @@ void recipeBookScreenCallback(void) {
         resetAnimationState(CURSOR_HAND);
         fadeOutRecipeBookSprites();
         overlayScreenTable.screenState = 2;
-        playSfx(1);
+        playSfx(CLOSE_SFX);
     }
     
 }
 
-
 /* album functions */
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadAlbumScreenSprites);
 
 void loadAlbumScreenSprites(void) {
     
@@ -7382,8 +7181,6 @@ void loadAlbumScreenSprites(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadAlbumPhotos);
-
 void loadAlbumPhotos(void) {
 
     resetAnimationState(0x83);
@@ -7400,7 +7197,7 @@ void loadAlbumPhotos(void) {
                 setSpriteViewSpacePosition(0x83, -64.0f, 40.0f, 8.0f);
                 setSpriteColor(0x83, 255, 255, 255, 255);
                 setSpriteBlendMode(0x83, SPRITE_BLEND_ALPHA_MODULATED);
-                setBilinearFiltering(0x83, 1);
+                setBilinearFiltering(0x83, TRUE);
                 startSpriteAnimation(0x83, 0, 0);
             }
             
@@ -7409,7 +7206,7 @@ void loadAlbumPhotos(void) {
                 setSpriteViewSpacePosition(0x84, -64.0f, -30.0f, 8.0f);
                 setSpriteColor(0x84, 255, 255, 255, 255);
                 setSpriteBlendMode(0x84, SPRITE_BLEND_ALPHA_MODULATED);
-                setBilinearFiltering(0x84, 1);
+                setBilinearFiltering(0x84, TRUE);
                 startSpriteAnimation(0x84, 1, 0);
             }
             
@@ -7418,7 +7215,7 @@ void loadAlbumPhotos(void) {
                 setSpriteViewSpacePosition(0x85, 64.0f, 40.0f, 8.0f);
                 setSpriteColor(0x85, 255, 255, 255, 255);
                 setSpriteBlendMode(0x85, SPRITE_BLEND_ALPHA_MODULATED);
-                setBilinearFiltering(0x85, 1);
+                setBilinearFiltering(0x85, TRUE);
                 startSpriteAnimation(0x85, 2, 0);
             }
             
@@ -7427,7 +7224,7 @@ void loadAlbumPhotos(void) {
                 setSpriteViewSpacePosition(0x86, 64.0f, -30.0f, 8.0f);
                 setSpriteColor(0x86, 255, 255, 255, 255);
                 setSpriteBlendMode(0x86, SPRITE_BLEND_ALPHA_MODULATED);
-                setBilinearFiltering(0x86, 1);
+                setBilinearFiltering(0x86, TRUE);
                 startSpriteAnimation(0x86, 3, 0);
             }
             
@@ -7440,7 +7237,7 @@ void loadAlbumPhotos(void) {
                 setSpriteViewSpacePosition(0x83, -64.0f, 40.0f, 8.0f);
                 setSpriteColor(0x83, 255, 255, 255, 255);
                 setSpriteBlendMode(0x83, SPRITE_BLEND_ALPHA_MODULATED);
-                setBilinearFiltering(0x83, 1);
+                setBilinearFiltering(0x83, TRUE);
                 startSpriteAnimation(0x83, 4, 0);
             }
             
@@ -7449,7 +7246,7 @@ void loadAlbumPhotos(void) {
                 setSpriteViewSpacePosition(0x84, -64.0f, -30.0f, 8.0f);
                 setSpriteColor(0x84, 255, 255, 255, 255);
                 setSpriteBlendMode(0x84, SPRITE_BLEND_ALPHA_MODULATED);
-                setBilinearFiltering(0x84, 1);
+                setBilinearFiltering(0x84, TRUE);
                 startSpriteAnimation(0x84, 5, 0);
             }
             
@@ -7458,7 +7255,7 @@ void loadAlbumPhotos(void) {
                 setSpriteViewSpacePosition(0x85, 64.0f, 40.0f, 8.0f);
                 setSpriteColor(0x85, 255, 255, 255, 255);
                 setSpriteBlendMode(0x85, SPRITE_BLEND_ALPHA_MODULATED);
-                setBilinearFiltering(0x85, 1);
+                setBilinearFiltering(0x85, TRUE);
                 startSpriteAnimation(0x85, 6, 0);
             }
             
@@ -7468,7 +7265,7 @@ void loadAlbumPhotos(void) {
                 setSpriteViewSpacePosition(0x86, 64.0f, -30.0f, 8.0f);
                 setSpriteColor(0x86, 255, 255, 255, 255);
                 setSpriteBlendMode(0x86, SPRITE_BLEND_ALPHA_MODULATED);
-                setBilinearFiltering(0x86, 1);
+                setBilinearFiltering(0x86, TRUE);
                 
                 switch (gWife) {                        
                     case MARIA:                                 
@@ -7500,7 +7297,7 @@ void loadAlbumPhotos(void) {
                 setSpriteViewSpacePosition(0x83, -64.0f, 40.0f, 8.0f);
                 setSpriteColor(0x83, 255, 255, 255, 255);
                 setSpriteBlendMode(0x83, SPRITE_BLEND_ALPHA_MODULATED);
-                setBilinearFiltering(0x83, 1);
+                setBilinearFiltering(0x83, TRUE);
 
                 switch (gWife) {           
                     
@@ -7528,7 +7325,7 @@ void loadAlbumPhotos(void) {
                 setSpriteViewSpacePosition(0x84, -64.0f, -30.0f, 8.0f);
                 setSpriteColor(0x84, 255, 255, 255, 255);
                 setSpriteBlendMode(0x84, SPRITE_BLEND_ALPHA_MODULATED);
-                setBilinearFiltering(0x84, 1);
+                setBilinearFiltering(0x84, TRUE);
                 startSpriteAnimation(0x84, 17, 0);
             }
             
@@ -7537,7 +7334,7 @@ void loadAlbumPhotos(void) {
                 setSpriteViewSpacePosition(0x85, 64.0f, 40.0f, 8.0f);
                 setSpriteColor(0x85, 255, 255, 255, 255);
                 setSpriteBlendMode(0x85, SPRITE_BLEND_ALPHA_MODULATED);
-                setBilinearFiltering(0x85, 1);
+                setBilinearFiltering(0x85, TRUE);
                 startSpriteAnimation(0x85, 0x12, 0);
             }
             
@@ -7546,7 +7343,7 @@ void loadAlbumPhotos(void) {
                 setSpriteViewSpacePosition(0x86, 64.0f, -30.0f, 8.0f);
                 setSpriteColor(0x86, 255, 255, 255, 255);
                 setSpriteBlendMode(0x86, SPRITE_BLEND_ALPHA_MODULATED);
-                setBilinearFiltering(0x86, 1);
+                setBilinearFiltering(0x86, TRUE);
                 startSpriteAnimation(0x86, 0x13, 0);
             }
             
@@ -7559,7 +7356,7 @@ void loadAlbumPhotos(void) {
                 setSpriteViewSpacePosition(0x83, -64.0f, 40.0f, 8.0f);
                 setSpriteColor(0x83, 255, 255, 255, 255);
                 setSpriteBlendMode(0x83, SPRITE_BLEND_ALPHA_MODULATED);
-                setBilinearFiltering(0x83, 1);
+                setBilinearFiltering(0x83, TRUE);
                 startSpriteAnimation(0x83, 20, 0);
             }
             
@@ -7568,7 +7365,7 @@ void loadAlbumPhotos(void) {
                 setSpriteViewSpacePosition(0x84, -64.0f, -30.0f, 8.0f);
                 setSpriteColor(0x84, 255, 255, 255, 255);
                 setSpriteBlendMode(0x84, SPRITE_BLEND_ALPHA_MODULATED);
-                setBilinearFiltering(0x84, 1);
+                setBilinearFiltering(0x84, TRUE);
                 startSpriteAnimation(0x84, 21, 0);
             }
             
@@ -7577,7 +7374,7 @@ void loadAlbumPhotos(void) {
                 setSpriteViewSpacePosition(0x85, 64.0f, 40.0f, 8.0f);
                 setSpriteColor(0x85, 255, 255, 255, 255);
                 setSpriteBlendMode(0x85, SPRITE_BLEND_ALPHA_MODULATED);
-                setBilinearFiltering(0x85, 1);
+                setBilinearFiltering(0x85, TRUE);
                 startSpriteAnimation(0x85, 22, 0);
             }
             
@@ -7586,7 +7383,7 @@ void loadAlbumPhotos(void) {
                 setSpriteViewSpacePosition(0x86, 64.0f, -30.0f, 8.0f);
                 setSpriteColor(0x86, 255, 255, 255, 255);
                 setSpriteBlendMode(0x86, SPRITE_BLEND_ALPHA_MODULATED);
-                setBilinearFiltering(0x86, 1);
+                setBilinearFiltering(0x86, TRUE);
                 startSpriteAnimation(0x86, 23, 0);
             }
             
@@ -7595,8 +7392,6 @@ void loadAlbumPhotos(void) {
     }
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeInAlbumSprites);
 
 void fadeInAlbumSprites(void) {
 
@@ -7611,8 +7406,6 @@ void fadeInAlbumSprites(void) {
     updateSpriteAlpha(0x86, 0xFF, 24);
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeOutAlbumSprites);
 
 void fadeOutAlbumSprites(void) {
 
@@ -7633,8 +7426,6 @@ void fadeOutAlbumSprites(void) {
 //INCLUDE_RODATA("asm/nonmatchings/game/overlayScreens", D_80121E34);
 
 static const u8 D_80121E34[20] = { 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x2D, 0x2E, 0, 0, 0, 0 };
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", albumScreenCallback);
 
 void albumScreenCallback(void) {
 
@@ -7685,12 +7476,12 @@ void albumScreenCallback(void) {
                     
                     if (overlayScreenTable.unk_8) {
                         overlayScreenTable.unk_8--;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                     } else if (overlayScreenTable.pageNumber) {
                         overlayScreenTable.pageNumber--;
                         loadAlbumPhotos();
                         overlayScreenTable.unk_8 = 1;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                     
                     }
                     
@@ -7708,12 +7499,12 @@ void albumScreenCallback(void) {
                 
                     if (overlayScreenTable.unk_8 != 1) {
                         overlayScreenTable.unk_8++;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                     } else if (overlayScreenTable.pageNumber != 3) {
                         overlayScreenTable.pageNumber++;
                         loadAlbumPhotos();
                         overlayScreenTable.unk_8 = 0;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                     }
                     
                     setSpriteViewSpacePosition(CURSOR_HAND, (f32)((overlayScreenTable.unk_8 * 128) - 120), (f32)(40 - (overlayScreenTable.unk_9 * 80)), 32.0f);
@@ -7730,7 +7521,7 @@ void albumScreenCallback(void) {
                     
                     if (overlayScreenTable.unk_9) {
                         overlayScreenTable.unk_9--;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                     }
                     
                     setSpriteViewSpacePosition(CURSOR_HAND, (f32)((overlayScreenTable.unk_8 * 128) - 120), (f32)(40 - (overlayScreenTable.unk_9 * 80)), 32.0f);
@@ -7747,7 +7538,7 @@ void albumScreenCallback(void) {
                 
                     if (overlayScreenTable.unk_9 != 1) {
                         overlayScreenTable.unk_9++;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                     }
                     
                     setSpriteViewSpacePosition(CURSOR_HAND, (f32)((overlayScreenTable.unk_8 * 128) - 120), (f32)(40 - (overlayScreenTable.unk_9 * 80)), 32.0f);
@@ -7758,7 +7549,7 @@ void albumScreenCallback(void) {
             
             }
 
-            if ((checkButtonPressed(0, BUTTON_A))) {
+            if ((checkButtonPressed(CONTROLLER_1, BUTTON_A))) {
 
                 if (!set) {
 
@@ -7776,7 +7567,7 @@ void albumScreenCallback(void) {
                         controllers[CONTROLLER_1].buttonPressed = 0;
                         overlayScreenTable.screenState = 4;
                         
-                        playSfx(0);
+                        playSfx(SELECT_1_SFX);
                         
                     }
                     
@@ -7816,41 +7607,31 @@ void albumScreenCallback(void) {
         deactivateNumberSprites(0);
         deactivateNumberSprites(1);
         overlayScreenTable.screenState = 2;
-        playSfx(1);
+        playSfx(CLOSE_SFX);
     }
     
 }
 
 /* end of album functions */
 
-
 // misc. recipe helpers
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", addRecipe);
 
 void addRecipe(u16 bitIndex) {
     u32 temp = bitIndex;
     recipesBits[temp >> 5] |= 1 << (temp & 0x1F);
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", toggleRecipe);
-
-void toggleRecipe(u16 bitIndex) {
+void clearRecipe(u16 bitIndex) {
     u32 temp = bitIndex;
     recipesBits[temp >> 5] &= ~(1 << (temp & 0x1F));
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", checkRecipe);
 
 u32 checkRecipe(u16 bitIndex) {
     u32 temp = bitIndex;
     return recipesBits[temp >> 5] & (1 << (temp & 0x1F));
 }
 
-
 /* shared gold arrow functions */
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadNavigationArrows);
 
 void loadNavigationArrows(void) {
 
@@ -7858,96 +7639,77 @@ void loadNavigationArrows(void) {
     setSpriteViewSpacePosition(DOWN_ARROW, 0.0f, 0.0f, 0.0f);
     setSpriteScale(DOWN_ARROW, 1.0f, 1.0f, 1.0f);
     setSpriteRotation(DOWN_ARROW, 0.0f, 0.0f, 0.0f);
-    setBilinearFiltering(DOWN_ARROW, 1);
+    setBilinearFiltering(DOWN_ARROW, TRUE);
     setSpriteColor(DOWN_ARROW, 255, 255, 255, 255);
     setSpriteAnchorAlignment(DOWN_ARROW, SPRITE_ANCHOR_CENTER, SPRITE_ANCHOR_CENTER);;
-    setSpriteBlendMode(DOWN_ARROW, 3);
+    setSpriteBlendMode(DOWN_ARROW, SPRITE_BLEND_ALPHA_DECAL);
     
     dmaSprite(UP_ARROW, (u32)&_dialogueButtonIconsTextureSegmentRomStart, (u32)&_dialogueButtonIconsTextureSegmentRomEnd, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomStart, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)DIALOGUE_ICON_TEXTURE_BUFFER, NULL, (u16*)DIALOGUE_ICON_PALETTE_BUFFER, (AnimationFrameMetadata*)DIALOGUE_ICON_ANIMATION_FRAME_METADATA_BUFFER, (u32*)DIALOGUE_ICON_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(UP_ARROW, 0.0f, 0.0f, 0.0f);
     setSpriteScale(UP_ARROW, 1.0f, 1.0f, 1.0f);
     setSpriteRotation(UP_ARROW, 0.0f, 0.0f, 0.0f);
-    setBilinearFiltering(UP_ARROW, 1);
+    setBilinearFiltering(UP_ARROW, TRUE);
     setSpriteColor(UP_ARROW, 255, 255, 255, 255);
     setSpriteAnchorAlignment(UP_ARROW, SPRITE_ANCHOR_CENTER, SPRITE_ANCHOR_CENTER);;
-    setSpriteBlendMode(UP_ARROW, 3);
+    setSpriteBlendMode(UP_ARROW, SPRITE_BLEND_ALPHA_DECAL);
     
     dmaSprite(RIGHT_ARROW, (u32)&_dialogueButtonIconsTextureSegmentRomStart, (u32)&_dialogueButtonIconsTextureSegmentRomEnd, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomStart, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)DIALOGUE_ICON_TEXTURE_BUFFER, NULL, (u16*)DIALOGUE_ICON_PALETTE_BUFFER, (AnimationFrameMetadata*)DIALOGUE_ICON_ANIMATION_FRAME_METADATA_BUFFER, (u32*)DIALOGUE_ICON_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(RIGHT_ARROW, 0.0f, 0.0f, 0.0f);
     setSpriteScale(RIGHT_ARROW, 1.0f, 1.0f, 1.0f);
     setSpriteRotation(RIGHT_ARROW, 0.0f, 0.0f, 0.0f);
-    setBilinearFiltering(RIGHT_ARROW, 1);
+    setBilinearFiltering(RIGHT_ARROW, TRUE);
     setSpriteColor(RIGHT_ARROW, 255, 255, 255, 255);
     setSpriteAnchorAlignment(RIGHT_ARROW, SPRITE_ANCHOR_CENTER, SPRITE_ANCHOR_CENTER);;
-    setSpriteBlendMode(RIGHT_ARROW, 3);
+    setSpriteBlendMode(RIGHT_ARROW, SPRITE_BLEND_ALPHA_DECAL);
     
     dmaSprite(LEFT_ARROW, (u32)&_dialogueButtonIconsTextureSegmentRomStart, (u32)&_dialogueButtonIconsTextureSegmentRomEnd, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomStart, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)DIALOGUE_ICON_TEXTURE_BUFFER, NULL, (u16*)DIALOGUE_ICON_PALETTE_BUFFER, (AnimationFrameMetadata*)DIALOGUE_ICON_ANIMATION_FRAME_METADATA_BUFFER, (u32*)DIALOGUE_ICON_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(LEFT_ARROW, 0.0f, 0.0f, 0.0f);
     setSpriteScale(LEFT_ARROW, 1.0f, 1.0f, 1.0f);
     setSpriteRotation(LEFT_ARROW, 0.0f, 0.0f, 0.0f);
-    setBilinearFiltering(LEFT_ARROW, 1);
+    setBilinearFiltering(LEFT_ARROW, TRUE);
     setSpriteColor(LEFT_ARROW, 255, 255, 255, 255);
     setSpriteAnchorAlignment(LEFT_ARROW, SPRITE_ANCHOR_CENTER, SPRITE_ANCHOR_CENTER);;
-    setSpriteBlendMode(LEFT_ARROW, 3);
+    setSpriteBlendMode(LEFT_ARROW, SPRITE_BLEND_ALPHA_DECAL);
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", showDownArrow);
 
 void showDownArrow(f32 x, f32 y) {
     startSpriteAnimation(DOWN_ARROW, 11, 0xFE);
     setSpriteViewSpacePosition(DOWN_ARROW, x, y, 32.0f);
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", showUpArrow);
-
 void showUpArrow(f32 x, f32 y) {
     startSpriteAnimation(UP_ARROW, 10, 0xFE);
     setSpriteViewSpacePosition(UP_ARROW, x, y, 32.0f);
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", showLeftArrow);
 
 void showLeftArrow(f32 x, f32 y) {
     startSpriteAnimation(LEFT_ARROW, 1, 0xFE);
     setSpriteViewSpacePosition(LEFT_ARROW, x, y, 32.0f);
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", showRightArrow);
-
 void showRightArrow(f32 x, f32 y) {
     startSpriteAnimation(RIGHT_ARROW, 12, 0xFE);
     setSpriteViewSpacePosition(RIGHT_ARROW, x, y, 32.0f);
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", hideDownArrow);
-
 void hideDownArrow(void) {
     resetAnimationState(DOWN_ARROW);
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", hideUpArrow);
 
 void hideUpArrow(void) {
     resetAnimationState(UP_ARROW);
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", hideLeftArrow);
-
 void hideLeftArrow(void) {
     resetAnimationState(LEFT_ARROW);
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", hideRightArrow);
 
 void hideRightArrow(void) {
     resetAnimationState(RIGHT_ARROW);
 }
 
-
 // up and down arrows
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadDialogueArrowSprites);
 
 void loadDialogueArrowSprites(void) {
     
@@ -7955,43 +7717,35 @@ void loadDialogueArrowSprites(void) {
     setSpriteViewSpacePosition(0x7A, 0.0f, 0.0f, 0.0f);
     setSpriteScale(0x7A, 1.0f, 1.0f, 1.0f);
     setSpriteRotation(0x7A, 0.0f, 0.0f, 0.0f);
-    setBilinearFiltering(0x7A, 1);
+    setBilinearFiltering(0x7A, TRUE);
     setSpriteColor(0x7A, 255, 255, 255, 255);
     setSpriteAnchorAlignment(0x7A, SPRITE_ANCHOR_CENTER, SPRITE_ANCHOR_CENTER);;
-    setSpriteBlendMode(0x7A, 3);
+    setSpriteBlendMode(0x7A, SPRITE_BLEND_ALPHA_DECAL);
 
     dmaSprite(0x7B, (u32)&_dialogueButtonIconsTextureSegmentRomStart, (u32)&_dialogueButtonIconsTextureSegmentRomEnd, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomStart, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)DIALOGUE_ICON_TEXTURE_BUFFER, NULL, (u16*)DIALOGUE_ICON_PALETTE_BUFFER, (AnimationFrameMetadata*)DIALOGUE_ICON_ANIMATION_FRAME_METADATA_BUFFER, (u32*)DIALOGUE_ICON_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x7B, 0.0f, 0.0f, 0.0f);
     setSpriteScale(0x7B, 1.0f, 1.0f, 1.0f);
     setSpriteRotation(0x7B, 0.0f, 0.0f, 0.0f);
-    setBilinearFiltering(0x7B, 1);
+    setBilinearFiltering(0x7B, TRUE);
     setSpriteColor(0x7B, 255, 255, 255, 255);
     setSpriteAnchorAlignment(0x7B, SPRITE_ANCHOR_CENTER, SPRITE_ANCHOR_CENTER);;
-    setSpriteBlendMode(0x7B, 3);
+    setSpriteBlendMode(0x7B, SPRITE_BLEND_ALPHA_DECAL);
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", showDialogueDownArrow);
 
 void showDialogueDownArrow(f32 x, f32 y) {
     startSpriteAnimation(0x7B, 11, 0xFE);
     setSpriteViewSpacePosition(0x7B, x, y, 32.0f);
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", showDialogueUpArrow);
-
 void showDialogueUpArrow(f32 x, f32 y) {
     startSpriteAnimation(0x7A, 10, 0xFE);
     setSpriteViewSpacePosition(0x7A, x, y, 32.0f);
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", hideDialogueDownArrow);
-
 void hideDialogueDownArrow(void) {
     resetAnimationState(0x7B);
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", hideDialogueUpArrow);
 
 void hideDialogueUpArrow(void) {
     resetAnimationState(0x7A);
@@ -7999,10 +7753,7 @@ void hideDialogueUpArrow(void) {
 
 /* end of shared arrow functions */
 
-
 /* shared helper */
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", setItemDescriptionVariable);
 
 void setItemDescriptionVariable(u8 type, u16 itemOrToolIndex) {
 
@@ -8015,9 +7766,11 @@ void setItemDescriptionVariable(u8 type, u16 itemOrToolIndex) {
         case 0:
             ptr = D_80116F4C;
             break;
+        // belongings
         case 1:
             ptr = D_80116F88;
             break;
+        // key item
         case 2:
             ptr = D_80117148;
             break;
@@ -8031,65 +7784,65 @@ void setItemDescriptionVariable(u8 type, u16 itemOrToolIndex) {
 skip:
     switch (textIndex) {
 
-        case 0x12:
+        case 18:
             convertNumberToGameVariableString(17, strawberrySeedsQuantity, 0);
             break;
 
-        case 0x33:
+        case 51:
             convertNumberToGameVariableString(17, wateringCanUses, 0);
             break;        
 
-        case 0x34:
+        case 52:
             convertNumberToGameVariableString(17, turnipSeedsQuantity, 0);
             break;
  
-        case 0x35:
+        case 53:
             convertNumberToGameVariableString(17, cabbageSeedsQuantity, 0);
             break;
         
-        case 0x36:
+        case 54:
             convertNumberToGameVariableString(17, potatoSeedsQuantity, 0);
             break;
         
-        case 0x37:
+        case 55:
             convertNumberToGameVariableString(17, tomatoSeedsQuantity, 0);
             break;
         
-        case 0x38:
+        case 56:
             convertNumberToGameVariableString(17, cornSeedsQuantity, 0);
             break;
         
-        case 0x39:
+        case 57:
             convertNumberToGameVariableString(17, eggplantSeedsQuantity, 0);
             break;
         
-        case 0x3A:
+        case 58:
             convertNumberToGameVariableString(17, moondropSeedsQuantity, 0);
             break;
         
-        case 0x3B:
+        case 59:
             convertNumberToGameVariableString(17, pinkCatMintSeedsQuantity, 0);
             break;
 
-        case 0x3C:
+        case 60:
             convertNumberToGameVariableString(17, blueMistSeedsQuantity, 0);
             break;
         
-        case 0x3D:
+        case 61:
             convertNumberToGameVariableString(17, grassSeedsQuantity, 0);
             break;
 
-        case 0x3E:
+        case 62:
             convertNumberToGameVariableString(17, chickenFeedQuantity, 0);
             break;
 
-        case 0x42:
+        case 66:
             textIndex += gPlayer.bottleContents;
-            break; 
+            break;
 
     }
 
-    convertNumberToGameVariableString(0x1F, raceMedalsCount, 0);
+    convertNumberToGameVariableString(0x1F, medalBalance, 0);
     convertNumberToGameVariableString(0x30, flowerShopPoints, 0);
     convertNumberToGameVariableString(0x31, bakeryCardPoints, 0);
     
@@ -8103,141 +7856,136 @@ skip:
     
 }
 
-
 /* pause screen map functions */
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadPauseScreenMapScreenCallback);
 
 // main loop callback 30
 // seems like load village map (cut from NA release) 
-void loadPauseScreenMapScreenCallback(void) {
+// void loadPauseScreenMapScreenCallback(void) {
     
-    dmaSprite(0x82, (u32)&_villageMapScreenTextureSegmentRomStart, (u32)&_villageMapScreenTextureSegmentRomEnd, (u32)&_villageMapScreenAssetsIndexSegmentRomStart, (u32)&_villageMapScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_PAUSE_SCREEN_MAP_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PAUSE_SCREEN_MAP_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_PAUSE_SCREEN_MAP_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_PAUSE_SCREEN_MAP_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
-    setSpriteViewSpacePosition(0x82, 0.0f, 0.0f, 0.0f);
-    setSpriteScale(0x82, 1.0f, 1.0f, 1.0f);
-    setBilinearFiltering(0x82, 1);
-    setSpriteColor(0x82, 0, 0, 0, 0);
-    startSpriteAnimation(0x82, 0, 0);
+    // dmaSprite(0x82, (u32)&_villageMapScreenTextureSegmentRomStart, (u32)&_villageMapScreenTextureSegmentRomEnd, (u32)&_villageMapScreenAssetsIndexSegmentRomStart, (u32)&_villageMapScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_PAUSE_SCREEN_MAP_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PAUSE_SCREEN_MAP_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_PAUSE_SCREEN_MAP_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_PAUSE_SCREEN_MAP_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
+    // setSpriteViewSpacePosition(0x82, 0.0f, 0.0f, 0.0f);
+    // setSpriteScale(0x82, 1.0f, 1.0f, 1.0f);
+    // setBilinearFiltering(0x82, TRUE);
+    // setSpriteColor(0x82, 0, 0, 0, 0);
+    // startSpriteAnimation(0x82, 0, 0);
     
-    dmaSprite(0xA3, (u32)&_villageMapScreenTextureSegmentRomStart, (u32)&_villageMapScreenTextureSegmentRomEnd, (u32)&_villageMapScreenAssetsIndexSegmentRomStart, (u32)&_villageMapScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_PAUSE_SCREEN_MAP_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PAUSE_SCREEN_MAP_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_PAUSE_SCREEN_MAP_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_PAUSE_SCREEN_MAP_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
-    setSpriteScale(0xA3, 1.0f, 1.0f, 1.0f);
-    setBilinearFiltering(0xA3, 1);
-    setSpriteColor(0xA3, 0, 0, 0, 0);
-    startSpriteAnimation(0xA3, 1, 0xFE);
+    // dmaSprite(0xA3, (u32)&_villageMapScreenTextureSegmentRomStart, (u32)&_villageMapScreenTextureSegmentRomEnd, (u32)&_villageMapScreenAssetsIndexSegmentRomStart, (u32)&_villageMapScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_PAUSE_SCREEN_MAP_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PAUSE_SCREEN_MAP_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_PAUSE_SCREEN_MAP_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_PAUSE_SCREEN_MAP_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
+    // setSpriteScale(0xA3, 1.0f, 1.0f, 1.0f);
+    // setBilinearFiltering(0xA3, TRUE);
+    // setSpriteColor(0xA3, 0, 0, 0, 0);
+    // startSpriteAnimation(0xA3, 1, 0xFE);
     
-    switch (gBaseMapIndex) {
+//     switch (gBaseMapIndex) {
         
-        case RANCH:
-        case ANN_ROOM:
-        case RANCH_BARN:
-        case RANCH_STORE:
-        case RANCH_HOUSE:
-            setSpriteViewSpacePosition(0xA3, 0.0f, -72.0f, 8.0f);
-            break;
+//         case RANCH:
+//         case ANN_ROOM:
+//         case RANCH_BARN:
+//         case RANCH_STORE:
+//         case RANCH_HOUSE:
+//             setSpriteViewSpacePosition(0xA3, 0.0f, -72.0f, 8.0f);
+//             break;
 
-        case BEACH:
-            setSpriteViewSpacePosition(0xA3, 56.0f, -96.0f, 8.0f);
-            break;
+//         case BEACH:
+//             setSpriteViewSpacePosition(0xA3, 56.0f, -96.0f, 8.0f);
+//             break;
 
-        case MOUNTAIN_1:
-            setSpriteViewSpacePosition(0xA3, 88.0f, 12.0f, 8.0f);
-            break;
+//         case MOUNTAIN_1:
+//             setSpriteViewSpacePosition(0xA3, 88.0f, 12.0f, 8.0f);
+//             break;
 
-        case MOUNTAIN_2:
-        case CARPENTER_HUT:
-            setSpriteViewSpacePosition(0xA3, 32.0f, 20.0f, 8.0f);
-            break;
+//         case MOUNTAIN_2:
+//         case CARPENTER_HUT:
+//             setSpriteViewSpacePosition(0xA3, 32.0f, 20.0f, 8.0f);
+//             break;
         
-        case TOP_OF_MOUNTAIN_1:
-            setSpriteViewSpacePosition(0xA3, 104.0f, 48.0f, 8.0f);
-            break;
+//         case TOP_OF_MOUNTAIN_1:
+//             setSpriteViewSpacePosition(0xA3, 104.0f, 48.0f, 8.0f);
+//             break;
 
-        case MOON_MOUNTAIN:
-        case DUMPLING_HOUSE:
-            setSpriteViewSpacePosition(0xA3, 104.0f, 84.0f, 8.0f);
-            break;
+//         case MOON_MOUNTAIN:
+//         case DUMPLING_HOUSE:
+//             setSpriteViewSpacePosition(0xA3, 104.0f, 84.0f, 8.0f);
+//             break;
 
-        case POND:
-            setSpriteViewSpacePosition(0xA3, -16.0f, 36.0f, 8.0f);
-            break;
+//         case POND:
+//             setSpriteViewSpacePosition(0xA3, -16.0f, 36.0f, 8.0f);
+//             break;
 
-        case ELLI_ROOM:
-        case BAKERY:
-        case VILLAGE_1:
-        case POPURI_ROOM:
-        case FLOWER_SHOP:
-        case CHURCH:
-        case SOUVENIR_SHOP:
-        case RICK_STORE:
-        case TAVERN:
-        case EMPTY_MAP_2:
-            setSpriteViewSpacePosition(0xA3, -20.0f, -24.0f, 8.0f);
-            break;
+//         case ELLI_ROOM:
+//         case BAKERY:
+//         case VILLAGE_1:
+//         case POPURI_ROOM:
+//         case FLOWER_SHOP:
+//         case CHURCH:
+//         case SOUVENIR_SHOP:
+//         case RICK_STORE:
+//         case TAVERN:
+//         case EMPTY_MAP_2:
+//             setSpriteViewSpacePosition(0xA3, -20.0f, -24.0f, 8.0f);
+//             break;
 
-        case VILLAGE_2:
-        case MIDWIFE_HOUSE:
-        case LIBRARY:
-        case MARIA_ROOM:
-        case MAYOR_HOUSE:
-        case POTION_SHOP_BEDROOM:
-        case POTION_SHOP:
-            setSpriteViewSpacePosition(0xA3, -44.0f, -56.0f, 8.0f);
-            break;
+//         case VILLAGE_2:
+//         case MIDWIFE_HOUSE:
+//         case LIBRARY:
+//         case MARIA_ROOM:
+//         case MAYOR_HOUSE:
+//         case POTION_SHOP_BEDROOM:
+//         case POTION_SHOP:
+//             setSpriteViewSpacePosition(0xA3, -44.0f, -56.0f, 8.0f);
+//             break;
 
-        case SQUARE:
-            setSpriteViewSpacePosition(0xA3, -72.0f, -16.0f, 8.0f);
-            break;
+//         case SQUARE:
+//             setSpriteViewSpacePosition(0xA3, -72.0f, -16.0f, 8.0f);
+//             break;
 
-        case RACE_TRACK:
-            setSpriteViewSpacePosition(0xA3, -124.0f, -24.0f, 8.0f);
-            break;
+//         case RACE_TRACK:
+//             setSpriteViewSpacePosition(0xA3, -124.0f, -24.0f, 8.0f);
+//             break;
         
-        case HARVEST_SPRITE_CAVE:
-        case CAVE:
-        case MINE:
-        case MINE_2:
-            setSpriteViewSpacePosition(0xA3, 56.0f, 32.0f, 8.0f);
-            break;
+//         case HARVEST_SPRITE_CAVE:
+//         case CAVE:
+//         case MINE:
+//         case MINE_2:
+//             setSpriteViewSpacePosition(0xA3, 56.0f, 32.0f, 8.0f);
+//             break;
                 
-        case KAREN_ROOM:
-        case VINEYARD:
-        case VINEYARD_HOUSE:
-        case VINEYARD_CELLAR:
-        case VINEYARD_CELLAR_BASEMENT:
-            setSpriteViewSpacePosition(0xA3, 16.0f, -4.0f, 8.0f);
-            break;
+//         case KAREN_ROOM:
+//         case VINEYARD:
+//         case VINEYARD_HOUSE:
+//         case VINEYARD_CELLAR:
+//         case VINEYARD_CELLAR_BASEMENT:
+//             setSpriteViewSpacePosition(0xA3, 16.0f, -4.0f, 8.0f);
+//             break;
 
-        case ROAD:
-            setSpriteViewSpacePosition(0xA3, 24.0f, -44.0f, 8.0f);
-            break;
+//         case ROAD:
+//             setSpriteViewSpacePosition(0xA3, 24.0f, -44.0f, 8.0f);
+//             break;
         
-        case FARM:
-        case GREENHOUSE:
-        case HOUSE:
-        case BARN:
-        case COOP:
-        case KITCHEN:
-        case BATHROOM:
-            setSpriteViewSpacePosition(0xA3, 64.0f, -56.0f, 8.0f);
-            break;
-        
-    }
-    
-    overlayScreenTable.cellIndex = 0;
-    overlayScreenTable.previousCellIndex = 0;
-    overlayScreenTable.pageNumber = 0;
-    overlayScreenTable.unk_3 = 0xFF;
-    overlayScreenTable.screenState = 0;
-    overlayScreenTable.unk_8 = 0;
-    overlayScreenTable.unk_9 = 0;
-    overlayScreenTable.unk_A = 0;
-    overlayScreenTable.unk_B = 0;
-    
-    setMainLoopCallbackFunctionIndex(PAUSE_SCREEN_MAP);
+//         case FARM:
+//         case GREENHOUSE:
+//         case HOUSE:
+//         case BARN:
+//         case COOP:
+//         case KITCHEN:
+//         case BATHROOM:
+//             setSpriteViewSpacePosition(0xA3, 64.0f, -56.0f, 8.0f);
+//             break;
 
-}
+//     }
+    
+//     overlayScreenTable.cellIndex = 0;
+//     overlayScreenTable.previousCellIndex = 0;
+//     overlayScreenTable.pageNumber = 0;
+//     overlayScreenTable.unk_3 = 0xFF;
+//     overlayScreenTable.screenState = 0;
+//     overlayScreenTable.unk_8 = 0;
+//     overlayScreenTable.unk_9 = 0;
+//     overlayScreenTable.unk_A = 0;
+//     overlayScreenTable.unk_B = 0;
+    
+//     setMainLoopCallbackFunctionIndex(PAUSE_SCREEN_MAP);
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", pauseScreenMapCallback);
+// }
 
 void pauseScreenMapCallback(void) {    
 
@@ -8262,7 +8010,7 @@ void pauseScreenMapCallback(void) {
                 updateSpriteRGBA(0x82, 0, 0, 0, 0, 24);
                 updateSpriteRGBA(0xA3, 0, 0, 0, 0, 24);
                 overlayScreenTable.screenState = 3;
-                playSfx(1);
+                playSfx(CLOSE_SFX);
             }
             break;
             
@@ -8283,25 +8031,22 @@ void pauseScreenMapCallback(void) {
 
 /* end pause screen map functions */
 
-
 /* horse/dog race functions */
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadRaceBettingScreenCallback);
 
 void loadRaceBettingScreenCallback(void) {
 
     openOverlayScreen();
     
     if (checkDailyEventBit(HORSE_RACE)) {
-        removeKeyItem(0xE);
+        removeKeyItem(HORSE_RACE_TICKET);
     } else {
-        removeKeyItem(0xF);
+        removeKeyItem(DOG_RACE_TICKET);
     }
 
     dmaSprite(CHECKERBOARD_BACKGROUND, (u32)&_checkerboardBackgroundTextureSegmentRomStart, (u32)&_checkerboardBackgroundTextureSegmentRomEnd, (u32)&_checkerboardBackgroundAssetsIndexSegmentRomStart, (u32)&_checkerboardBackgroundAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_BACKGROUND_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_BACKGROUND_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_BACKGROUND_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_BACKGROUND_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(CHECKERBOARD_BACKGROUND, 0.0f, 0.0f, 0.0f);
     setSpriteScale(CHECKERBOARD_BACKGROUND, 2.0f, 2.0f, 1.0f);
-    setBilinearFiltering(CHECKERBOARD_BACKGROUND, 1);
+    setBilinearFiltering(CHECKERBOARD_BACKGROUND, TRUE);
     setSpriteColor(CHECKERBOARD_BACKGROUND, 255, 255, 255, 255);
     startSpriteAnimation(CHECKERBOARD_BACKGROUND, 0, 0);
     
@@ -8322,26 +8067,24 @@ void loadRaceBettingScreenCallback(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadRaceBettingScreenSprites);
-
 void loadRaceBettingScreenSprites(void) {
     
-    D_80189858 = gGold;
+    raceBettingGold = gGold;
 
     setMoneySprites();
     
     dmaSprite(0x81, (u32)&_photoSmallTextureSegmentRomStart, (u32)&_photoSmallTextureSegmentRomEnd, (u32)&_photoSmallAssetsIndexSegmentRomStart, (u32)&_photoSmallAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_SNAPSHOT_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_SNAPSHOT_PALETTE, (u16*)OVERLAY_SCREEN_SNAPSHOT_ANIM_METADATA, (u32*)OVERLAY_SCREEN_SNAPSHOT_SPRITESHEET_INDEX, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x81, 0.0f, 0.0f, 8.0f);
     setSpriteColor(0x81, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x81, 2);
-    setBilinearFiltering(0x81, 1);
+    setSpriteBlendMode(0x81, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0x81, TRUE);
     startSpriteAnimation(0x81, 0, 0);
 
     dmaSprite(0x82, &_raceBettingUITextureSegmentRomStart, &_raceBettingUITextureSegmentRomEnd, &_raceBettingUIAssetsIndexSegmentRomStart, &_raceBettingUIAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x82, 0.0f, 0.0f, 8.0f);
     setSpriteColor(0x82, 0xFF, 0xFF, 0xFF, 0);
     setSpriteBlendMode(0x82, SPRITE_BLEND_ALPHA_MODULATED);
-    setBilinearFiltering(0x82, 1);
+    setBilinearFiltering(0x82, TRUE);
 
     // check horse or dog race
     if (checkDailyEventBit(HORSE_RACE)) {
@@ -8354,79 +8097,79 @@ void loadRaceBettingScreenSprites(void) {
 
     setSpriteViewSpacePosition(0x83, 0.0f, 0.0f, 8.0f);
     setSpriteColor(0x83, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x83, 2);
-    setBilinearFiltering(0x83, 1);
+    setSpriteBlendMode(0x83, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0x83, TRUE);
     startSpriteAnimation(0x83, 1, 0);
 
     dmaSprite(0x84, &_raceBettingUITextureSegmentRomStart, &_raceBettingUITextureSegmentRomEnd, &_raceBettingUIAssetsIndexSegmentRomStart, &_raceBettingUIAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x84, 0.0f, 0.0f, 8.0f);
     setSpriteColor(0x84, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x84, 2);
-    setBilinearFiltering(0x84, 1);
+    setSpriteBlendMode(0x84, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0x84, TRUE);
     startSpriteAnimation(0x84, 2, 0);
     
     dmaSprite(0xB9, &_raceBettingUITextureSegmentRomStart, &_raceBettingUITextureSegmentRomEnd, &_raceBettingUIAssetsIndexSegmentRomStart, &_raceBettingUIAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0xB9, 0.0f, 0.0f, 8.0f);
     setSpriteColor(0xB9, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0xB9, 2);
-    setBilinearFiltering(0xB9, 1);
+    setSpriteBlendMode(0xB9, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0xB9, TRUE);
     startSpriteAnimation(0xB9, 1, 1);
 
     dmaSprite(0xBA, &_raceBettingUITextureSegmentRomStart, &_raceBettingUITextureSegmentRomEnd, &_raceBettingUIAssetsIndexSegmentRomStart, &_raceBettingUIAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0xBA, 0.0f, -16.0f, 8.0f);
     setSpriteColor(0xBA, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0xBA, 2);
-    setBilinearFiltering(0xBA, 1);
+    setSpriteBlendMode(0xBA, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0xBA, TRUE);
     startSpriteAnimation(0xBA, 1, 1);
     
     dmaSprite(0xBB, &_raceBettingUITextureSegmentRomStart, &_raceBettingUITextureSegmentRomEnd, &_raceBettingUIAssetsIndexSegmentRomStart, &_raceBettingUIAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0xBB, 0.0f, -32.0f, 8.0f);
     setSpriteColor(0xBB, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0xBB, 2);
-    setBilinearFiltering(0xBB, 1);
+    setSpriteBlendMode(0xBB, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0xBB, TRUE);
     startSpriteAnimation(0xBB, 1, 1);
     
     dmaSprite(0xBC, &_raceBettingUITextureSegmentRomStart, &_raceBettingUITextureSegmentRomEnd, &_raceBettingUIAssetsIndexSegmentRomStart, &_raceBettingUIAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0xBC, 0.0f, -48.0f, 8.0f);
     setSpriteColor(0xBC, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0xBC, 2);
-    setBilinearFiltering(0xBC, 1);
+    setSpriteBlendMode(0xBC, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0xBC, TRUE);
     startSpriteAnimation(0xBC, 1, 1);
     
     dmaSprite(0xBD, &_raceBettingUITextureSegmentRomStart, &_raceBettingUITextureSegmentRomEnd, &_raceBettingUIAssetsIndexSegmentRomStart, &_raceBettingUIAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0xBD, 0.0f, -64.0f, 8.0f);
     setSpriteColor(0xBD, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0xBD, 2);
-    setBilinearFiltering(0xBD, 1);
+    setSpriteBlendMode(0xBD, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0xBD, TRUE);
     startSpriteAnimation(0xBD, 1, 1);
     
     dmaSprite(0xBE, &_raceBettingUITextureSegmentRomStart, &_raceBettingUITextureSegmentRomEnd, &_raceBettingUIAssetsIndexSegmentRomStart, &_raceBettingUIAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0xBE, 0.0f, -80.0f, 8.0f);
     setSpriteColor(0xBE, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0xBE, 2);
-    setBilinearFiltering(0xBE, 1);
+    setSpriteBlendMode(0xBE, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0xBE, TRUE);
     startSpriteAnimation(0xBE, 1, 1);
     
     dmaSprite(0x85, &_raceBettingUITextureSegmentRomStart, &_raceBettingUITextureSegmentRomEnd, &_raceBettingUIAssetsIndexSegmentRomStart, &_raceBettingUIAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x85, 0.0f, 0.0f, 8.0f);
     setSpriteColor(0x85, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x85, 2);
-    setBilinearFiltering(0x85, 1);
+    setSpriteBlendMode(0x85, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0x85, TRUE);
     startSpriteAnimation(0x85, 2, 1);
 
     dmaSprite(0x86, &_dialogueButtonIconsTextureSegmentRomStart, &_dialogueButtonIconsTextureSegmentRomEnd, &_dialogueButtonIconsAssetsIndexSegmentRomStart, &_dialogueButtonIconsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)DIALOGUE_ICON_TEXTURE_BUFFER, NULL, (u16*)DIALOGUE_ICON_PALETTE_BUFFER, (AnimationFrameMetadata*)DIALOGUE_ICON_ANIMATION_FRAME_METADATA_BUFFER, (u32*)DIALOGUE_ICON_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x86, 0.0f, 0.0f, 32.0f);
     setSpriteColor(0x86, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x86, 2);
-    setBilinearFiltering(0x86, 1);
+    setSpriteBlendMode(0x86, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0x86, TRUE);
     startSpriteAnimation(0x86, 2, 0);
 
     dmaSprite(CURSOR_HAND, &_dialogueButtonIconsTextureSegmentRomStart, &_dialogueButtonIconsTextureSegmentRomEnd, &_dialogueButtonIconsAssetsIndexSegmentRomStart, &_dialogueButtonIconsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)DIALOGUE_ICON_TEXTURE_BUFFER, NULL, (u16*)DIALOGUE_ICON_PALETTE_BUFFER, (AnimationFrameMetadata*)DIALOGUE_ICON_ANIMATION_FRAME_METADATA_BUFFER, (u32*)DIALOGUE_ICON_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
-    setBilinearFiltering(CURSOR_HAND, 1);
+    setBilinearFiltering(CURSOR_HAND, TRUE);
     setSpriteColor(CURSOR_HAND, 255, 255, 255, 255);
     
     setNumberSprites(2, 0x97, &_moneyTextureSegmentRomStart, &_moneyTextureSegmentRomEnd, &_moneyAssetsIndexSegmentRomStart, &_moneyAssetsIndexSegmentRomEnd, (u8*)GOLD_UI_TEXTURE_BUFFER, (u16*)GOLD_UI_PALETTE_BUFFER, (AnimationFrameMetadata*)GOLD_UI_ANIMATION_FRAME_METADATA_BUFFER, (u32*)GOLD_UI_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, 0, 1, 0, -98.0f, -153.0f, 256.0f, 10);
-    dmaNumberSprites(2, raceMedalsCount, 3, 3);
+    dmaNumberSprites(2, medalBalance, 3, 3);
     setNumberSpritesRGBA(2, 255, 255, 255, 255);
 
     setNumberSprites(3, 0x9B, &_moneyTextureSegmentRomStart, &_moneyTextureSegmentRomEnd, &_moneyAssetsIndexSegmentRomStart, &_moneyAssetsIndexSegmentRomEnd, (u8*)GOLD_UI_TEXTURE_BUFFER, (u16*)GOLD_UI_PALETTE_BUFFER, (AnimationFrameMetadata*)GOLD_UI_ANIMATION_FRAME_METADATA_BUFFER, (u32*)GOLD_UI_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, 0, 1, 0, -48.0f, -48.0f, 256.0f, 10);
@@ -8479,10 +8222,10 @@ void loadRaceBettingScreenSprites(void) {
     dmaNumberSprites(0xC, gRacingContext.oddsAndNames.displayOddsBottom[0], 2, 3);
     setNumberSpritesRGBA(0xC, 255, 255, 255, 255);
     
-    setNumberSprites(0xD, 0xB3, &_raceBettingUITextureSegmentRomStart, &_raceBettingUITextureSegmentRomEnd, &_raceBettingUIAssetsIndexSegmentRomStart, &_raceBettingUIAssetsIndexSegmentRomEnd, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, 0, 6, 0, 14.0f, -30.0f, 256.0f, 8);
+    setNumberSprites(13, 0xB3, &_raceBettingUITextureSegmentRomStart, &_raceBettingUITextureSegmentRomEnd, &_raceBettingUIAssetsIndexSegmentRomStart, &_raceBettingUIAssetsIndexSegmentRomEnd, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, 0, 6, 0, 14.0f, -30.0f, 256.0f, 8);
     
-    dmaNumberSprites(0xD, gRacingContext.oddsAndNames.displayOddsBottom[1], 2, 3);
-    setNumberSpritesRGBA(0xD, 255, 255, 255, 255);
+    dmaNumberSprites(13, gRacingContext.oddsAndNames.displayOddsBottom[1], 2, 3);
+    setNumberSpritesRGBA(13, 255, 255, 255, 255);
     
     setNumberSprites(0xE, 0xB6, &_raceBettingUITextureSegmentRomStart, &_raceBettingUITextureSegmentRomEnd, &_raceBettingUIAssetsIndexSegmentRomStart, &_raceBettingUIAssetsIndexSegmentRomEnd, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, 0, 6, 0, 14.0f, -46.0f, 256.0f, 8);
     
@@ -8493,8 +8236,6 @@ void loadRaceBettingScreenSprites(void) {
     fadeInRaceBettingSprites();
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", initializeRaceBettingMessageBoxes);
 
 void initializeRaceBettingMessageBoxes(void) {
     
@@ -8579,8 +8320,6 @@ void initializeRaceBettingMessageBoxes(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeInRaceBettingElements);
-
 void fadeInRaceBettingSprites(void) {
     updateSpriteAlpha(0x8E, 0xFF, 24);
     updateSpriteAlpha(0x81, 0xFF, 24);
@@ -8596,8 +8335,6 @@ void fadeInRaceBettingSprites(void) {
     updateSpriteAlpha(0xBD, 0xFF, 24);
     updateSpriteAlpha(0xBE, 0xFF, 24);
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeOutRaceBettingElements);
 
 void fadeOutRaceBettingSprites(void) {
 
@@ -8641,8 +8378,6 @@ void fadeOutRaceBettingSprites(void) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", raceBettingScreenCallback);
-
 void raceBettingScreenCallback(void) {
 
     u8 temp = 0;
@@ -8683,30 +8418,29 @@ void raceBettingScreenCallback(void) {
                 
                 if (overlayScreenTable.cellIndex) {
                     overlayScreenTable.cellIndex--;
-                    playSfx(2);
+                    playSfx(MOVE_CURSOR_SFX);
                     setSpriteViewSpacePosition(CURSOR_HAND, -112.0f, (f32)(-(overlayScreenTable.cellIndex * 16) + 24), 32.0f);
                 } else {
                     overlayScreenTable.cellIndex = 0xFF;
                     overlayScreenTable.screenState = 6;
-                    playSfx(2);
+                    playSfx(MOVE_CURSOR_SFX);
                     setSpriteViewSpacePosition(CURSOR_HAND, 96.0f, -96.0f, 32.0f);
                 }
                 
                 set = TRUE;
-                    
-                
-            }
+
+}
             
             if (checkButtonRepeat(CONTROLLER_1, BUTTON_STICK_SOUTHWEST) && !set) {
                 
                     if ((overlayScreenTable.cellIndex) != 5) {
                         overlayScreenTable.cellIndex++;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                         setSpriteViewSpacePosition(CURSOR_HAND, -112.0f, (f32)(-(overlayScreenTable.cellIndex * 16) + 24), 32.0f);
                     } else {
                         overlayScreenTable.cellIndex = 0xFF;
                         overlayScreenTable.screenState = 6;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                         setSpriteViewSpacePosition(CURSOR_HAND, 96.0f, -96.0f, 32.0f);
                     }
                 
@@ -8718,13 +8452,13 @@ void raceBettingScreenCallback(void) {
                 overlayScreenTable.screenState = 5;
                 setSpriteViewSpacePosition(CURSOR_HAND, 32.0f, (f32)(-(overlayScreenTable.cellIndex * 16) + 24), 32.0f);
                 set = TRUE;
-                playSfx(0);
+                playSfx(SELECT_1_SFX);
             }
             
             if ((checkButtonPressed(CONTROLLER_1, BUTTON_START)) && !set) {
                 overlayScreenTable.cellIndex = 0xFF;
                 overlayScreenTable.screenState = 6;
-                playSfx(2);
+                playSfx(MOVE_CURSOR_SFX);
                 setSpriteViewSpacePosition(CURSOR_HAND, 96.0f, -96.0f, 32.0f);
             }
             
@@ -8736,18 +8470,17 @@ void raceBettingScreenCallback(void) {
                 
                 if (!set) {
                     
-                    if (adjustValue(D_80189858, 50, gGold) == 50) {
+                    if (adjustValue(raceBettingGold, 50, gGold) == 50) {
                         
                         if (gRacingContext.playerBets[gRacingContext.currentRaceIndex][overlayScreenTable.cellIndex]) {
-                            D_80189858 += adjustValue(D_80189858, 50, gGold);
+                            raceBettingGold += adjustValue(raceBettingGold, 50, gGold);
                             gRacingContext.playerBets[gRacingContext.currentRaceIndex][overlayScreenTable.cellIndex]--;
-                            playSfx(2);
+                            playSfx(MOVE_CURSOR_SFX);
                         }
                         
                     }
-                    
-                    
-                    setSpriteViewSpacePosition(CURSOR_HAND, 32.0f, (f32)(-(overlayScreenTable.cellIndex * 16) + 24), 32.0f);
+
+setSpriteViewSpacePosition(CURSOR_HAND, 32.0f, (f32)(-(overlayScreenTable.cellIndex * 16) + 24), 32.0f);
                     
                     set = TRUE;
                     
@@ -8759,16 +8492,15 @@ void raceBettingScreenCallback(void) {
 
                 if (!set) {
 
-                    if (adjustValue(D_80189858, -50, gGold) == -50) {
+                    if (adjustValue(raceBettingGold, -50, gGold) == -50) {
 
                         if (gRacingContext.playerBets[gRacingContext.currentRaceIndex][overlayScreenTable.cellIndex] != 99) {
-                            D_80189858 += adjustValue(D_80189858, -50, gGold);
+                            raceBettingGold += adjustValue(raceBettingGold, -50, gGold);
                             gRacingContext.playerBets[gRacingContext.currentRaceIndex][overlayScreenTable.cellIndex]++;
-                            playSfx(2);
+                            playSfx(MOVE_CURSOR_SFX);
                         }
                     }
-                    
-                    
+
                     setSpriteViewSpacePosition(CURSOR_HAND, 32.0f, (f32)(-(overlayScreenTable.cellIndex * 16) + 24), 32.0f);
                     set = TRUE;
                         
@@ -8782,12 +8514,12 @@ void raceBettingScreenCallback(void) {
                     overlayScreenTable.screenState = 4;
                     setSpriteViewSpacePosition(CURSOR_HAND, -112.0f, (f32)(-(overlayScreenTable.cellIndex * 16) + 24), 32.0f);
                     set = TRUE;
-                    playSfx(1);
+                    playSfx(CLOSE_SFX);
                 }
                 
             }
 
-            dmaNumberSprites(1, (u32)D_80189858, 5, 3);
+            dmaNumberSprites(1, (u32)raceBettingGold, 5, 3);
             dmaNumberSprites(overlayScreenTable.cellIndex + 3, gRacingContext.playerBets[gRacingContext.currentRaceIndex][overlayScreenTable.cellIndex], 1, 3);
                 
             break;
@@ -8798,7 +8530,7 @@ void raceBettingScreenCallback(void) {
                 
                 if (!set) {
                     overlayScreenTable.cellIndex = 5;
-                    playSfx(2);
+                    playSfx(MOVE_CURSOR_SFX);
                     setSpriteViewSpacePosition(CURSOR_HAND, -112.0f, (f32)(-(overlayScreenTable.cellIndex * 16) + 24), 32.0f);
                     set = TRUE;
                     overlayScreenTable.screenState = 4;
@@ -8810,7 +8542,7 @@ void raceBettingScreenCallback(void) {
                 
                 if (!set) {
                     overlayScreenTable.cellIndex = 0;
-                    playSfx(2);
+                    playSfx(MOVE_CURSOR_SFX);
                     setSpriteViewSpacePosition(CURSOR_HAND, -112.0f, (f32)(-(overlayScreenTable.cellIndex * 16) + 24), 32.0f);
                     set = TRUE;
                     overlayScreenTable.screenState = 4;
@@ -8830,7 +8562,7 @@ void raceBettingScreenCallback(void) {
                         || gRacingContext.playerBets[gRacingContext.currentRaceIndex][5]) {
                         
                         gRacingContext.betPlacedFlags[gRacingContext.currentRaceIndex] = 0xFF;
-                        gGold = D_80189858;
+                        gGold = raceBettingGold;
                         
                         if (checkDailyEventBit(HORSE_RACE)) {
                             acquireKeyItem(HORSE_RACE_TICKET);
@@ -8846,7 +8578,7 @@ void raceBettingScreenCallback(void) {
                     fadeOutRaceBettingSprites();
                     overlayScreenTable.screenState = 2;
                     
-                    playSfx(0);
+                    playSfx(SELECT_1_SFX);
                     
                 }
             }
@@ -8859,12 +8591,10 @@ void raceBettingScreenCallback(void) {
         resetAnimationState(CURSOR_HAND);
         fadeOutRaceBettingSprites();
         overlayScreenTable.screenState = 2;
-        playSfx(1);
+        playSfx(CLOSE_SFX);
     }
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", updateHorseRaceContext);
 
 void updateHorseRaceContext(void) {
 
@@ -8883,47 +8613,47 @@ void updateHorseRaceContext(void) {
         gRacingContext.currentRaceIndex = 0;
     }
 
-    gRacingContext.racerNames[0][0] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][0]][0];
-    gRacingContext.racerNames[0][1] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][0]][1];
-    gRacingContext.racerNames[0][2] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][0]][2];
-    gRacingContext.racerNames[0][3] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][0]][3];
-    gRacingContext.racerNames[0][4] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][0]][4];
-    gRacingContext.racerNames[0][5] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][0]][5];
+    gRacingContext.racerNames[0][0] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][0]][0];
+    gRacingContext.racerNames[0][1] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][0]][1];
+    gRacingContext.racerNames[0][2] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][0]][2];
+    gRacingContext.racerNames[0][3] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][0]][3];
+    gRacingContext.racerNames[0][4] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][0]][4];
+    gRacingContext.racerNames[0][5] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][0]][5];
 
-    gRacingContext.racerNames[1][0] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][1]][0];
-    gRacingContext.racerNames[1][1] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][1]][1];
-    gRacingContext.racerNames[1][2] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][1]][2];
-    gRacingContext.racerNames[1][3] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][1]][3];
-    gRacingContext.racerNames[1][4] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][1]][4];
-    gRacingContext.racerNames[1][5] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][1]][5];
+    gRacingContext.racerNames[1][0] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][1]][0];
+    gRacingContext.racerNames[1][1] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][1]][1];
+    gRacingContext.racerNames[1][2] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][1]][2];
+    gRacingContext.racerNames[1][3] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][1]][3];
+    gRacingContext.racerNames[1][4] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][1]][4];
+    gRacingContext.racerNames[1][5] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][1]][5];
 
-    gRacingContext.racerNames[2][0] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][2]][0];
-    gRacingContext.racerNames[2][1] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][2]][1];
-    gRacingContext.racerNames[2][2] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][2]][2];
-    gRacingContext.racerNames[2][3] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][2]][3];
-    gRacingContext.racerNames[2][4] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][2]][4];
-    gRacingContext.racerNames[2][5] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][2]][5];
+    gRacingContext.racerNames[2][0] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][2]][0];
+    gRacingContext.racerNames[2][1] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][2]][1];
+    gRacingContext.racerNames[2][2] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][2]][2];
+    gRacingContext.racerNames[2][3] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][2]][3];
+    gRacingContext.racerNames[2][4] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][2]][4];
+    gRacingContext.racerNames[2][5] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][2]][5];
 
-    gRacingContext.racerNames[3][0] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][3]][0];
-    gRacingContext.racerNames[3][1] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][3]][1];
-    gRacingContext.racerNames[3][2] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][3]][2];
-    gRacingContext.racerNames[3][3] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][3]][3];
-    gRacingContext.racerNames[3][4] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][3]][4];
-    gRacingContext.racerNames[3][5] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][3]][5];
+    gRacingContext.racerNames[3][0] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][3]][0];
+    gRacingContext.racerNames[3][1] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][3]][1];
+    gRacingContext.racerNames[3][2] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][3]][2];
+    gRacingContext.racerNames[3][3] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][3]][3];
+    gRacingContext.racerNames[3][4] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][3]][4];
+    gRacingContext.racerNames[3][5] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][3]][5];
 
-    gRacingContext.racerNames[4][0] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][4]][0];
-    gRacingContext.racerNames[4][1] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][4]][1];
-    gRacingContext.racerNames[4][2] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][4]][2];
-    gRacingContext.racerNames[4][3] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][4]][3];
-    gRacingContext.racerNames[4][4] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][4]][4];
-    gRacingContext.racerNames[4][5] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][4]][5];
+    gRacingContext.racerNames[4][0] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][4]][0];
+    gRacingContext.racerNames[4][1] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][4]][1];
+    gRacingContext.racerNames[4][2] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][4]][2];
+    gRacingContext.racerNames[4][3] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][4]][3];
+    gRacingContext.racerNames[4][4] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][4]][4];
+    gRacingContext.racerNames[4][5] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][4]][5];
 
-    gRacingContext.racerNames[5][0] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][5]][0];
-    gRacingContext.racerNames[5][1] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][5]][1];
-    gRacingContext.racerNames[5][2] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][5]][2];
-    gRacingContext.racerNames[5][3] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][5]][3];
-    gRacingContext.racerNames[5][4] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][5]][4];
-    gRacingContext.racerNames[5][5] = D_801220CC[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][5]][5];
+    gRacingContext.racerNames[5][0] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][5]][0];
+    gRacingContext.racerNames[5][1] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][5]][1];
+    gRacingContext.racerNames[5][2] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][5]][2];
+    gRacingContext.racerNames[5][3] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][5]][3];
+    gRacingContext.racerNames[5][4] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][5]][4];
+    gRacingContext.racerNames[5][5] = horseRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][5]][5];
 
     gRacingContext.displayOddsTop[0] = gRacingContext.racerOdds[gRacingContext.currentRaceIndex][0];
     gRacingContext.displayOddsTop[1] = gRacingContext.racerOdds[gRacingContext.currentRaceIndex][1];
@@ -8940,22 +8670,20 @@ void updateHorseRaceContext(void) {
         gRacingContext.racerNames[2][3] = horseInfo.name[3];
         gRacingContext.racerNames[2][4] = horseInfo.name[4];
         gRacingContext.racerNames[2][5] = horseInfo.name[5];
-        
-        D_801C3F78 |= 0x20;
-        
+
+        raceStateFlags |= RACE_STATE_PLAYER_IN_RACE;
+
     } else {
-        D_801C3F78 &= ~0x20;
+        raceStateFlags &= ~RACE_STATE_PLAYER_IN_RACE;
     }
-    
-    if (gRacingContext.unk_6E == gRacingContext.currentRaceIndex) {
-        D_801C3F78 |= 0x40;
+
+    if (gRacingContext.rivalEntryRaceIndex == gRacingContext.currentRaceIndex) {
+        raceStateFlags |= RACE_STATE_RIVAL_IN_RACE;
     } else {
-        D_801C3F78 &= ~0x40;
+        raceStateFlags &= ~RACE_STATE_RIVAL_IN_RACE;
     }
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", updateDogRaceContext);
 
 void updateDogRaceContext(void) {
 
@@ -8974,47 +8702,47 @@ void updateDogRaceContext(void) {
         gRacingContext.currentRaceIndex = 0;
     }
 
-    gRacingContext.racerNames[0][0] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][0]][0];
-    gRacingContext.racerNames[0][1] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][0]][1];
-    gRacingContext.racerNames[0][2] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][0]][2];
-    gRacingContext.racerNames[0][3] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][0]][3];
-    gRacingContext.racerNames[0][4] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][0]][4];
-    gRacingContext.racerNames[0][5] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][0]][5];
+    gRacingContext.racerNames[0][0] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][0]][0];
+    gRacingContext.racerNames[0][1] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][0]][1];
+    gRacingContext.racerNames[0][2] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][0]][2];
+    gRacingContext.racerNames[0][3] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][0]][3];
+    gRacingContext.racerNames[0][4] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][0]][4];
+    gRacingContext.racerNames[0][5] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][0]][5];
 
-    gRacingContext.racerNames[1][0] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][1]][0];
-    gRacingContext.racerNames[1][1] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][1]][1];
-    gRacingContext.racerNames[1][2] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][1]][2];
-    gRacingContext.racerNames[1][3] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][1]][3];
-    gRacingContext.racerNames[1][4] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][1]][4];
-    gRacingContext.racerNames[1][5] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][1]][5];
+    gRacingContext.racerNames[1][0] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][1]][0];
+    gRacingContext.racerNames[1][1] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][1]][1];
+    gRacingContext.racerNames[1][2] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][1]][2];
+    gRacingContext.racerNames[1][3] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][1]][3];
+    gRacingContext.racerNames[1][4] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][1]][4];
+    gRacingContext.racerNames[1][5] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][1]][5];
 
-    gRacingContext.racerNames[2][0] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][2]][0];
-    gRacingContext.racerNames[2][1] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][2]][1];
-    gRacingContext.racerNames[2][2] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][2]][2];
-    gRacingContext.racerNames[2][3] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][2]][3];
-    gRacingContext.racerNames[2][4] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][2]][4];
-    gRacingContext.racerNames[2][5] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][2]][5];
+    gRacingContext.racerNames[2][0] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][2]][0];
+    gRacingContext.racerNames[2][1] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][2]][1];
+    gRacingContext.racerNames[2][2] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][2]][2];
+    gRacingContext.racerNames[2][3] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][2]][3];
+    gRacingContext.racerNames[2][4] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][2]][4];
+    gRacingContext.racerNames[2][5] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][2]][5];
 
-    gRacingContext.racerNames[3][0] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][3]][0];
-    gRacingContext.racerNames[3][1] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][3]][1];
-    gRacingContext.racerNames[3][2] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][3]][2];
-    gRacingContext.racerNames[3][3] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][3]][3];
-    gRacingContext.racerNames[3][4] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][3]][4];
-    gRacingContext.racerNames[3][5] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][3]][5];
+    gRacingContext.racerNames[3][0] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][3]][0];
+    gRacingContext.racerNames[3][1] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][3]][1];
+    gRacingContext.racerNames[3][2] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][3]][2];
+    gRacingContext.racerNames[3][3] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][3]][3];
+    gRacingContext.racerNames[3][4] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][3]][4];
+    gRacingContext.racerNames[3][5] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][3]][5];
 
-    gRacingContext.racerNames[4][0] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][4]][0];
-    gRacingContext.racerNames[4][1] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][4]][1];
-    gRacingContext.racerNames[4][2] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][4]][2];
-    gRacingContext.racerNames[4][3] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][4]][3];
-    gRacingContext.racerNames[4][4] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][4]][4];
-    gRacingContext.racerNames[4][5] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][4]][5];
+    gRacingContext.racerNames[4][0] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][4]][0];
+    gRacingContext.racerNames[4][1] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][4]][1];
+    gRacingContext.racerNames[4][2] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][4]][2];
+    gRacingContext.racerNames[4][3] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][4]][3];
+    gRacingContext.racerNames[4][4] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][4]][4];
+    gRacingContext.racerNames[4][5] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][4]][5];
 
-    gRacingContext.racerNames[5][0] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][5]][0];
-    gRacingContext.racerNames[5][1] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][5]][1];
-    gRacingContext.racerNames[5][2] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][5]][2];
-    gRacingContext.racerNames[5][3] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][5]][3];
-    gRacingContext.racerNames[5][4] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][5]][4];
-    gRacingContext.racerNames[5][5] = D_80122140[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][5]][5];
+    gRacingContext.racerNames[5][0] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][5]][0];
+    gRacingContext.racerNames[5][1] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][5]][1];
+    gRacingContext.racerNames[5][2] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][5]][2];
+    gRacingContext.racerNames[5][3] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][5]][3];
+    gRacingContext.racerNames[5][4] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][5]][4];
+    gRacingContext.racerNames[5][5] = dogRaceRacerNames[gRacingContext.racerNameIndices[gRacingContext.currentRaceIndex * 2][5]][5];
 
     gRacingContext.displayOddsTop[0] = gRacingContext.racerOdds[gRacingContext.currentRaceIndex][0];
     gRacingContext.displayOddsTop[1] = gRacingContext.racerOdds[gRacingContext.currentRaceIndex][1];
@@ -9031,22 +8759,20 @@ void updateDogRaceContext(void) {
         gRacingContext.racerNames[0][3] = dogInfo.name[3];
         gRacingContext.racerNames[0][4] = dogInfo.name[4];
         gRacingContext.racerNames[0][5] = dogInfo.name[5];
-        
-        D_801C3F78 |= 0x20;
-        
+
+        raceStateFlags |= RACE_STATE_PLAYER_IN_RACE;
+
     } else {
-        D_801C3F78 &= ~0x20;
+        raceStateFlags &= ~RACE_STATE_PLAYER_IN_RACE;
     }
-    
-    if (gRacingContext.unk_6E == gRacingContext.currentRaceIndex) {
-        D_801C3F78 |= 0x40;
+
+    if (gRacingContext.rivalEntryRaceIndex == gRacingContext.currentRaceIndex) {
+        raceStateFlags |= RACE_STATE_RIVAL_IN_RACE;
     } else {
-        D_801C3F78 &= ~0x40;
+        raceStateFlags &= ~RACE_STATE_RIVAL_IN_RACE;
     }
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", func_800CC11C);
 
 // unused or inline
 // bool func_800CC11C(u8 arg0, u8 arg1, u8 arg2) {
@@ -9066,8 +8792,6 @@ void updateDogRaceContext(void) {
     
 // }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", initializeRaceContext);
-
 void initializeRaceContext(void) {
 
     u8 arr[19];
@@ -9085,7 +8809,7 @@ void initializeRaceContext(void) {
 
     gRacingContext.playerRaceNumber = 0xFF;
 
-    if ((checkLifeEventBit(0x51)) || (checkLifeEventBit(0x52))) {
+    if ((checkLifeEventBit(ENTERED_HORSE_RACE)) || (checkLifeEventBit(ENTERED_DOG_RACE))) {
         gRacingContext.playerRaceNumber = getRandomNumberInRange(0, 2);
     }
 
@@ -9179,16 +8903,16 @@ void initializeRaceContext(void) {
         
     }
 
-    if (checkLifeEventBit(0x51)) {
+    if (checkLifeEventBit(ENTERED_HORSE_RACE)) {
         temp3 = getRandomNumberInRange(0, 2);
         gRacingContext.racerNameIndices[1][temp3 * 6] = 0;
-        gRacingContext.unk_6E = temp3;
+        gRacingContext.rivalEntryRaceIndex = temp3;
     }
 
-    if (checkLifeEventBit(0x52)) {
+    if (checkLifeEventBit(ENTERED_DOG_RACE)) {
         temp3 = getRandomNumberInRange(0, 2);
         gRacingContext.racerNameIndices[0][temp3 * 6 + 1] = 0;
-        gRacingContext.unk_6E = temp3;
+        gRacingContext.rivalEntryRaceIndex = temp3;
     }
     
     gRacingContext.playerBets[0][0] = 0;
@@ -9218,22 +8942,20 @@ void initializeRaceContext(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadRaceResultsScreenCallback);
-
 void loadRaceResultsScreenCallback(void) {
 
     openOverlayScreen();
     
     if (checkDailyEventBit(HORSE_RACE)) {
-        removeKeyItem(0xE);
+        removeKeyItem(HORSE_RACE_TICKET);
     } else {
-        removeKeyItem(0xF);
+        removeKeyItem(DOG_RACE_TICKET);
     }
     
     dmaSprite(CHECKERBOARD_BACKGROUND, (u32)&_checkerboardBackgroundTextureSegmentRomStart, (u32)&_checkerboardBackgroundTextureSegmentRomEnd, (u32)&_checkerboardBackgroundAssetsIndexSegmentRomStart, (u32)&_checkerboardBackgroundAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_BACKGROUND_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_BACKGROUND_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_BACKGROUND_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_BACKGROUND_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(CHECKERBOARD_BACKGROUND, 0.0f, 0.0f, 0.0f);
     setSpriteScale(CHECKERBOARD_BACKGROUND, 2.0f, 2.0f, 1.0f);
-    setBilinearFiltering(CHECKERBOARD_BACKGROUND, 1);
+    setBilinearFiltering(CHECKERBOARD_BACKGROUND, TRUE);
     setSpriteColor(CHECKERBOARD_BACKGROUND, 255, 255, 255, 255);
     startSpriteAnimation(CHECKERBOARD_BACKGROUND, 0, 0);
     
@@ -9254,52 +8976,51 @@ void loadRaceResultsScreenCallback(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadRaceResultsScreenSprites);
-
 void loadRaceResultsScreenSprites(void) {
 
     dmaSprite(0x81, (u32)&_photoLargeTextureSegmentRomStart, (u32)&_photoLargeTextureSegmentRomEnd, (u32)&_photoLargeAssetsIndexSegmentRomStart, (u32)&_photoLargeAssetsIndexSegmentRomEnd, 0, 0, (u8*)OVERLAY_SCREEN_SNAPSHOT_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_SNAPSHOT_PALETTE, (u16*)OVERLAY_SCREEN_SNAPSHOT_ANIM_METADATA, (u8*)OVERLAY_SCREEN_SNAPSHOT_SPRITESHEET_INDEX, NULL, 0, 0);
     setSpriteViewSpacePosition(0x81, 0.0f, -16.0f, 8.0f);
     setSpriteColor(0x81, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x81, 2);
-    setBilinearFiltering(0x81, 1);
+    setSpriteBlendMode(0x81, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0x81, TRUE);
     startSpriteAnimation(0x81, 0, 0);
     
     dmaSprite(0x82, (u32)&_raceBettingUITextureSegmentRomStart, (u32)&_raceBettingUITextureSegmentRomEnd, (u32)&_raceBettingUIAssetsIndexSegmentRomStart, (u32)&_raceBettingUIAssetsIndexSegmentRomEnd, 0, 0, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, 0);
     setSpriteViewSpacePosition(0x82, 0.0f, 0.0f, 8.0f);
     setSpriteColor(0x82, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x82, 2);
-    setBilinearFiltering(0x82, 1);
+    setSpriteBlendMode(0x82, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0x82, TRUE);
     startSpriteAnimation(0x82, 3, gRacingContext.currentRaceIndex);
     
     dmaSprite(0x83, (u32)&_raceBettingUITextureSegmentRomStart, (u32)&_raceBettingUITextureSegmentRomEnd, (u32)&_raceBettingUIAssetsIndexSegmentRomStart, (u32)&_raceBettingUIAssetsIndexSegmentRomEnd, 0, 0, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, 0);
     setSpriteViewSpacePosition(0x83, 0.0f, 0.0f, 8.0f);
     setSpriteColor(0x83, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x83, 2);
-    setBilinearFiltering(0x83, 1);
+    setSpriteBlendMode(0x83, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0x83, TRUE);
     startSpriteAnimation(0x83, 4, 0);
     
     dmaSprite(0x84, (u32)&_raceBettingUITextureSegmentRomStart, (u32)&_raceBettingUITextureSegmentRomEnd, (u32)&_raceBettingUIAssetsIndexSegmentRomStart, (u32)&_raceBettingUIAssetsIndexSegmentRomEnd, 0, 0, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, 0);
     setSpriteViewSpacePosition(0x84, 0.0f, 0.0f, 8.0f);
     setSpriteColor(0x84, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x84, 2);
-    setBilinearFiltering(0x84, 1);
+    setSpriteBlendMode(0x84, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0x84, TRUE);
     startSpriteAnimation(0x84, 4, 1);
     
     dmaSprite(0x85, (u32)&_raceBettingUITextureSegmentRomStart, (u32)&_raceBettingUITextureSegmentRomEnd, (u32)&_raceBettingUIAssetsIndexSegmentRomStart, (u32)&_raceBettingUIAssetsIndexSegmentRomEnd, 0, 0, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, 0);
     setSpriteViewSpacePosition(0x85, 0.0f, -16.0f, 8.0f);
     setSpriteColor(0x85, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x85, 2);
-    setBilinearFiltering(0x85, 1);
+    setSpriteBlendMode(0x85, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0x85, TRUE);
     startSpriteAnimation(0x85, 4, 1);
     
     setNumberSprites(2, 0x97, (u32)&_moneyTextureSegmentRomStart, (u32)&_moneyTextureSegmentRomEnd, (u32)&_moneyAssetsIndexSegmentRomStart, (u32)&_moneyAssetsIndexSegmentRomEnd, (u8*)GOLD_UI_TEXTURE_BUFFER, (u16*)GOLD_UI_PALETTE_BUFFER, (AnimationFrameMetadata*)GOLD_UI_ANIMATION_FRAME_METADATA_BUFFER, (u32*)GOLD_UI_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, 0, 1, 0, -48.0f, -153.0f, 256.0f, 10);
     
-    raceMedalsCount += adjustValue(raceMedalsCount, 
+// this is a US bug fix: update medal balance BEFORE displaying
+    medalBalance += adjustValue(medalBalance, 
           gRacingContext.displayOddsTop[gRacingContext.finishOrder[0]] * gRacingContext.playerBets[gRacingContext.currentRaceIndex][gRacingContext.finishOrder[0]], 
           9999);
     
-    dmaNumberSprites(2, raceMedalsCount, 3, 3);
+    dmaNumberSprites(2, medalBalance, 3, 3);
     setNumberSpritesRGBA(2, 255, 255, 255, 255);
     
     setNumberSprites(3, 0x9B, (u32)&_moneyTextureSegmentRomStart, (u32)&_moneyTextureSegmentRomEnd, (u32)&_moneyAssetsIndexSegmentRomStart, (u32)&_moneyAssetsIndexSegmentRomEnd, (u8*)GOLD_UI_TEXTURE_BUFFER, (u16*)GOLD_UI_PALETTE_BUFFER, (AnimationFrameMetadata*)GOLD_UI_ANIMATION_FRAME_METADATA_BUFFER, (u32*)GOLD_UI_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, 0, 1, 0, -48.0f, -137.0f, 256.0f, 10);
@@ -9320,10 +9041,10 @@ void loadRaceResultsScreenSprites(void) {
     if (gRacingContext.playerBets[gRacingContext.currentRaceIndex][gRacingContext.finishOrder[0]] && !(checkHaveKeyItem(0xD))) {
         acquireKeyItem(MEDAL_BAG);
     }
-    
-}
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", initializeRaceResultsMessageBoxes);
+// original JP bug
+
+}
 
 void initializeRaceResultsMessageBoxes(void) {
 
@@ -9408,8 +9129,6 @@ void initializeRaceResultsMessageBoxes(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeInRaceResultsElements);
-
 void fadeInRaceResultsSprites(void) {
     updateSpriteAlpha(0x81, 0xFF, 24);
     updateSpriteAlpha(0x82, 0xFF, 24);
@@ -9417,8 +9136,6 @@ void fadeInRaceResultsSprites(void) {
     updateSpriteAlpha(0x84, 0xFF, 24);
     updateSpriteAlpha(0x85, 0xFF, 24);
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeOutRaceResultsElements);
 
 void fadeOutRaceResultsSprites(void) {
 
@@ -9444,56 +9161,50 @@ void fadeOutRaceResultsSprites(void) {
 
 }
 
-// INCLUDE_RODATA("asm/nonmatchings/game/overlayScreens", D_801220CC);
-
 // race strings
-static const u8 D_801220CC[19][6] = {
-    { 0xA7, 0xCF, 0xBB, 0xCC, 0xBE, 0xFF }, 
-    { 0xB4, 0xBF, 0xC3, 0xC9, 0xC2, 0xFF }, 
-    { 0xB4, 0xC3, 0xC8, 0xC1, 0xBF, 0xC8 }, 
-    { 0xA2, 0xCC, 0xC9, 0xBD, 0xBD, 0xC9 }, 
-    { 0xA7, 0xCC, 0xBF, 0xBF, 0xC8, 0xFF }, 
-    { 0xA5, 0xC8, 0xC9, 0xC5, 0xC3, 0xFF }, 
-    { 0xB0, 0xBB, 0xCD, 0xCD, 0xC3, 0xC9 }, 
-    { 0xB0, 0xC3, 0xC5, 0xC6, 0xCD, 0xFF }, 
-    { 0xB4, 0xBB, 0xCC, 0xBB, 0xBC, 0xBB }, 
-    { 0xB4, 0xBB, 0xCE, 0xBB, 0xC7, 0xC3 }, 
-    { 0xB5, 0xC7, 0xBF, 0xCD, 0xC2, 0xCF }, 
-    { 0xAD, 0xBF, 0xC6, 0xC9, 0xBE, 0xD3 }, 
-    { 0xB3, 0xCE, 0xBB, 0xCC, 0xE5, 0xA3 }, 
-    { 0xAD, 0xC9, 0xD4, 0xD4, 0xFF, 0xFF }, 
-    { 0xB3, 0xC2, 0xC3, 0xC9, 0xC5, 0xBB }, 
-    { 0xB9, 0xBB, 0xCD, 0xCF, 0xC7, 0xBB }, 
-    { 0xB3, 0xBB, 0xC5, 0xCF, 0xCC, 0xBB }, 
-    { 0xB0, 0xC9, 0xD3, 0xBB, 0xC8, 0xC9 }, 
+static const u8 horseRaceRacerNames[19][6] = {
+    { 0xA7, 0xCF, 0xBB, 0xCC, 0xBE, 0xFF },
+    { 0xB4, 0xBF, 0xC3, 0xC9, 0xC2, 0xFF },
+    { 0xB4, 0xC3, 0xC8, 0xC1, 0xBF, 0xC8 },
+    { 0xA2, 0xCC, 0xC9, 0xBD, 0xBD, 0xC9 },
+    { 0xA7, 0xCC, 0xBF, 0xBF, 0xC8, 0xFF },
+    { 0xA5, 0xC8, 0xC9, 0xC5, 0xC3, 0xFF },
+    { 0xB0, 0xBB, 0xCD, 0xCD, 0xC3, 0xC9 },
+    { 0xB0, 0xC3, 0xC5, 0xC6, 0xCD, 0xFF },
+    { 0xB4, 0xBB, 0xCC, 0xBB, 0xBC, 0xBB },
+    { 0xB4, 0xBB, 0xCE, 0xBB, 0xC7, 0xC3 },
+    { 0xB5, 0xC7, 0xBF, 0xCD, 0xC2, 0xCF },
+    { 0xAD, 0xBF, 0xC6, 0xC9, 0xBE, 0xD3 },
+    { 0xB3, 0xCE, 0xBB, 0xCC, 0xE5, 0xA3 },
+    { 0xAD, 0xC9, 0xD4, 0xD4, 0xFF, 0xFF },
+    { 0xB3, 0xC2, 0xC3, 0xC9, 0xC5, 0xBB },
+    { 0xB9, 0xBB, 0xCD, 0xCF, 0xC7, 0xBB },
+    { 0xB3, 0xBB, 0xC5, 0xCF, 0xCC, 0xBB },
+    { 0xB0, 0xC9, 0xD3, 0xBB, 0xC8, 0xC9 },
     { 0xAF, 0xC4, 0xBB, 0xC5, 0xC3, 0xFF },
 };
 
-//INCLUDE_RODATA("asm/nonmatchings/game/overlayScreens", D_80122140);
-
-static const u8 D_80122140[19][6] = {
-    { 0xB4, 0xBB, 0xCC, 0xC9, 0xFF, 0xFF }, 
-    { 0xB7, 0xC9, 0xC8, 0xBE, 0xBF, 0xCC }, 
-    { 0xB0, 0xC9, 0xBD, 0xC2, 0xC3, 0xFF }, 
-    { 0xAD, 0xBB, 0xCC, 0xC9, 0xC8, 0xFF }, 
-    { 0xAA, 0xC9, 0xC2, 0xC3, 0xFF, 0xFF }, 
-    { 0xAD, 0xC3, 0xC6, 0xC5, 0xE5, 0xA3 }, 
-    { 0xAD, 0xBB, 0xCA, 0xC6, 0xBF, 0xFF }, 
-    { 0xA2, 0xC3, 0xCD, 0xBD, 0xC2, 0xFF }, 
-    { 0xA3, 0xC2, 0xC9, 0xBD, 0xC9, 0xFF }, 
-    { 0xA9, 0xBD, 0xC2, 0xC3, 0xC1, 0xC9 }, 
-    { 0xA1, 0xCA, 0xCA, 0xC6, 0xBF, 0xFF }, 
-    { 0xA1, 0xC6, 0xC7, 0xC9, 0xC8, 0xBE }, 
-    { 0xA3, 0xC9, 0xBD, 0xBD, 0xC9, 0xFF }, 
-    { 0xB0, 0xC3, 0xCD, 0xCE, 0xBB, 0xFF }, 
-    { 0xAB, 0xCF, 0xCC, 0xC3, 0xFF, 0xFF }, 
-    { 0xAB, 0xBB, 0xCC, 0xC3, 0xC8, 0xFF }, 
-    { 0xAD, 0xBB, 0xC8, 0xC4, 0xCF, 0xFF }, 
-    { 0xAB, 0xC9, 0xCD, 0xC2, 0xC3, 0xFF }, 
-    { 0xB5, 0xC1, 0xCF, 0xC3, 0xCD, 0xCF } 
+static const u8 dogRaceRacerNames[19][6] = {
+    { 0xB4, 0xBB, 0xCC, 0xC9, 0xFF, 0xFF },
+    { 0xB7, 0xC9, 0xC8, 0xBE, 0xBF, 0xCC },
+    { 0xB0, 0xC9, 0xBD, 0xC2, 0xC3, 0xFF },
+    { 0xAD, 0xBB, 0xCC, 0xC9, 0xC8, 0xFF },
+    { 0xAA, 0xC9, 0xC2, 0xC3, 0xFF, 0xFF },
+    { 0xAD, 0xC3, 0xC6, 0xC5, 0xE5, 0xA3 },
+    { 0xAD, 0xBB, 0xCA, 0xC6, 0xBF, 0xFF },
+    { 0xA2, 0xC3, 0xCD, 0xBD, 0xC2, 0xFF },
+    { 0xA3, 0xC2, 0xC9, 0xBD, 0xC9, 0xFF },
+    { 0xA9, 0xBD, 0xC2, 0xC3, 0xC1, 0xC9 },
+    { 0xA1, 0xCA, 0xCA, 0xC6, 0xBF, 0xFF },
+    { 0xA1, 0xC6, 0xC7, 0xC9, 0xC8, 0xBE },
+    { 0xA3, 0xC9, 0xBD, 0xBD, 0xC9, 0xFF },
+    { 0xB0, 0xC3, 0xCD, 0xCE, 0xBB, 0xFF },
+    { 0xAB, 0xCF, 0xCC, 0xC3, 0xFF, 0xFF },
+    { 0xAB, 0xBB, 0xCC, 0xC3, 0xC8, 0xFF },
+    { 0xAD, 0xBB, 0xC8, 0xC4, 0xCF, 0xFF },
+    { 0xAB, 0xC9, 0xCD, 0xC2, 0xC3, 0xFF },
+    { 0xB5, 0xC1, 0xCF, 0xC3, 0xCD, 0xCF }
 };
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", raceResultsScreenCallback);
 
 void raceResultsScreenCallback(void) {
     
@@ -9526,7 +9237,7 @@ void raceResultsScreenCallback(void) {
             deactivateSprite(0x80);
             exitOverlayScreen();
             resumeGameplay();
-            setDailyEventBit(0x40);
+            setDailyEventBit(RACE_COMPLETED);
             setSpawnPoint(RACE_TRACK_SPAWN_POINT_1);
             setPlayerAction(CONTROLLER_INPUT, ANIM_DEFAULT);
             setMainLoopCallbackFunctionIndex(MAP_LOAD);
@@ -9554,13 +9265,11 @@ void raceResultsScreenCallback(void) {
             
             overlayScreenTable.screenState = 2;
             
-            playSfx(1);
+            playSfx(CLOSE_SFX);
             
         }
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadRaceGiftsScreenCallback);
 
 void loadRaceGiftsScreenCallback(void) {
     
@@ -9569,7 +9278,7 @@ void loadRaceGiftsScreenCallback(void) {
     dmaSprite(CHECKERBOARD_BACKGROUND, (u32)&_checkerboardBackgroundTextureSegmentRomStart, (u32)&_checkerboardBackgroundTextureSegmentRomEnd, (u32)&_checkerboardBackgroundAssetsIndexSegmentRomStart, (u32)&_checkerboardBackgroundAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_BACKGROUND_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_BACKGROUND_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_BACKGROUND_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_BACKGROUND_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(CHECKERBOARD_BACKGROUND, 0.0f, 0.0f, 0.0f);
     setSpriteScale(CHECKERBOARD_BACKGROUND, 2.0f, 2.0f, 1.0f);
-    setBilinearFiltering(CHECKERBOARD_BACKGROUND, 1);
+    setBilinearFiltering(CHECKERBOARD_BACKGROUND, TRUE);
     setSpriteColor(CHECKERBOARD_BACKGROUND, 255, 255, 255, 255);
     startSpriteAnimation(CHECKERBOARD_BACKGROUND, 0, 0);
     
@@ -9583,22 +9292,20 @@ void loadRaceGiftsScreenCallback(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadRaceGiftsScreenSprites);
-
 void loadRaceGiftsScreenSprites(void) {
 
     dmaSprite(0x81, (u32)&_photoLargeTextureSegmentRomStart, (u32)&_photoLargeTextureSegmentRomEnd, (u32)&_photoLargeAssetsIndexSegmentRomStart, (u32)&_photoLargeAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_SNAPSHOT_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_SNAPSHOT_PALETTE, (u16*)OVERLAY_SCREEN_SNAPSHOT_ANIM_METADATA, (u32*)OVERLAY_SCREEN_SNAPSHOT_SPRITESHEET_INDEX, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x81, 0.0f, 0.0f, 8.0f);
     setSpriteColor(0x81, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x81, 2);
-    setBilinearFiltering(0x81, 1);
+    setSpriteBlendMode(0x81, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0x81, TRUE);
     startSpriteAnimation(0x81, 0, 0);
     
     dmaSprite(0x82, (u32)&_prizeScreenTextureSegmentRomStart, (u32)&_prizeScreenTextureSegmentRomEnd, (u32)&_prizeScreenAssetsIndexSegmentRomStart, (u32)&_prizeScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x82, 0.0f, 0.0f, 8.0f);
     setSpriteColor(0x82, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x82, 2);
-    setBilinearFiltering(0x82, 1);
+    setSpriteBlendMode(0x82, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0x82, TRUE);
     
     // horse or dog race
     if (checkDailyEventBit(HORSE_RACE)) {
@@ -9611,25 +9318,25 @@ void loadRaceGiftsScreenSprites(void) {
     dmaSprite(0x83, (u32)&_prizeScreenTextureSegmentRomStart, (u32)&_prizeScreenTextureSegmentRomEnd, (u32)&_prizeScreenAssetsIndexSegmentRomStart, (u32)&_prizeScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x83, 0.0f, 0.0f, 8.0f);
     setSpriteColor(0x83, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x83, 2);
-    setBilinearFiltering(0x83, 1);
+    setSpriteBlendMode(0x83, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0x83, TRUE);
     startSpriteAnimation(0x83, 4, 0);
     
     // medal count display 2
     dmaSprite(0x84, (u32)&_prizeScreenTextureSegmentRomStart, (u32)&_prizeScreenTextureSegmentRomEnd, (u32)&_prizeScreenAssetsIndexSegmentRomStart, (u32)&_prizeScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x84, 0.0f, 0.0f, 8.0f);
     setSpriteColor(0x84, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x84, 2);
-    setBilinearFiltering(0x84, 1);
+    setSpriteBlendMode(0x84, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0x84, TRUE);
     startSpriteAnimation(0x84, 4, 1);
     
     setNumberSprites(2, 0x97, (u32)&_moneyTextureSegmentRomStart, (u32)&_moneyTextureSegmentRomEnd, (u32)&_moneyAssetsIndexSegmentRomStart, (u32)&_moneyAssetsIndexSegmentRomEnd, (u8*)GOLD_UI_TEXTURE_BUFFER, (u16*)GOLD_UI_PALETTE_BUFFER, (AnimationFrameMetadata*)GOLD_UI_ANIMATION_FRAME_METADATA_BUFFER, (u32*)GOLD_UI_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, 0, 1, 0, -24.0f, 6.0f, 256.0f, 10);
     
-    dmaNumberSprites(2, raceMedalsCount, 3, 3);
+    dmaNumberSprites(2, medalBalance, 3, 3);
     setNumberSpritesRGBA(2, 255, 255, 255, 255);
     
     dmaSprite(CURSOR_HAND, (u32)&_dialogueButtonIconsTextureSegmentRomStart, (u32)&_dialogueButtonIconsTextureSegmentRomEnd, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomStart, (u32)&_dialogueButtonIconsAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)DIALOGUE_ICON_TEXTURE_BUFFER, NULL, (u16*)DIALOGUE_ICON_PALETTE_BUFFER, (AnimationFrameMetadata*)DIALOGUE_ICON_ANIMATION_FRAME_METADATA_BUFFER, (u32*)DIALOGUE_ICON_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
-    setBilinearFiltering(CURSOR_HAND, 1);
+    setBilinearFiltering(CURSOR_HAND, TRUE);
     setSpriteColor(CURSOR_HAND, 255, 255, 255, 255);
     
     // fade in
@@ -9637,16 +9344,12 @@ void loadRaceGiftsScreenSprites(void) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeInRaceGiftsElements);
-
 void fadeInRaceGiftsSprites(void) {
     updateSpriteAlpha(0x81, 0xFF, 24);
     updateSpriteAlpha(0x82, 0xFF, 24);
     updateSpriteAlpha(0x83, 0xFF, 24);
     updateSpriteAlpha(0x84, 0xFF, 24);
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeOutRaceGiftsElements);
 
 void fadeOutRaceGiftsSprites(void) {
     updateSpriteAlpha(0x81, 0, 24);
@@ -9659,8 +9362,6 @@ void fadeOutRaceGiftsSprites(void) {
 //INCLUDE_RODATA("asm/nonmatchings/game/overlayScreens", D_801221CC);
 
 static const u16 D_801221CC[6] = { 3000, 1000, 500, 0, 0, 0 };
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", raceGiftsScreenCallback);
 
 void raceGiftsScreenCallback(void) {
 
@@ -9696,7 +9397,7 @@ void raceGiftsScreenCallback(void) {
                     overlayScreenTable.screenState = 9;
                     
                 } else {
-                    initializeMessageBox(0, 4, 15, 0);
+                    initializeMessageBox(0, FESTIVALS_TEXT_INDEX, 15, 0);
                     overlayScreenTable.screenState = 3;
                 }
                 
@@ -9763,25 +9464,25 @@ void raceGiftsScreenCallback(void) {
             
             if (checkDailyEventBit(HORSE_RACE)) {
                 
-                if (adjustValue(raceMedalsCount, -D_801221CC[overlayScreenTable.cellIndex], 9999) == -D_801221CC[overlayScreenTable.cellIndex]) {
-                    raceMedalsCount += adjustValue(raceMedalsCount, -D_801221CC[overlayScreenTable.cellIndex], 9999);
-                    initializeMessageBox(0, 4, 13, 0);
+                if (adjustValue(medalBalance, -D_801221CC[overlayScreenTable.cellIndex], 9999) == -D_801221CC[overlayScreenTable.cellIndex]) {
+                    medalBalance += adjustValue(medalBalance, -D_801221CC[overlayScreenTable.cellIndex], 9999);
+                    initializeMessageBox(0, FESTIVALS_TEXT_INDEX, 13, 0);
                     overlayScreenTable.screenState = 3;
                     handleGetHorseRacePrize(overlayScreenTable.cellIndex);
                 } else {
-                    initializeMessageBox(0, 4, 14, 0);
+                    initializeMessageBox(0, FESTIVALS_TEXT_INDEX, 14, 0);
                     overlayScreenTable.screenState = 3;
                 }
                 
             } else {
 
-                if (adjustValue(raceMedalsCount, -D_801221CC[overlayScreenTable.cellIndex ], 9999) == -D_801221CC[overlayScreenTable.cellIndex]) {
-                    raceMedalsCount += adjustValue(raceMedalsCount, -D_801221CC[overlayScreenTable.cellIndex], 9999);
-                    initializeMessageBox(0, 4, 13, 0);
+                if (adjustValue(medalBalance, -D_801221CC[overlayScreenTable.cellIndex ], 9999) == -D_801221CC[overlayScreenTable.cellIndex]) {
+                    medalBalance += adjustValue(medalBalance, -D_801221CC[overlayScreenTable.cellIndex], 9999);
+                    initializeMessageBox(0, FESTIVALS_TEXT_INDEX, 13, 0);
                     overlayScreenTable.screenState = 3;
                     handleGetDogRacePrize(overlayScreenTable.cellIndex);
                 } else {
-                    initializeMessageBox(0, 4, 14, 0);
+                    initializeMessageBox(0, FESTIVALS_TEXT_INDEX, 14, 0);
                     overlayScreenTable.screenState = 3;
                 }
             
@@ -9797,7 +9498,7 @@ void raceGiftsScreenCallback(void) {
                     
                     if (overlayScreenTable.cellIndex) {
                         overlayScreenTable.cellIndex--;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                         setSpriteViewSpacePosition(CURSOR_HAND, -104.0f, (f32)(-(overlayScreenTable.cellIndex * 16) + 16), 32.0f);
                     }
                     
@@ -9810,7 +9511,7 @@ void raceGiftsScreenCallback(void) {
                 if (!set) {
                     if (overlayScreenTable.cellIndex != 2) {
                         overlayScreenTable.cellIndex++;
-                        playSfx(2);
+                        playSfx(MOVE_CURSOR_SFX);
                         setSpriteViewSpacePosition(CURSOR_HAND, -104.0f, (f32)(-(overlayScreenTable.cellIndex * 16) + 16), 32.0f);
                     }
                     set = TRUE;
@@ -9823,7 +9524,7 @@ void raceGiftsScreenCallback(void) {
                     
                     if (checkDailyEventBit(HORSE_RACE)) {
                         
-                        if (!func_800CE714(overlayScreenTable.cellIndex)) {
+                        if (!checkAlreadyHaveHorseRacePrize(overlayScreenTable.cellIndex)) {
                             goto label1;
                         } else {
                             goto label2;
@@ -9831,17 +9532,17 @@ void raceGiftsScreenCallback(void) {
                         
                     }
                     
-                    if (!(func_800CE828(overlayScreenTable.cellIndex))) {
+                    if (!(checkAlreadyHaveDogRacePrize(overlayScreenTable.cellIndex))) {
 label1:
                         initializeDialogueSession(0, DIALOGUE_FESTIVAL_OVERLAY_SELECTIONS, 11, 0x40);
                         overlayScreenTable.screenState = 7;
 label3:
-                        playSfx(0);
+                        playSfx(SELECT_1_SFX);
                         set = TRUE;
                         
                     } else {
 label2:
-                        initializeMessageBox(0, 4, 0x24, 0);
+                        initializeMessageBox(0, FESTIVALS_TEXT_INDEX, 36, 0);
                         overlayScreenTable.screenState = 4;
                         set = TRUE;
                     }
@@ -9862,31 +9563,29 @@ label2:
         updateSpriteAlpha(0x84, 0, 24);
         deactivateNumberSprites(2);
         overlayScreenTable.screenState = 2;
-        playSfx(1);
+        playSfx(CLOSE_SFX);
     }
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", func_800CE714);
-
-bool func_800CE714(u8 arg0) {
+bool checkAlreadyHaveHorseRacePrize(u8 prize) {
 
     bool result = FALSE;
     
-    switch (arg0) {
+    switch (prize) {
         
         case 0:
-            if (checkLifeEventBit(0x56)) {
+            if (checkLifeEventBit(HAVE_STABLE)) {
                 result = TRUE;
             }
             break;
         case 1:
-            if (checkLifeEventBit(0x58)) {
+            if (checkLifeEventBit(HAVE_STUFFED_HORSE)) {
                 result = TRUE;
             }
             break;
         case 2:
-            if (checkHaveKeyItem(0x15)) {
+            if (checkHaveKeyItem(STAMINA_CARROT)) {
                 result = TRUE;
             }
             break;
@@ -9897,17 +9596,15 @@ bool func_800CE714(u8 arg0) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", handleGetHorseRacePrize);
-
 void handleGetHorseRacePrize(u8 arg0) {
 
     switch (arg0) {                              
         case 0:
-            setLifeEventBit(0x56);
+            setLifeEventBit(HAVE_STABLE);
             adjustHorseAffection(10);
             break;
         case 1:
-            setLifeEventBit(0x58);
+            setLifeEventBit(HAVE_STUFFED_HORSE);
             break;
         case 2:
             acquireKeyItem(STAMINA_CARROT);
@@ -9915,20 +9612,18 @@ void handleGetHorseRacePrize(u8 arg0) {
         }
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", func_800CE828);
-
-bool func_800CE828(u8 arg0) {
+bool checkAlreadyHaveDogRacePrize(u8 prize) {
 
     bool result = FALSE;
 
-    switch (arg0) {
+    switch (prize) {
         case 0:
-            if (checkLifeEventBit(0x57)) {
+            if (checkLifeEventBit(HAVE_NEW_DOG_HOUSE)) {
                 result = TRUE;
             }
             break;
         case 1:
-            if (checkLifeEventBit(0x59)) {
+            if (checkLifeEventBit(HAVE_CUTE_CLOCK)) {
                 result = TRUE;
             }
             break;
@@ -9940,17 +9635,15 @@ bool func_800CE828(u8 arg0) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", handleGetDogRacePrize);
-
 void handleGetDogRacePrize(u8 arg0) {
 
     switch (arg0) {                              
         case 0:
-            setLifeEventBit(0x57);
+            setLifeEventBit(HAVE_NEW_DOG_HOUSE);
             adjustDogAffection(10);
             return;
         case 1:
-            setLifeEventBit(0x59);
+            setLifeEventBit(HAVE_CUTE_CLOCK);
             return;
         case 2:
             gLumber += adjustValue(gLumber, 500, MAX_LUMBER);
@@ -9961,10 +9654,7 @@ void handleGetDogRacePrize(u8 arg0) {
 
 /* end horse/dog race functions */
 
-
 /* lottery/raffle */ 
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadLotteryScreenCallback);
 
 void loadLotteryScreenCallback(void) {
     
@@ -9973,7 +9663,7 @@ void loadLotteryScreenCallback(void) {
     dmaSprite(CHECKERBOARD_BACKGROUND, (u32)&_checkerboardBackgroundTextureSegmentRomStart, (u32)&_checkerboardBackgroundTextureSegmentRomEnd, (u32)&_checkerboardBackgroundAssetsIndexSegmentRomStart, (u32)&_checkerboardBackgroundAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_BACKGROUND_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_BACKGROUND_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_BACKGROUND_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_BACKGROUND_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(CHECKERBOARD_BACKGROUND, 0.0f, 0.0f, 0.0f);
     setSpriteScale(CHECKERBOARD_BACKGROUND, 2.0f, 2.0f, 1.0f);
-    setBilinearFiltering(CHECKERBOARD_BACKGROUND, 1);
+    setBilinearFiltering(CHECKERBOARD_BACKGROUND, TRUE);
     setSpriteColor(CHECKERBOARD_BACKGROUND, 255, 255, 255, 255);
     startSpriteAnimation(CHECKERBOARD_BACKGROUND, 0, 0);
     
@@ -9989,29 +9679,27 @@ void loadLotteryScreenCallback(void) {
 
 // winter lottery
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", loadLotteryScreenSprites);
-
 void loadLotteryScreenSprites(void) {
     
     dmaSprite(0x81, (u32)&_photoLargeTextureSegmentRomStart, (u32)&_photoLargeTextureSegmentRomEnd, (u32)&_photoLargeAssetsIndexSegmentRomStart, (u32)&_photoLargeAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_SNAPSHOT_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_SNAPSHOT_PALETTE, (u16*)OVERLAY_SCREEN_SNAPSHOT_ANIM_METADATA, (u32*)OVERLAY_SCREEN_SNAPSHOT_SPRITESHEET_INDEX, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x81, 0.0f, 0.0f, 8.0f);
     setSpriteColor(0x81, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x81, 2);
-    setBilinearFiltering(0x81, 1);
+    setSpriteBlendMode(0x81, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0x81, TRUE);
     startSpriteAnimation(0x81, 0, 0);
     
     dmaSprite(0x82, (u32)&_prizeScreenTextureSegmentRomStart, (u32)&_prizeScreenTextureSegmentRomEnd, (u32)&_prizeScreenAssetsIndexSegmentRomStart, (u32)&_prizeScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x82, 0.0f, 0.0f, 8.0f);
     setSpriteColor(0x82, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x82, 2);
-    setBilinearFiltering(0x82, 1);
+    setSpriteBlendMode(0x82, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0x82, TRUE);
     startSpriteAnimation(0x82, 3, 0);
     
     dmaSprite(0x83, (u32)&_prizeScreenTextureSegmentRomStart, (u32)&_prizeScreenTextureSegmentRomEnd, (u32)&_prizeScreenAssetsIndexSegmentRomStart, (u32)&_prizeScreenAssetsIndexSegmentRomEnd, NULL, NULL, (u8*)OVERLAY_SCREEN_TEXTURE_BUFFER, NULL, (u16*)OVERLAY_SCREEN_PALETTE_BUFFER, (AnimationFrameMetadata*)OVERLAY_SCREEN_ANIMATION_FRAME_METADATA_BUFFER, (u32*)OVERLAY_SCREEN_TEXTURE_TO_PALETTE_LOOKUP_BUFFER, NULL, 0, FALSE);
     setSpriteViewSpacePosition(0x83, 0.0f, 0.0f, 8.0f);
     setSpriteColor(0x83, 0xFF, 0xFF, 0xFF, 0);
-    setSpriteBlendMode(0x83, 2);
-    setBilinearFiltering(0x83, 1);
+    setSpriteBlendMode(0x83, SPRITE_BLEND_ALPHA_MODULATED);
+    setBilinearFiltering(0x83, TRUE);
     
     if (gBaseMapIndex == FLOWER_SHOP) {
         startSpriteAnimation(0x83, 0, 0);
@@ -10023,23 +9711,17 @@ void loadLotteryScreenSprites(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeInLotteryElements);
-
 void fadeInLotterySprites(void) {
     updateSpriteAlpha(0x81, 0xFF, 24);
     updateSpriteAlpha(0x82, 0xFF, 24);
     updateSpriteAlpha(0x83, 0xFF, 24);
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", fadeOutLotteryElements);
-
 void fadeOutLotterySprites(void) {
     updateSpriteAlpha(0x81, 0, 24);
     updateSpriteAlpha(0x82, 0, 24);
     updateSpriteAlpha(0x83, 0, 24);
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", lotteryScreenCallback);
 
 void lotteryScreenCallback(void) {
 
@@ -10088,9 +9770,8 @@ void lotteryScreenCallback(void) {
                     } else {
                         bakeryCardPoints += adjustValue(bakeryCardPoints, -10, 100);
                     }
-                    
 
-                } else {
+} else {
                     
                     if (gBaseMapIndex == FLOWER_SHOP) {
                         initializeMessageBox(0, FESTIVALS_TEXT_INDEX, 0x3D, 0);
@@ -10101,9 +9782,8 @@ void lotteryScreenCallback(void) {
                     overlayScreenTable.screenState = 3;
 
                 }
-                
-            
-            }
+
+}
             
             break;
         
@@ -10296,8 +9976,6 @@ void lotteryScreenCallback(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", checkAvailableFlowerShopPrize);
-
 bool checkAvailableFlowerShopPrize(u8 arg0) {
 
     bool result = FALSE;
@@ -10307,7 +9985,7 @@ bool checkAvailableFlowerShopPrize(u8 arg0) {
         case 4:
             break;
         case 0:
-            if (checkLifeEventBit(0x5A)) {
+            if (checkLifeEventBit(HAVE_CUSHION)) {
                 result = TRUE;
             }
             break;
@@ -10317,7 +9995,7 @@ bool checkAvailableFlowerShopPrize(u8 arg0) {
             }
             break;
         case 2:
-            if (checkLifeEventBit(0x5B)) {
+            if (checkLifeEventBit(WON_CALENDAR_STICKERS_FROM_RAFFLE)) {
                 result = TRUE;
             }
             break;
@@ -10327,19 +10005,17 @@ bool checkAvailableFlowerShopPrize(u8 arg0) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", handleGetFlowerShopPrize);
-
 void handleGetFlowerShopPrize(u8 arg0) {
 
     switch (arg0) {
         case 0:
-            setLifeEventBit(0x5A);
+            setLifeEventBit(HAVE_CUSHION);
             break;
         case 1:
             acquireKeyItem(FLOWER_BATH_CRYSTALS);
             break;
         case 2:
-            setLifeEventBit(0x5B);
+            setLifeEventBit(WON_CALENDAR_STICKERS_FROM_RAFFLE);
             break;
         case 3:
             storeTool(PINK_CAT_MINT_SEEDS);
@@ -10351,9 +10027,8 @@ void handleGetFlowerShopPrize(u8 arg0) {
         default:
             break;
     }
-} 
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", checkAvailableBakeryPrize);
+} 
 
 bool checkAvailableBakeryPrize(u8 arg0) {
 
@@ -10368,13 +10043,13 @@ bool checkAvailableBakeryPrize(u8 arg0) {
             break;
  
         case 1:
-             if (checkLifeEventBit(0x5C)) {
+             if (checkLifeEventBit(HAVE_MUG)) {
                  result = TRUE;
              }
             break;
         
         case 2:
-             if (checkLifeEventBit(0x5D)) {
+             if (checkLifeEventBit(HAVE_LUNCHEON_MAT)) {
                  result = TRUE;
              }
             break;
@@ -10391,15 +10066,13 @@ bool checkAvailableBakeryPrize(u8 arg0) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/overlayScreens", handleGetBakeryPrize);
-
 void handleGetBakeryPrize(u8 arg0) {
 
     switch (arg0) {
         
         case 0:
             
-            setLifeEventBit(0x17);
+            setLifeEventBit(HAVE_TABLECLOTH);
             
             if (checkLifeEventBit(MARRIED) && gWife == MARIA) {
                 npcAffection[MARIA] += adjustValue(npcAffection[MARIA], 10, MAX_AFFECTION);
@@ -10421,7 +10094,7 @@ void handleGetBakeryPrize(u8 arg0) {
 
         case 1:
             
-            setLifeEventBit(0x5C);
+            setLifeEventBit(HAVE_MUG);
             
             if (checkLifeEventBit(MARRIED) && gWife == MARIA) {
                 npcAffection[MARIA] += adjustValue(npcAffection[MARIA], 8, MAX_AFFECTION);
@@ -10442,20 +10115,20 @@ void handleGetBakeryPrize(u8 arg0) {
             break;
 
         case 2:
-            setLifeEventBit(0x5D);
+            setLifeEventBit(HAVE_LUNCHEON_MAT);
             break;
         
         case 3:
             
             if (checkHaveTool(EMPTY_BOTTLE)) {
-                gPlayer.bottleContents = 7;
+                gPlayer.bottleContents = BOTTLE_CONTENTS_HONEY;
             } else {
-                gPlayer.heldItem = COOKIES;
+                gPlayer.heldItem = COOKIES_HELD_ITEM;
             }
             break;
         
         case 4:
-            gPlayer.heldItem = COOKIES;
+            gPlayer.heldItem = COOKIES_HELD_ITEM;
             break;
     
     }

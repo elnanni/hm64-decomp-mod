@@ -23,13 +23,11 @@
 
 u32 D_8016FB00;
 
-//INCLUDE_ASM("asm/nonmatchings/game/gameStart", setupGameStart);
-
 void setupGameStart(void) {
-    
+
     // set up game
-    initializeAll(); 
-    
+    initializeAll();
+
     if (contPattern & 1) {
         //launchIntroCutscene(OPENING_LOGOS, 0x61, 1);
         startGame();
@@ -44,10 +42,8 @@ void setupGameStart(void) {
         initializeMessageBox(MAIN_MESSAGE_BOX_INDEX, TEXT_1_TEXT_INDEX, 25, MESSAGE_BOX_MODE_NO_INPUT);
 
     }
-    
-}
 
-//INCLUDE_ASM("asm/nonmatchings/game/gameStart", startGame);
+}
 
 void startGame(void) {
 
@@ -57,21 +53,17 @@ void startGame(void) {
     func_800598E0();
     func_8004DFF8();
 
-    setDailyEventBit(0x53);
-    setDailyEventBit(0x54);
+    setDailyEventBit(EAT_BREAKFAST);
+    setDailyEventBit(DEFAULT_MORNING);
 
     // gHour = 6;
 
     setMainLoopCallbackFunctionIndex(MAP_LOAD);
-    
+
 }
 
 u8 i;
 
-//INCLUDE_ASM("asm/nonmatchings/game/gameStart", func_8004DFF8);
-
-// unused function: probably for sandboxing during development or demos
-// not in JP version
 void func_8004DFF8(void) {
     
      setLifeEventBit(HAVE_HORSE);

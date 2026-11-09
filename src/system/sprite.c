@@ -1,4 +1,5 @@
 #include "common.h"
+#include "yay0.h"
 
 #include "system/sprite.h"
 
@@ -12,33 +13,32 @@
 u16 bitmapCounter;
 
 BitmapObject bitmaps[MAX_BITMAPS];
-Gfx spriteDisplayList[2][0x880];
+Gfx spriteDisplayList[2][0x880] __attribute__((aligned(16)));
 Vtx bitmapVertices[2][0x80][4];
-
-//INCLUDE_ASM("asm/nonmatchings/system/sprite", initializeBitmaps);
 
 void initializeBitmaps(void) {
 
     u16 i, j, k;
 
     for (i = 0; i < MAX_BITMAPS; i++) {
-        bitmaps[i].flags = 0;
-        bitmaps[i].renderingFlags = 0;
-        bitmaps[i].spriteNumber = 0;
-        bitmaps[i].vtxIndex = 0;
-        bitmaps[i].viewSpacePosition.x = 0;
-        bitmaps[i].viewSpacePosition.y = 0;
-        bitmaps[i].viewSpacePosition.z = 0;
-        bitmaps[i].scaling.x = 1.0f;
-        bitmaps[i].scaling.y = 1.0f;
-        bitmaps[i].scaling.z = 1.0f;
-        bitmaps[i].rotation.x = 0;
-        bitmaps[i].rotation.y = 0;
-        bitmaps[i].rotation.z = 0;
-        bitmaps[i].rgba.r = 255.0f;
-        bitmaps[i].rgba.g = 255.0f;
-        bitmaps[i].rgba.b = 255.0f;
-        bitmaps[i].rgba.a = 255.0f;
+        BitmapObject *bm = &bitmaps[i];
+        bm->flags = 0;
+        bm->renderingFlags = 0;
+        bm->spriteNumber = 0;
+        bm->vtxIndex = 0;
+        bm->viewSpacePosition.x = 0;
+        bm->viewSpacePosition.y = 0;
+        bm->viewSpacePosition.z = 0;
+        bm->scaling.x = 1.0f;
+        bm->scaling.y = 1.0f;
+        bm->scaling.z = 1.0f;
+        bm->rotation.x = 0;
+        bm->rotation.y = 0;
+        bm->rotation.z = 0;
+        bm->rgba.r = 255.0f;
+        bm->rgba.g = 255.0f;
+        bm->rgba.b = 255.0f;
+        bm->rgba.a = 255.0f;
     }
 
     for (j = 0; j < 2; j++) {
@@ -54,8 +54,6 @@ void initializeBitmaps(void) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/sprite", resetBitmaps);
-
 void resetBitmaps(void) {
 
     int i = 0;
@@ -68,8 +66,6 @@ void resetBitmaps(void) {
     } 
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/system/sprite", setBitmapWithSize);
 
 // unused
 // u16 setBitmapWithSize(u8 *timg, u8 *pal, s32 width, s32 height, s32 fmt, s32 size, u32 arg6, u32 arg7, u16 flags) {
@@ -96,17 +92,16 @@ void resetBitmaps(void) {
 
 // }
 
-//INCLUDE_ASM("asm/nonmatchings/system/sprite", setBitmap);
-
 u16 setBitmap(u8 *timg, u16 *pal, u16 flags) {
 
     u16 bitmapIndex = bitmapCounter;
     
     if (bitmapCounter < MAX_BITMAPS) {
-        bitmaps[bitmapCounter].flags = flags | 1;
-        bitmaps[bitmapCounter].renderingFlags = 0;
-        bitmaps[bitmapCounter].timg = timg;
-        bitmaps[bitmapCounter].pal = pal;
+        BitmapObject *bm = &bitmaps[bitmapCounter];
+        bm->flags = flags | 1;
+        bm->renderingFlags = 0;
+        bm->timg = timg;
+        bm->pal = pal;
         bitmapCounter++;
     } else {
         bitmapIndex = 0xFFFF;
@@ -116,9 +111,9 @@ u16 setBitmap(u8 *timg, u16 *pal, u16 flags) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/sprite", setBitmapAnchorAlignment);
-
 bool setBitmapAnchorAlignment(u16 index, u16 arg1, u16 arg2) {
+
+    BitmapObject *bm = &bitmaps[index];
     
     bool result = FALSE;
 
@@ -127,15 +122,15 @@ bool setBitmapAnchorAlignment(u16 index, u16 arg1, u16 arg2) {
 
     if (index < MAX_BITMAPS) {
 
-        if (bitmaps[index].flags & BITMAP_ACTIVE) {
+        if (bm->flags & BITMAP_ACTIVE) {
 
-            bitmaps[index].renderingFlags &= ~BITMAP_ANCHOR_MASK;
+            bm->renderingFlags &= ~BITMAP_ANCHOR_MASK;
 
             temp1 = arg1 << 3;
-            bitmaps[index].renderingFlags |= temp1;
+            bm->renderingFlags |= temp1;
 
             temp2 = arg2 << 5;
-            bitmaps[index].renderingFlags |= temp2;
+            bm->renderingFlags |= temp2;
 
             result = TRUE;
 
@@ -146,20 +141,20 @@ bool setBitmapAnchorAlignment(u16 index, u16 arg1, u16 arg2) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/sprite", setBitmapAxisMapping);
-
 bool setBitmapAxisMapping(u16 index, u16 mode) {
+
+    BitmapObject *bm = &bitmaps[index];
     
     bool result = FALSE;
     int temp;
     
     if (index < MAX_BITMAPS) {
 
-        if (bitmaps[index].flags & BITMAP_ACTIVE) {
+        if (bm->flags & BITMAP_ACTIVE) {
             
-            bitmaps[index].renderingFlags &= ~BITMAP_AXIS_MAPPING_MASK;
+            bm->renderingFlags &= ~BITMAP_AXIS_MAPPING_MASK;
             temp = mode << 7;
-            bitmaps[index].renderingFlags |= temp;
+            bm->renderingFlags |= temp;
             
             result = TRUE;
 
@@ -169,21 +164,21 @@ bool setBitmapAxisMapping(u16 index, u16 mode) {
     return result;
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/system/sprite", setBitmapTriangleWinding);
 
 bool setBitmapTriangleWinding(u16 index, u16 arg1) {
 
+    BitmapObject *bm = &bitmaps[index];
+
     bool result = FALSE;
     
     if (index < MAX_BITMAPS) {
         
-        if (bitmaps[index].flags & BITMAP_ACTIVE) {
+        if (bm->flags & BITMAP_ACTIVE) {
             
             if (arg1) {
-                bitmaps[index].renderingFlags |= SPRITE_RENDERING_REVERSE_WINDING;
+                bm->renderingFlags |= SPRITE_RENDERING_REVERSE_WINDING;
             } else {
-                bitmaps[index].renderingFlags &= ~SPRITE_RENDERING_REVERSE_WINDING;
+                bm->renderingFlags &= ~SPRITE_RENDERING_REVERSE_WINDING;
             }
             
             result = TRUE;
@@ -195,22 +190,22 @@ bool setBitmapTriangleWinding(u16 index, u16 arg1) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/sprite", setBitmapFlip);
-
 bool setBitmapFlip(u16 index, bool flipHorizontal, bool flipVertical) {
+
+    BitmapObject *bm = &bitmaps[index];
     
     bool result = FALSE;
     
     if (index < MAX_BITMAPS) {
 
-        if (bitmaps[index].flags & BITMAP_ACTIVE) {
+        if (bm->flags & BITMAP_ACTIVE) {
     
             if (flipHorizontal) {
-                bitmaps[index].renderingFlags |= BITMAP_RENDERING_FLIP_HORIZONTAL;
+                bm->renderingFlags |= BITMAP_RENDERING_FLIP_HORIZONTAL;
             }
             
             if (flipVertical) {
-               bitmaps[index].renderingFlags |= BITMAP_RENDERING_FLIP_VERTICAL;
+               bm->renderingFlags |= BITMAP_RENDERING_FLIP_VERTICAL;
             }
             
             result = TRUE;
@@ -222,20 +217,20 @@ bool setBitmapFlip(u16 index, bool flipHorizontal, bool flipVertical) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/sprite", setBitmapBlendMode);
-
 bool setBitmapBlendMode(u16 index, u16 flag) {
+
+    BitmapObject *bm = &bitmaps[index];
 
     bool result = FALSE;
     int temp;
     
     if (index < MAX_BITMAPS) {
 
-        if (bitmaps[index].flags & BITMAP_ACTIVE) {
+        if (bm->flags & BITMAP_ACTIVE) {
             
-            bitmaps[index].renderingFlags &= ~BITMAP_BLEND_MODE_MASK;
+            bm->renderingFlags &= ~BITMAP_BLEND_MODE_MASK;
             temp = flag << 10;
-            bitmaps[index].renderingFlags |= temp;
+            bm->renderingFlags |= temp;
             
             result = TRUE;
 
@@ -246,20 +241,20 @@ bool setBitmapBlendMode(u16 index, u16 flag) {
     return result;
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/system/sprite", setBitmapViewSpacePosition);
 
 bool setBitmapViewSpacePosition(u16 index, f32 arg1, f32 arg2, f32 arg3) {
+
+    BitmapObject *bm = &bitmaps[index];
     
     bool result = FALSE;
     
     if (index < MAX_BITMAPS) {
         
-        if (bitmaps[index].flags & BITMAP_ACTIVE) {
+        if (bm->flags & BITMAP_ACTIVE) {
             
-            bitmaps[index].viewSpacePosition.x = arg1;
-            bitmaps[index].viewSpacePosition.y = arg2;
-            bitmaps[index].viewSpacePosition.z = arg3;
+            bm->viewSpacePosition.x = arg1;
+            bm->viewSpacePosition.y = arg2;
+            bm->viewSpacePosition.z = arg3;
             
             result = TRUE;
 
@@ -269,20 +264,20 @@ bool setBitmapViewSpacePosition(u16 index, f32 arg1, f32 arg2, f32 arg3) {
     return result;
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/system/sprite", setBitmapScale);
 
 bool setBitmapScale(u16 index, f32 arg1, f32 arg2, f32 arg3) {
+
+    BitmapObject *bm = &bitmaps[index];
     
     bool result = FALSE;
     
     if (index < MAX_BITMAPS) {
         
-        if (bitmaps[index].flags & BITMAP_ACTIVE) {
+        if (bm->flags & BITMAP_ACTIVE) {
             
-            bitmaps[index].scaling.x = arg1;
-            bitmaps[index].scaling.y = arg2;
-            bitmaps[index].scaling.z = arg3;
+            bm->scaling.x = arg1;
+            bm->scaling.y = arg2;
+            bm->scaling.z = arg3;
             
             result = TRUE;
 
@@ -292,20 +287,20 @@ bool setBitmapScale(u16 index, f32 arg1, f32 arg2, f32 arg3) {
     return result;
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/system/sprite", setBitmapRotation);
 
 bool setBitmapRotation(u16 index, f32 arg1, f32 arg2, f32 arg3) {
 
+    BitmapObject *bm = &bitmaps[index];
+
     bool result = FALSE;
 
     if (index < MAX_BITMAPS) {
         
-        if (bitmaps[index].flags & BITMAP_ACTIVE) {
+        if (bm->flags & BITMAP_ACTIVE) {
             
-            bitmaps[index].rotation.x = arg1;
-            bitmaps[index].rotation.y = arg2;
-            bitmaps[index].rotation.z = arg3;
+            bm->rotation.x = arg1;
+            bm->rotation.y = arg2;
+            bm->rotation.z = arg3;
             
             result = TRUE;
 
@@ -316,20 +311,20 @@ bool setBitmapRotation(u16 index, f32 arg1, f32 arg2, f32 arg3) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/sprite", setBitmapRGBA);
-
 bool setBitmapRGBA(u16 index, u8 r, u8 g, u8 b, u8 a) {
+
+    BitmapObject *bm = &bitmaps[index];
     
     bool result = FALSE;
     
     if (index < MAX_BITMAPS) {
         
-        if (bitmaps[index].flags & BITMAP_ACTIVE) {
+        if (bm->flags & BITMAP_ACTIVE) {
             
-            bitmaps[index].rgba.r = r;
-            bitmaps[index].rgba.g = g;
-            bitmaps[index].rgba.b = b;
-            bitmaps[index].rgba.a = a;
+            bm->rgba.r = r;
+            bm->rgba.g = g;
+            bm->rgba.b = b;
+            bm->rgba.a = a;
             
             result = TRUE;
 
@@ -340,18 +335,18 @@ bool setBitmapRGBA(u16 index, u8 r, u8 g, u8 b, u8 a) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/sprite", setBitmapAnchor);
-
 bool setBitmapAnchor(u16 index, s16 anchorX, s16 anchorY) {
+
+    BitmapObject *bm = &bitmaps[index];
 
     bool result = FALSE;
     
     if (index < MAX_BITMAPS) {
         
-        if (bitmaps[index].flags & BITMAP_ACTIVE) {
+        if (bm->flags & BITMAP_ACTIVE) {
             
-            bitmaps[index].anchorX = anchorX;
-            bitmaps[index].anchorY = anchorY;
+            bm->anchorX = anchorX;
+            bm->anchorY = anchorY;
             
             result = TRUE;
 
@@ -362,19 +357,23 @@ bool setBitmapAnchor(u16 index, s16 anchorX, s16 anchorY) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/sprite", setSpriteDMAInfo);
-
-u8* setSpriteDMAInfo(u16 index, u32 *spritesheetIndex, u8 *timg, u8 *romAddr) {
+// Loads one compressed frame from a per-frame-compressed spritesheet into
+// `timg` and returns the *decompressed* frame size. Callers that pack
+// multiple layered frames back-to-back in RAM use the returned size as the
+// RAM stride — getTextureLength(spritesheetIndex) returns the compressed
+// length, which is correct for DMA but wrong for the RAM layout.
+u32 setSpriteDMAInfo(u16 index, u32 *spritesheetIndex, u8 *timg, u8 *romAddr) {
 
     u32 offset = spritesheetIndex[index];
+    u32 compressedLen = getTextureLength(index, spritesheetIndex);
 
-    setSpriteAssetDescriptors(romAddr + offset, timg, getTextureLength(index, spritesheetIndex));
+    dmaReadRom((u32)romAddr + offset, timg, compressedLen);
 
-    return timg;
+    // Decompressed size lives at bytes 4..7 of the Yay0 header in yay0Scratch.
+    return ((u32)yay0Scratch[4] << 24) | ((u32)yay0Scratch[5] << 16)
+         | ((u32)yay0Scratch[6] << 8)  | (u32)yay0Scratch[7];
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/system/sprite", getTextureLength);
 
 u32 getTextureLength(u16 spriteIndex, u32 spritesheetIndex[]) {
     
@@ -398,18 +397,6 @@ static const Gfx D_8011ECC8 = gsDPSetRenderMode(G_RM_AA_ZB_XLU_SURF, G_RM_AA_ZB_
 static const Gfx D_8011ECD0 = gsDPSetCombineMode(G_CC_MODULATEIDECALA, G_CC_MODULATEIDECALA);
 static const Gfx D_8011ECD8 = gsDPSetRenderMode(G_RM_AA_ZB_TEX_EDGE, G_RM_AA_ZB_TEX_EDGE2);
 static const Gfx D_8011ECE0 = gsDPSetRenderMode(G_RM_AA_TEX_EDGE, G_RM_AA_TEX_EDGE2);
-
-//INCLUDE_RODATA("asm/nonmatchings/systemsprite", D_8011ECC0);
-
-//INCLUDE_RODATA("asm/nonmatchings/systemsprite", D_8011ECC8);
-
-//INCLUDE_RODATA("asm/nonmatchings/systemsprite", D_8011ECD0);
-
-//INCLUDE_RODATA("asm/nonmatchings/systemsprite", D_8011ECD8);
-
-//INCLUDE_RODATA("asm/nonmatchings/systemsprite", D_8011ECE0);
-
-//INCLUDE_ASM("asm/nonmatchings/system/sprite", setBitmapBlendModeDisplayList);
 
 inline Gfx* setBitmapBlendModeDisplayList(Gfx* dl, u16 flag) {
 
@@ -440,8 +427,6 @@ inline Gfx* setBitmapBlendModeDisplayList(Gfx* dl, u16 flag) {
     return dl++;
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/system/sprite", calculateSceneNodePosition);
 
 inline void calculateSceneNodePosition(Vec3f* calculatedPosition, BitmapObject* sprite) {
     
@@ -481,33 +466,17 @@ inline void calculateSceneNodePosition(Vec3f* calculatedPosition, BitmapObject* 
 
 static const Gfx D_8011ED00 = gsSPTexture(0x8000, 0x8000, 0, G_TX_RENDERTILE, G_ON);
 
-//INCLUDE_RODATA("asm/nonmatchings/systemsprite", D_8011ED00);
-
 static const Gfx D_8011ED08 = gsDPSetTextureFilter(G_TF_BILERP);
-
-//INCLUDE_RODATA("asm/nonmatchings/systemsprite", D_8011ED08);
 
 static const Gfx D_8011ED10 = gsDPSetTextureFilter(G_TF_POINT);
 
-//INCLUDE_RODATA("asm/nonmatchings/systemsprite", D_8011ED10);
-
 static const Gfx D_8011ED18 = gsSP2Triangles(0, 2, 1, 0, 0, 3, 2, 0);
-
-//INCLUDE_RODATA("asm/nonmatchings/systemsprite", D_8011ED18);
 
 static const Gfx D_8011ED20 = gsSP2Triangles(0, 1, 2, 0, 0, 2, 3, 0);
 
-//INCLUDE_RODATA("asm/nonmatchings/systemsprite", D_8011ED20);
-
 static const Gfx D_8011ED28 = gsDPPipeSync();
 
-//INCLUDE_RODATA("asm/nonmatchings/systemsprite", D_8011ED28);
-
 static const Gfx D_8011ED30 = gsSPEndDisplayList();
-
-//INCLUDE_RODATA("asm/nonmatchings/systemsprite", D_8011ED30);
-
-//INCLUDE_ASM("asm/nonmatchings/system/sprite", generateBitmapDisplayList);
 
 Gfx* generateBitmapDisplayList(Gfx* dl, BitmapObject* bitmap, u16 spriteNumber) {
 
@@ -520,8 +489,6 @@ Gfx* generateBitmapDisplayList(Gfx* dl, BitmapObject* bitmap, u16 spriteNumber) 
     u16 textureSize;
 
     u16 remainingSize;
-    
-    Gfx tempDl[2];
     
     bitmap->spriteNumber = spriteNumber;
 
@@ -593,11 +560,7 @@ Gfx* generateBitmapDisplayList(Gfx* dl, BitmapObject* bitmap, u16 spriteNumber) 
         
         dl = loadBitmapTexture(dl, bitmap, textureDimensions, textureSize);
     
-        // FIXME: might be a wrapper around gSPVertex
-        gSPVertex(&tempDl[1], &bitmapVertices[gGraphicsBufferIndex][bitmap->spriteNumber + vtxIndex][0], 4, 0);
-    
-        *tempDl = *(tempDl + 1);
-        *dl++ = *tempDl;
+        gSPVertex(dl++, &bitmapVertices[gGraphicsBufferIndex][bitmap->spriteNumber + vtxIndex][0], 4, 0);
         
         // append triangle commands
         if (bitmap->renderingFlags & SPRITE_RENDERING_REVERSE_WINDING) {
@@ -623,8 +586,6 @@ Gfx* generateBitmapDisplayList(Gfx* dl, BitmapObject* bitmap, u16 spriteNumber) 
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/sprite", processBitmapSceneNode);
-
 static void processBitmapSceneNode(BitmapObject* sprite, Gfx *dl) {
 
     Vec3f vec;
@@ -642,8 +603,6 @@ static void processBitmapSceneNode(BitmapObject* sprite, Gfx *dl) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/sprite", updateBitmaps);
-
 void updateBitmaps(void) {
 
     u16 i;
@@ -654,19 +613,20 @@ void updateBitmaps(void) {
     u16 spriteNumber = 0;
     
     for (i = 0; i < MAX_BITMAPS; i++) {
-        
-        if (bitmaps[i].flags & BITMAP_ACTIVE) {
-    
-            setBitmapFormat(&bitmaps[i], bitmaps[i].timg, bitmaps[i].pal);
+        BitmapObject *bm = &bitmaps[i];
+
+        if (bm->flags & BITMAP_ACTIVE) {
+
+            setBitmapFormat(bm, bm->timg, bm->pal);
 
             dlStartPosition = dl;
-            dl = generateBitmapDisplayList(dl, &bitmaps[i], spriteNumber);
+            dl = generateBitmapDisplayList(dl, bm, spriteNumber);
 
-            processBitmapSceneNode(&bitmaps[i], dlStartPosition); 
-            
-            spriteNumber += bitmaps[i].vtxIndex;
-            bitmaps[i].flags &= ~1;
-            
+            processBitmapSceneNode(bm, dlStartPosition);
+
+            spriteNumber += bm->vtxIndex;
+            bm->flags &= ~1;
+
        }
    }
     

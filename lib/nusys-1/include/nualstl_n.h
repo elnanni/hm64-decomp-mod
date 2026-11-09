@@ -87,7 +87,7 @@ extern "C" {
 #define NU_AU_OUTPUT_RATE	32000   	/* Setting the frequency  */
 #define NU_AU_MESG_MAX		8
 #define NU_AU_HEAP_MIN_SIZE	(NU_AU_SND_HEAP_SIZE+NU_AU_SEQ_HEAP_SIZE+NU_AU_SYN_HEAP_SIZE+NU_AU_DMA_BUFFER_NUM*NU_AU_DMA_BUFFER_SIZE+NU_AU_CLIST_SIZE*2)
-#define NU_AU_HEAP_SIZE		0x80000 	/* The HEAP size of default  */
+#define NU_AU_HEAP_SIZE		0x70000 	/* The HEAP size of default  */
 #define NU_AU_HEAP_ADDR		(NU_GFX_FRAMEBUFFER_ADDR - NU_AU_HEAP_SIZE)
 
 #define NU_AU_NAUDIO_SAMPLES	184	/* The sample number of NAUDIO is a multiple of 184  */
@@ -139,7 +139,7 @@ typedef void (*NUAuPreNMIFunc)(NUScMsg,u32);	/* The PRENMI call-back function  *
 /*--------------------------------------*/
 extern u32			nuAuFrameCounter;	/* The frame counter  */
 extern ALHeap		nuAuHeap;		/* The Heap structure  */
-extern NUAuSeqPlayer	nuAuSeqPlayer[2];	
+extern NUAuSeqPlayer	nuAuSeqPlayer[4];	
 extern u8*			nuAuSeqData;
 extern ALBankFile*	nuAuSeqBank_ptr;
 extern ALSeqFile*		nuAuSeqFile_ptr;

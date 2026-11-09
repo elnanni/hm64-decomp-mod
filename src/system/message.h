@@ -28,7 +28,7 @@
 #define MESSAGE_BOX_WAITING_WITH_ICON 0x1000
 #define MESSAGE_BOX_NEEDS_INTERPOLATOR_INIT 0x2000
 // #define  0x4000
-#define MESSAGE_BOX_MODE_UNKNOWN 0x8000
+#define MESSAGE_BOX_MODE_NO_AUTO_RESET 0x8000
 #define MESSAGE_BOX_HAS_CHARACTER_AVATAR 0x10000
 // 0x20000
 #define MESSAGE_BOX_MODE_KEEP_ANIMATION 0x40000
@@ -246,7 +246,7 @@ typedef struct {
     u16 unk_68; // counter
     MessageBoxInterpolator scrollInterpolator; // 0x6A
     u32 characterPrintSfx;
-    u32 unk_74; // Unknown SFX (follows same pattern as other SFX fields)
+    u32 messageOpenSfx;
     u32 messageCloseSfx;
     s16 unk_7C; // interpolation rate value
     u16 textIndex;

@@ -29,16 +29,21 @@ import json
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from PIL import Image
-
 from ..common import rom, colors
 from ..animations.metadata import read_animation_from_offsets
 from . import addresses
+from .textures import save_texture_png
 
 
 # Default output directory
 _REPO_DIR = Path(__file__).resolve().parent.parent.parent.parent
 DEFAULT_OUTPUT_DIR = _REPO_DIR / "assets" / "sprites"
+
+# Baseroms live at the repo root, named per region.
+BASEROM_PATHS = {
+    'us': _REPO_DIR / "baserom.us.z64",
+    'jp': _REPO_DIR / "baserom.jp.z64",
+}
 
 
 def palette_to_json(pal_data: bytes) -> Dict:
@@ -62,40 +67,14 @@ def palette_to_json(pal_data: bytes) -> Dict:
     }
 
 
-def create_viewable_png(tex_data: bytes, width: int, height: int,
-                        pal_data: bytes, tex_format: str) -> Image.Image:
-    """Create RGBA PNG from texture and palette data."""
-    # Unpack pixel indices
-    if tex_format == 'ci4':
-        indices = []
-        for byte in tex_data:
-            indices.append((byte >> 4) & 0x0F)
-            indices.append(byte & 0x0F)
-        indices = indices[:width * height]
-    else:
-        indices = list(tex_data[:width * height])
-
-    # Pad if needed
-    while len(indices) < width * height:
-        indices.append(0)
-
-    # Parse palette with alpha
+def _parse_rgba5551_palette(pal_data: bytes) -> List[tuple]:
+    """Decode packed RGBA5551 palette bytes into (r,g,b,a) tuples."""
     palette = []
     for i in range(0, len(pal_data), 2):
         if i + 1 < len(pal_data):
             val = (pal_data[i] << 8) | pal_data[i + 1]
             palette.append(colors.rgba5551_to_rgba(val))
-
-    # Pad palette if needed
-    while len(palette) < 256:
-        palette.append((0, 0, 0, 0))
-
-    # Create RGBA image
-    img = Image.new('RGBA', (width, height))
-    pixels = [palette[idx] if idx < len(palette) else (0, 0, 0, 0) for idx in indices]
-    img.putdata(pixels)
-
-    return img
+    return palette
 
 
 def extract_texture_data(addr_base: int, spritesheet_offsets: List[int],
@@ -157,6 +136,7 @@ def extract_sprite_simple(info: addresses.SpriteInfo, out_dir: Path,
     manifest = {
         'label': info.label,
         'subdir': info.subdir,
+        'kind': info.kind,
         'type': info.sprite_type,
         'sprite_count': sprite_count,
         'palette_count': 0,
@@ -326,12 +306,12 @@ def extract_sprite(info: addresses.SpriteInfo, output_base: Path) -> bool:
             with open(ci_file, 'wb') as f:
                 f.write(tex_data)
 
-            # Save viewable PNG
+            # Save indexed PNG (round-trippable via sprite_editor import).
             pal_file = out_dir / 'palettes' / f'{pal_idx:02d}.pal'
             if pal_file.exists():
-                pal_data = pal_file.read_bytes()
-                png = create_viewable_png(tex_data, width, height, pal_data, tex_format)
-                png.save(out_dir / 'textures' / f'{sprite_idx:03d}.png')
+                palette = _parse_rgba5551_palette(pal_file.read_bytes())
+                save_texture_png(tex_data, width, height, tex_format, palette,
+                                 out_dir / 'textures' / f'{sprite_idx:03d}.png')
 
             texture_info.append({
                 'index': sprite_idx,
@@ -365,6 +345,7 @@ def extract_sprite(info: addresses.SpriteInfo, output_base: Path) -> bool:
         manifest = {
             'label': label,
             'subdir': subdir,
+            'kind': info.kind,
             'type': sprite_type,
             'sprite_count': sprite_count,
             'spritesheet_index_count': spritesheet_index_count,
@@ -428,9 +409,16 @@ def main():
     parser.add_argument('label', nargs='?', help='Sprite label (for extract command)')
     parser.add_argument('--output', '-o', type=str, default=str(DEFAULT_OUTPUT_DIR),
                         help='Output directory')
+    parser.add_argument('--region', choices=['us', 'jp'], default='us',
+                        help='ROM region: selects the address CSV and default baserom (default: us)')
+    parser.add_argument('--rom', type=str, default=None,
+                        help='Override the ROM path (defaults to baserom.<region>.z64 at repo root)')
 
     args = parser.parse_args()
     output_dir = Path(args.output)
+
+    addresses.set_region(args.region)
+    rom.set_rom_path(Path(args.rom) if args.rom else BASEROM_PATHS[args.region])
 
     if args.command == 'extract_all':
         extract_all(output_dir)

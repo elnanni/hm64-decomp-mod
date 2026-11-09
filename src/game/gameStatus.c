@@ -6,7 +6,7 @@
 #include "game/animals.h"
 #include "game/game.h"
 #include "game/level.h"
-#include "game/fieldObjects.h"
+#include "game/groundObjects.h"
 #include "game/npc.h"
 #include "game/overlayScreens.h"
 #include "game/player.h"
@@ -17,8 +17,8 @@
 #include "data/fieldTileMaps/fieldTiles.h"
 
 // bss
-u32 dailyEventBits[32];
-u32 lifeEventBits[32];
+u32 dailyEventBits[16];
+u32 lifeEventBits[16];
 u32 specialDialogueBits[16];
 u32 readMailBits[3];
 u32 mailboxBits[3];
@@ -27,70 +27,20 @@ u32 albumBits;
 u32 acquiredPowerNutBits;
 
 // forward declaration
-void toggleSpecialDialogueBit(u16);
+void clearSpecialDialogueBit(u16);
 void handleWifeHelpsWeeding(void);
 void handleWifeCratesEggs(void);
 void handleWifeHelpsWatering(void);
 void handleWifeFeedsChickens(void);
 
-// same as adjustValue from game.c
-static inline int adjustValue2(int initial, int value, int max) {
-
-    int temp;
-    int adjusted;
-
-    adjusted = value;
-    temp = initial + adjusted;
-    
-    if (max < temp) {
-        adjusted -= temp - max;
-        temp = max;
-    }
-    
-    if (temp < 0) {
-        adjusted -= temp;
-    } 
-      
-    return adjusted;
-    
-}
-
-// FIXME: should be adjustValue() call
-static inline void handleAddShipment(s32 amount) {
-
-    int temp;
-    int checkShippingOverflow;
-    int shippingValue;    
-    int maxShipping;
-
-    checkShippingOverflow = dailyShippingBinValue + amount;
-    shippingValue = amount;
-    maxShipping = MAX_TOTAL_SHIPPING;
-    
-    if (checkShippingOverflow > maxShipping) {
-        temp = checkShippingOverflow - MAX_TOTAL_SHIPPING;
-        shippingValue -= temp;
-        checkShippingOverflow = maxShipping;
-    }
-
-    if (checkShippingOverflow < 0) {
-        shippingValue -= checkShippingOverflow;
-    }
-    
-    dailyShippingBinValue += shippingValue;
-    
-}
-
-//INCLUDE_ASM("asm/nonmatchings/game/gameStatus", handleWifeMorningHelp);
-
 void handleWifeMorningHelp(void) {
 
     u8 temp;
 
-    toggleSpecialDialogueBit(0x85);
-    toggleSpecialDialogueBit(0x86);
-    toggleSpecialDialogueBit(0x88);
-    toggleSpecialDialogueBit(0x89);
+    clearSpecialDialogueBit(WIFE_HELPS_CRATE_EGGS_DIALOGUE);
+    clearSpecialDialogueBit(WIFE_HELPS_FEED_CHICKENS_DIALOGUE);
+    clearSpecialDialogueBit(WIFE_HELPS_WEEDING_DIALOGUE);
+    clearSpecialDialogueBit(WIFE_HELPS_WATERING_DIALOGUE);
 
     temp = getRandomNumberInRange(0, 1);
 
@@ -155,9 +105,6 @@ void handleWifeMorningHelp(void) {
     }
 }
 
-
-//INCLUDE_ASM("asm/nonmatchings/game/gameStatus", handleWifeHelpsWeeding);
-
 void handleWifeHelpsWeeding(void) {
     
     u8 i;
@@ -168,7 +115,7 @@ void handleWifeHelpsWeeding(void) {
         for (i = 0; i < FIELD_HEIGHT; i++) {
             for (j = 0; j < FIELD_WIDTH; j++) {
                 if (farmFieldTiles[i][j] == WEED) {
-                    setSpecialDialogueBit(0x88);
+                    setSpecialDialogueBit(WIFE_HELPS_WEEDING_DIALOGUE);
                     setFieldTile(FARM, 1, j, i);
                 } 
             }
@@ -176,8 +123,6 @@ void handleWifeHelpsWeeding(void) {
         
     }
 }
- 
-//INCLUDE_ASM("asm/nonmatchings/game/gameStatus", handleWifeCratesEggs);
 
 void handleWifeCratesEggs(void) {
 
@@ -185,21 +130,19 @@ void handleWifeCratesEggs(void) {
  
     for (i = 0; i < MAX_CHICKENS; i++) {
         
-        if (gChickens[i].flags & 1 && gChickens[i].type == 0 && !(gChickens[i].flags & 0x20)) {
+        if (gChickens[i].flags & CHICKEN_ACTIVE && gChickens[i].type == 0 && !(gChickens[i].flags & 0x20)) {
             
-            setSpecialDialogueBit(0x85);
+            setSpecialDialogueBit(WIFE_HELPS_CRATE_EGGS_DIALOGUE);
             gChickens[i].flags = 0;
 
-            handleAddShipment(EGG_VALUE);
+            dailyShippingBinValue += adjustValue(dailyShippingBinValue, EGG_VALUE, MAX_TOTAL_SHIPPING);
 
-            gTotalEggsShipped += adjustValue2(gTotalEggsShipped, 1, MAX_ANIMAL_ITEM_SHIPPED);
+            gTotalEggsShipped += adjustValue(gTotalEggsShipped, 1, MAX_ANIMAL_ITEM_SHIPPED);
             
         }
     }
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/gameStatus", handleWifeHelpsWatering);
 
 void handleWifeHelpsWatering(void) {
 
@@ -212,7 +155,7 @@ void handleWifeHelpsWatering(void) {
             for (j = 0; j < FIELD_WIDTH; j++) {
                 temp = farmFieldTiles[i][j];
                 if (farmFieldTiles[i][j] && (getGroundObjectToolInteractionFlags(temp) & GROUND_OBJECT_WATERABLE) && !(getRandomNumberInRange(0, 3))) {
-                    setSpecialDialogueBit(0x89);
+                    setSpecialDialogueBit(WIFE_HELPS_WATERING_DIALOGUE);
                     temp++;
                     setFieldTile(FARM, temp, j, i);
                 }
@@ -223,15 +166,13 @@ void handleWifeHelpsWatering(void) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/gameStatus", handleWifeFeedsChickens);
-
 void handleWifeFeedsChickens(void) {
 
     u8 i;
 
     for (i = 0; i < MAX_CHICKENS; i++) {
-        if ((gChickens[i].flags & 1) && gChickens[i].type == 2 && gChickens[i].location == COOP) {
-            setSpecialDialogueBit(0x86);
+        if ((gChickens[i].flags & CHICKEN_ACTIVE) && gChickens[i].type == 2 && gChickens[i].location == COOP) {
+            setSpecialDialogueBit(WIFE_HELPS_FEED_CHICKENS_DIALOGUE);
             gChickens[i].flags |= CHICKEN_FED;
         }
     }
@@ -355,8 +296,7 @@ void updateFarmStatusRain(void) {
                         
                     }
 
-
-                    break;
+break;
                 
             }
             
@@ -366,7 +306,7 @@ void updateFarmStatusRain(void) {
 
     for (i = 0; i < MAX_CHICKENS; i++) {
 
-        if ((gChickens[i].flags & 1) && getLevelFlags(gChickens[i].location) & LEVEL_OUTDOORS) {
+        if ((gChickens[i].flags & CHICKEN_ACTIVE) && getLevelFlags(gChickens[i].location) & LEVEL_OUTDOORS) {
 
             gChickens[i].flags |= 0x80;
 
@@ -390,8 +330,6 @@ void updateFarmStatusRain(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/gameStatus", updateFarmStatusSnow);
-
 // snow
 void updateFarmStatusSnow(void) {
     
@@ -401,7 +339,7 @@ void updateFarmStatusSnow(void) {
 
     for (i = 0; i < MAX_FARM_ANIMALS; i++) {
 
-        if ((gFarmAnimals[i].flags & 1) && getLevelFlags(gFarmAnimals[i].location) & LEVEL_OUTDOORS) {
+        if ((gFarmAnimals[i].flags & FARM_ANIMAL_ACTIVE) && getLevelFlags(gFarmAnimals[i].location) & LEVEL_OUTDOORS) {
 
             switch (gFarmAnimals[i].type) {
 
@@ -508,8 +446,7 @@ void updateFarmStatusSnow(void) {
                         
                     }
 
-
-                    break;
+break;
                 
             }
             
@@ -519,7 +456,7 @@ void updateFarmStatusSnow(void) {
 
     for (i = 0; i < MAX_CHICKENS; i++) {
 
-        if ((gChickens[i].flags & 1) && getLevelFlags(gChickens[i].location) & LEVEL_OUTDOORS) {
+        if ((gChickens[i].flags & CHICKEN_ACTIVE) && getLevelFlags(gChickens[i].location) & LEVEL_OUTDOORS) {
 
             switch (gChickens[i].type) {
 
@@ -541,8 +478,6 @@ void updateFarmStatusSnow(void) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/gameStatus", updateFarmStatusTyphoon);
-
 void updateFarmStatusTyphoon(void) {
 
     u8 i;
@@ -555,10 +490,10 @@ void updateFarmStatusTyphoon(void) {
 
         if (!getRandomNumberInRange(0, 3)) {
 
-            memcpy(greenhouseFieldTiles, D_80113760, FIELD_HEIGHT * FIELD_WIDTH);
+            memcpy(greenhouseFieldTiles, greenhouseResetFieldTiles, FIELD_HEIGHT * FIELD_WIDTH);
 
-            setLifeEventBit(0xD7);
-            toggleLifeEventBit(HAVE_GREENHOUSE);
+            setLifeEventBit(GREENHOUSE_DESTROYED);
+            clearLifeEventBit(HAVE_GREENHOUSE);
             setAnimalLocations(GREENHOUSE);
             
         }
@@ -567,7 +502,7 @@ void updateFarmStatusTyphoon(void) {
 
     for (i = 0; i < MAX_FARM_ANIMALS; i++) {
 
-        if ((gFarmAnimals[i].flags & 1) && getLevelFlags(gFarmAnimals[i].location) & LEVEL_OUTDOORS) {
+        if ((gFarmAnimals[i].flags & FARM_ANIMAL_ACTIVE) && getLevelFlags(gFarmAnimals[i].location) & LEVEL_OUTDOORS) {
 
             switch (gFarmAnimals[i].type) {
 
@@ -674,8 +609,7 @@ void updateFarmStatusTyphoon(void) {
                         
                     }
 
-
-                    break;
+break;
                 
             }
             
@@ -685,7 +619,7 @@ void updateFarmStatusTyphoon(void) {
 
     for (i = 0; i < MAX_CHICKENS; i++) {
 
-        if ((gChickens[i].flags & 1) && getLevelFlags(gChickens[i].location) & LEVEL_OUTDOORS) {
+        if ((gChickens[i].flags & CHICKEN_ACTIVE) && getLevelFlags(gChickens[i].location) & LEVEL_OUTDOORS) {
 
             switch (gChickens[i].type) {
 
@@ -742,8 +676,6 @@ void updateFarmStatusTyphoon(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/gameStatus", func_80064CF0);
-
 // earthquake
 void func_80064CF0(void) {
     
@@ -754,7 +686,7 @@ void func_80064CF0(void) {
 
     for (i = 0; i < MAX_FARM_ANIMALS; i++) {
 
-        if ((gFarmAnimals[i].flags & 1) && getLevelFlags(gFarmAnimals[i].location) & LEVEL_OUTDOORS) {
+        if ((gFarmAnimals[i].flags & FARM_ANIMAL_ACTIVE) && getLevelFlags(gFarmAnimals[i].location) & LEVEL_OUTDOORS) {
 
             switch (gFarmAnimals[i].type) {
 
@@ -861,8 +793,7 @@ void func_80064CF0(void) {
                         
                     }
 
-
-                    break;
+break;
                 
             }
             
@@ -872,7 +803,7 @@ void func_80064CF0(void) {
 
     for (i = 0; i < MAX_CHICKENS; i++) {
 
-        if ((gChickens[i].flags & 1) && getLevelFlags(gChickens[i].location) & LEVEL_OUTDOORS) {
+        if ((gChickens[i].flags & CHICKEN_ACTIVE) && getLevelFlags(gChickens[i].location) & LEVEL_OUTDOORS) {
 
             switch (gChickens[i].type) {
 
@@ -895,70 +826,50 @@ void func_80064CF0(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/gameStatus", setDailyEventBit);
-
 void setDailyEventBit(u16 bitIndex) {
     u32 temp = bitIndex;
     dailyEventBits[temp / 32] |= 1 << (temp & 0x1F);
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/gameStatus", toggleDailyEventBit);
-
-void toggleDailyEventBit(u16 bitIndex) {
+void clearDailyEventBit(u16 bitIndex) {
     u32 temp = bitIndex;
     dailyEventBits[temp / 32] &= ~(1 << (temp & 0x1F));
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/gameStatus", checkDailyEventBit);
 
 u32 checkDailyEventBit(u16 bitIndex) {
     u32 temp = bitIndex;
     return dailyEventBits[temp / 32] & (1 << (temp & 0x1F));
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/gameStatus", setLifeEventBit);
-
 void setLifeEventBit(u16 bitIndex) {
     u32 temp = bitIndex;
     lifeEventBits[temp / 32] |= 1 << (temp & 0x1F);
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/gameStatus", toggleLifeEventBit);
-
-void toggleLifeEventBit(u16 bitIndex) {
+void clearLifeEventBit(u16 bitIndex) {
     u32 temp = bitIndex;
     lifeEventBits[temp / 32] &= ~(1 << (temp & 0x1F));
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/gameStatus", checkLifeEventBit);
 
 u32 checkLifeEventBit(u16 bitIndex) {
     u32 temp = bitIndex;
     return lifeEventBits[temp / 32] & (1 << (temp & 0x1F));
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/gameStatus", setSpecialDialogueBit);
-
 void setSpecialDialogueBit(u16 bitIndex) {
     u32 temp = bitIndex;
     specialDialogueBits[temp / 32] |= 1 << (temp & 0x1F);
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/gameStatus", toggleSpecialDialogueBit);
-
-void toggleSpecialDialogueBit(u16 bitIndex) {
+void clearSpecialDialogueBit(u16 bitIndex) {
     u32 temp = bitIndex;
     specialDialogueBits[temp / 32] &= ~(1 << (temp & 0x1F));
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/gameStatus", checkSpecialDialogueBit);
 
 u32 checkSpecialDialogueBit(u16 bitIndex) {
     u32 temp = bitIndex;
     return specialDialogueBits[temp / 32] & (1 << (temp & 0x1F));
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/gameStatus", addToReadMail);
 
 // unused
 // void addToReadMail(u16 bitIndex) {
@@ -966,28 +877,20 @@ u32 checkSpecialDialogueBit(u16 bitIndex) {
 //     readMailBits[temp / 32] |= (1 << (temp & 0x1F));
 // }
 
-//INCLUDE_ASM("asm/nonmatchings/game/gameStatus", toggleReadLetterBit);
-
-void toggleReadLetterBit(u16 bitIndex) {
+void clearReadLetterBit(u16 bitIndex) {
     u32 temp = bitIndex;
     readMailBits[temp / 32] &= ~(1 << (temp & 0x1F));
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/gameStatus", checkMailRead);
 
 u32 checkMailRead(u16 bitIndex) {
     u32 temp = bitIndex;
     return readMailBits[temp / 32] & (1 << (temp & 0x1F));
 }
 
-//INCLUDE_ASM(const s32, "gameStatus", setMail);
-
 void setMail(u16 bitIndex) {
     u32 temp = bitIndex;
     mailboxBits[temp / 32] |= (1 << (temp & 0x1F));
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/gameStatus", readLetter);
 
 // unused
 // void readLetter(u16 bitIndex) {
@@ -995,15 +898,13 @@ void setMail(u16 bitIndex) {
 //     mailboxBits[temp / 32] &= ~(1 << (temp & 0x1F));
 // }
 
-//INCLUDE_ASM("asm/nonmatchings/game/gameStatus", checkLetterInMailBox);
-
 // unused
 // inline u32 checkLetterInMailBox(u16 bitIndex) {
 //     u32 temp = bitIndex;
 //     return mailboxBits[temp / 32] & (1 << (temp & 0x1F));
 // }
 
-static inline void toggleLetterBit(u32 i, u32 mailBox) {
+static inline void clearLetterBit(u32 i, u32 mailBox) {
     mailboxBits[i / 32] &= ~mailBox;
 }
 
@@ -1014,8 +915,6 @@ static inline void setReadMail(u32 i, u32 mailBox) {
 static inline u32 getLetterBit(u32 mailBox) {
     return (1 << (mailBox & 0x1F));
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/gameStatus", readMail);
 
 // get first unread leter index
 u8 readMail(void) {
@@ -1033,7 +932,7 @@ u8 readMail(void) {
         
         if (mailBox & letterBit) {
 
-            toggleLetterBit(i, letterBit);
+            clearLetterBit(i, letterBit);
             setReadMail(i, letterBit);
             
             result = i;
@@ -1045,8 +944,6 @@ u8 readMail(void) {
     return result;
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/gameStatus", setAlbumPictureFromLetter);
 
 void setAlbumPictureFromLetter(u8 letterIndex) {
     
@@ -1105,153 +1002,149 @@ void setAlbumPictureFromLetter(u8 letterIndex) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/gameStatus", getAcquiredRecipesTotal);
-
 u8 getAcquiredRecipesTotal(void) {
-    
+
     u8 result = 0;
 
-    result = checkRecipe(0) != 0;
-    
-    if (checkRecipe(1)) {
-        result++;
-    }
-    
-    if (checkRecipe(2)) {
+    result = checkRecipe(RECIPE_CREAM_OF_TURNIP_STEW) != 0;
+
+    if (checkRecipe(RECIPE_EASY_TOMATO_SOUP)) {
         result++;
     }
 
-    if (checkRecipe(3)) {
+    if (checkRecipe(RECIPE_TOMATO_RICE)) {
         result++;
     }
 
-    if (checkRecipe(4)) {
+    if (checkRecipe(RECIPE_TOMATO_SOUP)) {
         result++;
     }
 
-    if (checkRecipe(5)) {
+    if (checkRecipe(RECIPE_CORN_FRITTER)) {
         result++;
     }
 
-    if (checkRecipe(6)) {
-        result++;
-    }
-    
-    if (checkRecipe(7)) {
+    if (checkRecipe(RECIPE_CORN_PASTA)) {
         result++;
     }
 
-    if (checkRecipe(8)) {
+    if (checkRecipe(RECIPE_MASHED_POTATO)) {
         result++;
     }
 
-    if (checkRecipe(9)) {
+    if (checkRecipe(RECIPE_FRIED_POTATOES_AND_BACON)) {
         result++;
     }
 
-    if (checkRecipe(0xA)) {
+    if (checkRecipe(RECIPE_VEGETABLE_TOMATO_STEW)) {
         result++;
     }
 
-    if (checkRecipe(0xB)) {
+    if (checkRecipe(RECIPE_GARLIC_POTATO_BEEF)) {
         result++;
     }
 
-    if (checkRecipe(0xC)) {
+    if (checkRecipe(RECIPE_EGGPLANT_WITH_MISO_PASTE)) {
         result++;
     }
 
-    if (checkRecipe(0xD)) {
+    if (checkRecipe(RECIPE_ROLLED_CABBAGE)) {
         result++;
     }
 
-    if (checkRecipe(0xE)) {
+    if (checkRecipe(RECIPE_STUFFED_OMELET)) {
         result++;
     }
 
-    if (checkRecipe(0xF)) {
+    if (checkRecipe(RECIPE_SPA_POACHED_EGG)) {
         result++;
     }
 
-    if (checkRecipe(0x10)) {
+    if (checkRecipe(RECIPE_HANDMADE_BUTTER)) {
         result++;
     }
 
-    if (checkRecipe(0x11)) {
+    if (checkRecipe(RECIPE_MUSHROOM_RICE)) {
         result++;
     }
 
-    if (checkRecipe(0x12)) {
+    if (checkRecipe(RECIPE_FRIED_CHAR)) {
         result++;
     }
 
-    if (checkRecipe(0x13)) {
+    if (checkRecipe(RECIPE_GRILLED_TROUT_CHEESE)) {
         result++;
     }
 
-    if (checkRecipe(0x14)) {
+    if (checkRecipe(RECIPE_MUSHROOM_STUFFED_CHAR)) {
         result++;
     }
 
-    if (checkRecipe(0x15)) {
-        result++;
-    }
-    if (checkRecipe(0x16)) {
+    if (checkRecipe(RECIPE_STEAMED_CLAM_WITH_WINE)) {
         result++;
     }
 
-    if (checkRecipe(0x17)) {
+    if (checkRecipe(RECIPE_MISO_SOUP_WITH_SPROUTS)) {
         result++;
     }
 
-    if (checkRecipe(0x18)) {
+    if (checkRecipe(RECIPE_SESAME_DANDELION_GREENS)) {
+        result++;
+    }
+    if (checkRecipe(RECIPE_MUSHROOM_SALSA)) {
         result++;
     }
 
-    if (checkRecipe(0x19)) {
+    if (checkRecipe(RECIPE_STRAWBERRY_DOG)) {
         result++;
     }
 
-    if (checkRecipe(0x1A)) {
+    if (checkRecipe(RECIPE_WALNUT_CAKE)) {
         result++;
     }
 
-    if (checkRecipe(0x1B)) {
-        result++;
-    }
-    if (checkRecipe(0x1C)) {
+    if (checkRecipe(RECIPE_BREAD_PUDDING)) {
         result++;
     }
 
-    if (checkRecipe(0x1D)) {
+    if (checkRecipe(RECIPE_HERB_RICE_CAKE)) {
         result++;
     }
 
-    if (checkRecipe(0x1E)) {
+    if (checkRecipe(RECIPE_POTATO_PANCAKE)) {
+        result++;
+    }
+    if (checkRecipe(RECIPE_STRAWBERRY_JAM)) {
         result++;
     }
 
-    if (checkRecipe(0x1F)) {
+    if (checkRecipe(RECIPE_STRAWBERRY_CHAMPAGNE)) {
         result++;
     }
 
-    if (checkRecipe(0x20)) {
+    if (checkRecipe(RECIPE_VERYBERRY_WINE)) {
         result++;
     }
 
-    if (checkRecipe(0x21)) {
+    if (checkRecipe(RECIPE_SPICE_TEA)) {
         result++;
     }
 
-    if (checkRecipe(0x22)) {
+    if (checkRecipe(RECIPE_HOT_SPICY_WINE)) {
+        result++;
+    }
+
+    if (checkRecipe(RECIPE_CINNAMON_MILK_TEA)) {
+        result++;
+    }
+
+    if (checkRecipe(RECIPE_PICKLED_TURNIPS_AND_CABBAGE)) {
         result++;
     }
 
     return result;
-    
-}
 
-//INCLUDE_ASM("asm/nonmatchings/game/gameStatus", getSumNpcAffection);
+}
 
 s32 getSumNpcAffection(void) {
 
@@ -1265,17 +1158,3 @@ s32 getSumNpcAffection(void) {
     return result;
     
 }
-
-// empty function
-void func_800657AC(void) {}
-
-// main loop callback function
-// empty function
-void func_800657B4(void) {}
-
-// empty function
-void func_800657BC(void) {}
-
-// main loop callback function
-// empty function
-void func_800657C4(void) {}

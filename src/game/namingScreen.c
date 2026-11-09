@@ -15,6 +15,7 @@
 #include "game/game.h"
 #include "game/gameAudio.h"
 #include "game/gameStart.h"
+#include "game/gameStatus.h"
 #include "game/level.h"
 #include "game/npc.h"
 #include "game/player.h"
@@ -25,6 +26,7 @@
 
 #include "buffers/buffers.h"
 
+#include "assetIndices/cutscenes.h"
 #include "assetIndices/dialogues.h"
 #include "assetIndices/sequences.h"
 #include "assetIndices/sfxs.h"
@@ -35,7 +37,7 @@ NamingScreenContext namingScreenContext;
 
 // data
 // japanese strings
-u8 D_8011C680[13][6] = { 
+u8 prohibitedNamesJP[13][6] = { 
     { 0x6E, 0x77, 0xE1, 0xFF, 0xFF, 0xFF },
     { 0x96, 0x94, 0x77, 0xFF, 0xFF, 0xFF },
     { 0x53, 0x77, 0x9D, 0xFF, 0xFF, 0xFF },
@@ -121,7 +123,7 @@ void handleSeasonSelectionInput(void);
 void moveSeasonCursorHorizontally(void);
 void moveSeasonCursorVertically(void);
 void handleNamingGridInput(void);
-
+bool checkNameProhibited(void);
 
 static inline int getSpriteIndexFromFlags(u16 flags) {
     int v = (flags & NAMING_SCREEN_NAME_POSITION_MASK) >> NAMING_SCREEN_NAME_POSITION_SHIFT;
@@ -133,8 +135,6 @@ static inline void setSpriteIndexOnFlags(s32 index) {
     namingScreenContext.flags &= ~NAMING_SCREEN_NAME_POSITION_MASK;
     namingScreenContext.flags |= (index << NAMING_SCREEN_NAME_POSITION_SHIFT);
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/namingScreen", initializeNamingScreen);
 
 inline void initializeNamingScreen(u8* arg0, u8 arg1) {
 
@@ -156,19 +156,17 @@ inline void initializeNamingScreen(u8* arg0, u8 arg1) {
     setMessageBoxSpriteIndices(0, 1, 0, 0);
     
     namingScreenContext.dialogueIndex = arg1;
-
+    
     if (gCurrentAudioSequenceIndex != NAMING_SCREEN_THEME) {
         stopCurrentAudioSequence(NAMING_SCREEN_THEME);
         setCurrentAudioSequence(NAMING_SCREEN_THEME);
         setAudioSequenceVolume(NAMING_SCREEN_THEME, SEQUENCE_VOLUME);
         gCurrentAudioSequenceIndex = NAMING_SCREEN_THEME;
     }
-
+    
     setMainLoopCallbackFunctionIndex(NAMING_SCREEN);
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/namingScreen", namingScreenCallback);
 
 void namingScreenCallback(void) {
 
@@ -176,7 +174,7 @@ void namingScreenCallback(void) {
     s32 temp = (namingScreenContext.flags & NAMING_SCREEN_SCREEN_STATE_MASK) >> NAMING_SCREEN_SCREEN_STATE_SHIFT;
     s32 temp2;
 
-    if (globalSprites[144].stateFlags & SPRITE_RGBA_IN_PROGRESS) {
+    if (globalSprites[0x90].stateFlags & 0x400) {
         
         if (namingScreenContext.flags & NAMING_SCREEN_GOTO_SEASON_SELECT) {
 
@@ -274,7 +272,7 @@ void namingScreenCallback(void) {
             setMessageBoxSpriteIndices(0, 0, 0, 0);
             setMessageBoxViewSpacePosition(0, 24.0f, -64.0f, 352.0f);
 
-             switch (namingScreenContext.screenType) {
+            switch (namingScreenContext.screenType) {
 
                  case NAMING_SCREEN_TYPE_PLAYER:
                     initializeNamingScreen(gFarmName, NAMING_SCREEN_TYPE_FARM);
@@ -290,47 +288,47 @@ void namingScreenCallback(void) {
 
                  case NAMING_SCREEN_TYPE_HORSE:
                     setLevelAudio(gBaseMapIndex, gSeason, gHour);
-                    gCutsceneIndex = 651;
+                    gCutsceneIndex = CUTSCENE_RANCH_HORSE_NAMING_FOLLOWUP;
                     loadCutscene(FALSE);
                     exitOverlayScreen();
                     setLevelLighting(8, MAIN_GAME);
 
                     return;
-
+                 
                  case NAMING_SCREEN_TYPE_BABY:
 
                     setLevelAudio(gBaseMapIndex, gSeason, gHour);
-
-                    switch (gWife) {                   
-                        case MARIA:                            
-                            gCutsceneIndex = 5;
-                            toggleSpecialDialogueBit(0x37);
+                     
+                    switch (gWife) {
+                        case MARIA:
+                            gCutsceneIndex = CUTSCENE_HOUSE_MARIA_AFTER_BABY_NAMING;
+                            clearSpecialDialogueBit(MARIA_PREGNANT_DIALOGUE);
                             break;
-                        case POPURI:                            
-                            gCutsceneIndex = 12;
-                            toggleSpecialDialogueBit(0x38);
+                        case POPURI:
+                            gCutsceneIndex = CUTSCENE_HOUSE_POPURI_AFTER_BABY_NAMING;
+                            clearSpecialDialogueBit(POPURI_PREGNANT_DIALOGUE);
                             break;
-                        case ELLI:                            
-                            gCutsceneIndex = 19;
-                            toggleSpecialDialogueBit(0x39);
+                        case ELLI:
+                            gCutsceneIndex = CUTSCENE_HOUSE_ELLI_AFTER_BABY_NAMING;
+                            clearSpecialDialogueBit(ELLI_PREGNANT_DIALOGUE);
                             break;
-                        case ANN:                            
-                            gCutsceneIndex = 26;
-                            toggleSpecialDialogueBit(0x3A);
+                        case ANN:
+                            gCutsceneIndex = CUTSCENE_HOUSE_ANN_AFTER_BABY_NAMING;
+                            clearSpecialDialogueBit(ANN_PREGNANT_DIALOGUE);
                             break;
-                        case KAREN:                            
-                            gCutsceneIndex = 33;
-                            toggleSpecialDialogueBit(0x3B);
+                        case KAREN:
+                            gCutsceneIndex = CUTSCENE_HOUSE_KAREN_AFTER_BABY_NAMING;
+                            clearSpecialDialogueBit(KAREN_PREGNANT_DIALOGUE);
                             break;
                         }
-
+                     
                         loadCutscene(FALSE);
 
                         exitOverlayScreen();
                         setLevelLighting(8, MAIN_GAME);
-
+                     
                     return;
-
+                 
                  case NAMING_SCREEN_TYPE_COW:
                  case NAMING_SCREEN_TYPE_SHEEP:
                  case NAMING_SCREEN_TYPE_CHICKEN:
@@ -338,7 +336,7 @@ void namingScreenCallback(void) {
                     exitOverlayScreen();
                     setLevelLighting(8, MAIN_GAME);
                     return;
-
+                 
              }
 
         } else {
@@ -357,8 +355,8 @@ void namingScreenCallback(void) {
                  
             if (dialogues[0].sessionManager.flags & 4) {
                 
-                    switch (temp) {
-
+                    switch (temp) {   
+    
                         case NAMING_SCREEN_STATE_NAMING_GRID:
                             handleNamingGridInput();
                             return;
@@ -366,7 +364,7 @@ void namingScreenCallback(void) {
                         case NAMING_SCREEN_STATE_SEASON_SELECT:
                             handleSeasonSelectionInput();
                             return;
-
+    
                         case NAMING_SCREEN_STATE_SEASON_CONFIRM:
 
                             if (dialogues[0].sessionManager.selectedMenuRow == 0) {
@@ -446,8 +444,7 @@ void namingScreenCallback(void) {
             }
         }
 
-
-    }
+}
 
 }
 
@@ -579,10 +576,10 @@ void loadNameSelectionSprites(void) {
                 
             } 
 
-            
-        } else {
+} else {
             break;
         }
+
     } 
       
     namingScreenContext.flags |= i << NAMING_SCREEN_NAME_POSITION_SHIFT;
@@ -602,8 +599,6 @@ void loadNameSelectionSprites(void) {
     setMessageBoxRGBAWithTransition(3, 255, 255, 255, 255, 8);
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/namingScreen", selectCharacterOrConfirm);
 
 bool selectCharacterOrConfirm(void) {
 
@@ -685,7 +680,8 @@ bool selectCharacterOrConfirm(void) {
 
                 initializeDialogueSession(0, DIALOGUE_NAMING_SCREEN, 8, 0);
                 namingScreenContext.flags |= NAMING_SCREEN_EMPTY_NAME_ERROR;
-            
+
+
             } else if (namingScreenContext.screenType == NAMING_SCREEN_TYPE_PLAYER) {
             
                 setMessageBoxRGBAWithTransition(3, 0, 0, 0, 0, 8);
@@ -908,7 +904,6 @@ void moveCursorDown(void) {
 
 }
 
-// unused
 // bool checkNameProhibited(void) {
     
 //     bool processingChar;
@@ -934,10 +929,10 @@ void moveCursorDown(void) {
     
 //     while (processedWordCount < 13) {
         
-//         processingChar = 0; 
-//         doneProcessingWord = 0; 
-//         D_8011C680_stringPtr = D_8011C680_ptr; 
-        
+//         processingChar = 0;
+//         doneProcessingWord = 0;
+//         D_8011C680_stringPtr = D_8011C680_ptr;
+
 //         currentNamePtr = namingScreenContextNamePtr;
 //         endWord = D_8011C680_stringPtr + 6;
         
@@ -948,7 +943,7 @@ void moveCursorDown(void) {
 //                 processingChar = TRUE;
                 
 //                 if (*currentNamePtr != *D_8011C680_stringPtr) {
-                    
+
 //                     if (*currentNamePtr != spaceChar) {
 //                         doneProcessingWord = TRUE;
 //                         break;
@@ -968,14 +963,14 @@ void moveCursorDown(void) {
 //             }
                     
 //             D_8011C680_stringPtr++;
-        
+
 //             // FIXME
 //             if (*D_8011C680_ptr) {
 //                 currentNamePtr++;
 //             } else {
 //                 currentNamePtr++;
 //             }
-        
+
 //         } while ((s32)D_8011C680_stringPtr < (s32)endWord);
             
 //         if (doneProcessingWord) {
@@ -1006,7 +1001,6 @@ void deactivateNamingScreenSprites(void) {
     } 
     
 }
-
 
 void updateBottomRowUI(void) {
 
@@ -1124,16 +1118,16 @@ void handleNamingGridInput(void) {
     if (checkButtonRepeat(CONTROLLER_1, BUTTON_STICK_NORTHWEST)) {
         set = TRUE;
         moveCursorLeft();
-        setSfx(3);
-        setSfxVolume(3, SFX_VOLUME);
+        setSfx(INVALID_BUZZ_SFX);
+        setSfxVolume(INVALID_BUZZ_SFX, SFX_VOLUME);
     }
 
     if (!set) {
         if (checkButtonRepeat(CONTROLLER_1, BUTTON_STICK_SOUTHEAST)) {
             set = TRUE;
             moveCursorRight();
-            setSfx(3);
-            setSfxVolume(3, SFX_VOLUME);
+            setSfx(INVALID_BUZZ_SFX);
+            setSfxVolume(INVALID_BUZZ_SFX, SFX_VOLUME);
         }
     }
 
@@ -1141,8 +1135,8 @@ void handleNamingGridInput(void) {
         if (checkButtonRepeat(CONTROLLER_1, BUTTON_STICK_SOUTHWEST)) {
             set = TRUE;
             moveCursorDown();
-            setSfx(3);
-            setSfxVolume(3, SFX_VOLUME);
+            setSfx(INVALID_BUZZ_SFX);
+            setSfxVolume(INVALID_BUZZ_SFX, SFX_VOLUME);
         }
     }
 
@@ -1151,8 +1145,8 @@ void handleNamingGridInput(void) {
         if (checkButtonRepeat(CONTROLLER_1, BUTTON_STICK_NORTHEAST)) {
             moveCursorUp();
             set = TRUE;
-            setSfx(3);
-            setSfxVolume(3, SFX_VOLUME);
+            setSfx(INVALID_BUZZ_SFX);
+            setSfxVolume(INVALID_BUZZ_SFX, SFX_VOLUME);
         }
     }
 
@@ -1161,8 +1155,8 @@ void handleNamingGridInput(void) {
         if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
 
             set = TRUE;
-            setSfx(1);
-            setSfxVolume(CLOSE, SFX_VOLUME);
+            setSfx(CLOSE_SFX);
+            setSfxVolume(CLOSE_SFX, SFX_VOLUME);
 
             if (selectCharacterOrConfirm()) {
                 return;
@@ -1170,7 +1164,6 @@ void handleNamingGridInput(void) {
             
         }       
             
-        
     }
 
     if (!set) {
@@ -1178,8 +1171,8 @@ void handleNamingGridInput(void) {
         if (checkButtonPressed(CONTROLLER_1, BUTTON_B)) {
 
             set = TRUE;
-            setSfx(1);
-            setSfxVolume(CLOSE, SFX_VOLUME);
+            setSfx(CLOSE_SFX);
+            setSfxVolume(CLOSE_SFX, SFX_VOLUME);
             
             index = getSpriteIndexFromFlags(namingScreenContext.flags);
             
@@ -1197,9 +1190,10 @@ void handleNamingGridInput(void) {
                 
             }
                 
-        }        
+        }     
+           
     } 
-        
+
     if (!set) { 
         
         if (checkButtonPressed(CONTROLLER_1, BUTTON_START)) {
@@ -1216,8 +1210,8 @@ void handleNamingGridInput(void) {
             startSpriteAnimation(0x91, 2, 1);
             setSpritePaletteIndex(0x91, 4);
             
-            setSfx(3);
-            setSfxVolume(3, SFX_VOLUME);
+            setSfx(INVALID_BUZZ_SFX);
+            setSfxVolume(INVALID_BUZZ_SFX, SFX_VOLUME);
         
         }
 
@@ -1316,8 +1310,8 @@ void handleSeasonSelectionInput(void) {
 
         moveSeasonCursorVertically();
 
-        setSfx(3);
-        setSfxVolume(3, SFX_VOLUME);
+        setSfx(INVALID_BUZZ_SFX);
+        setSfxVolume(INVALID_BUZZ_SFX, SFX_VOLUME);
 
     }
 
@@ -1329,8 +1323,8 @@ void handleSeasonSelectionInput(void) {
 
             moveSeasonCursorHorizontally();
 
-            setSfx(3);
-            setSfxVolume(3, SFX_VOLUME);
+            setSfx(INVALID_BUZZ_SFX);
+            setSfxVolume(INVALID_BUZZ_SFX, SFX_VOLUME);
         }
 
     }
@@ -1344,8 +1338,8 @@ void handleSeasonSelectionInput(void) {
             moveSeasonCursorVertically();
             moveSeasonCursorHorizontally();
 
-            setSfx(3);
-            setSfxVolume(3, SFX_VOLUME);
+            setSfx(INVALID_BUZZ_SFX);
+            setSfxVolume(INVALID_BUZZ_SFX, SFX_VOLUME);
 
         }
         
@@ -1355,8 +1349,8 @@ void handleSeasonSelectionInput(void) {
 
         if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
             
-            setSfx(1);
-            setSfxVolume(CLOSE, SFX_VOLUME);
+            setSfx(CLOSE_SFX);
+            setSfxVolume(CLOSE_SFX, SFX_VOLUME);
 
             updateSpriteRGBA(0x80, 0, 0, 0, 0, 8);
             updateSpriteRGBA(0x83, 0, 0, 0, 0, 8);

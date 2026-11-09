@@ -31,6 +31,8 @@
 
 #include "mainLoop.h"
 
+#include "assetIndices/dialogueMenus.h"
+#include "assetIndices/dialogues.h"
 #include "assetIndices/entities.h"
 #include "assetIndices/maps.h"
 #include "assetIndices/sfxs.h"
@@ -39,10 +41,7 @@
 // bss
 static LevelInteractionsInfo levelInteractionsInfo;
 
-
-
 // forward declarations
-// TODO: label
 bool handleFarmLevelInteractions(u16, u8);
 bool handleHouseLevelInteractions(u16, u8);
 bool handleBarnLevelInteractions(u16, u8);
@@ -91,9 +90,6 @@ bool handleBeachLevelInteractions(u16, u8);
 bool handleHarvestSpriteCaveLevelInteractions(u16, u8);
 bool handleMineLevelInteractions(u16, u8);
 
-                                                                  
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", checkShippingBinInteraction);
-
 u8 checkShippingBinInteraction(u16 mapIndex) {
 
     u8 result = 0xFF;
@@ -110,9 +106,8 @@ u8 checkShippingBinInteraction(u16 mapIndex) {
     }
 
     return result;
+    
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", checkBarnAnimalFeedInteraction);
 
 u8 checkBarnAnimalFeedInteraction(u16 mapIndex) {
 
@@ -133,8 +128,6 @@ u8 checkBarnAnimalFeedInteraction(u16 mapIndex) {
     return result;
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", checkChickenFeedInteraction);
-
 bool checkChickenFeedInteraction(u16 mapIndex) {
 
     u8 temp;
@@ -154,8 +147,6 @@ bool checkChickenFeedInteraction(u16 mapIndex) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", checkFarmDogBowlInteraction);
-
 u8 checkFarmDogBowlInteraction(u16 mapIndex) {
 
     u8 result = 0xFF;
@@ -173,8 +164,6 @@ u8 checkFarmDogBowlInteraction(u16 mapIndex) {
 
     return result;
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", checkWaterSourceInteraction);
 
 u8 checkWaterSourceInteraction(u16 mapIndex) {
     
@@ -204,8 +193,6 @@ u8 checkWaterSourceInteraction(u16 mapIndex) {
     return result;
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", checkWaterableSoilInteraction);
-
 bool checkWaterableSoilInteraction(u16 mapIndex) {
 
     bool result = FALSE;
@@ -226,8 +213,6 @@ bool checkWaterableSoilInteraction(u16 mapIndex) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", checkWineBarrelInteraction);
-
 bool checkWineBarrelInteraction(u16 mapIndex) {
 
     bool result = FALSE;
@@ -239,8 +224,6 @@ bool checkWineBarrelInteraction(u16 mapIndex) {
     return result;
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", checkFishingSpotInteraction);
 
 bool checkFishingSpotInteraction(u16 mapIndex) {
 
@@ -280,8 +263,6 @@ bool checkFishingSpotInteraction(u16 mapIndex) {
     return result;
     
 } 
-
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleLevelInteraction);
 
 bool handleLevelInteraction(u16 mapIndex) {
 
@@ -475,7 +456,7 @@ bool handleLevelInteraction(u16 mapIndex) {
             
             textIndex = getCantEnterTextIndex(gSpawnPointIndex);
          
-            if (gSpawnPointIndex == 0x5F) {
+            if (gSpawnPointIndex == CHURCH_SPAWN_POINT_1) {
 
                 if (!checkLifeEventBit(MARRIED)) {
 
@@ -498,7 +479,7 @@ bool handleLevelInteraction(u16 mapIndex) {
 
             }
 
-            if ((gSpawnPointIndex == 0x59 || gSpawnPointIndex == 0x5B) && !checkLifeEventBit(MARRIED) && gSeason == SUMMER && gDayOfMonth == 1 && (18 < gHour && gHour < 21)) {
+            if ((gSpawnPointIndex == COOP || gSpawnPointIndex == BATHROOM) && !checkLifeEventBit(MARRIED) && gSeason == SUMMER && gDayOfMonth == 1 && (18 < gHour && gHour < 21)) {
                 textIndex = 0xFFFF;
             }
     
@@ -513,21 +494,21 @@ bool handleLevelInteraction(u16 mapIndex) {
                 
             } else {
 
-                switch (getMapForSpawnPoint(gSpawnPointIndex)) {                           
-                    case KAREN_ROOM:                                  
-                        showTextBox(0, SHOP_TEXT_INDEX, textIndex, 0, 0);
+                switch (getMapForSpawnPoint(gSpawnPointIndex)) {
+                    case KAREN_ROOM:
+                        showTextBox(0, LEVEL_INTERACTIONS_TEXT_INDEX, textIndex, 0, 0);
                         setPlayerAction(WALKING_DOWN_STAIRS, ANIM_DEFAULT);
                         gPlayer.actionTimer = 32;
-                        gPlayer.savedDirection = SOUTHEAST;
+                        gPlayer.savedDirection = DIRECTION_E;
                         break;
-                    case POPURI_ROOM:                               
-                    case MARIA_ROOM:                                
-                    case ANN_ROOM:                                  
-                    case ELLI_ROOM:                    
-                        showTextBox(0, SHOP_TEXT_INDEX, textIndex, 0, 0);
+                    case POPURI_ROOM:
+                    case MARIA_ROOM:
+                    case ANN_ROOM:
+                    case ELLI_ROOM:
+                        showTextBox(0, LEVEL_INTERACTIONS_TEXT_INDEX, textIndex, 0, 0);
                         break;
-                    default:            
-                        showTextBox(1, SHOP_TEXT_INDEX, textIndex, 0, 2);
+                    default:
+                        showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, textIndex, 0, 2);
                         break;
                     }
                     
@@ -547,8 +528,6 @@ bool handleLevelInteraction(u16 mapIndex) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleFarmLevelInteractions);
-
 bool handleFarmLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     bool result = FALSE;
@@ -561,19 +540,21 @@ bool handleFarmLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
             break;
             break;
          
+        // exit to road
         case 3:        
         
-        if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+        if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
                 setSpawnPoint(ROAD_SPAWN_POINT_1);
             }
             
             return result;
         
+        // house entry
         case 4:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-                if (gPlayer.direction == NORTHEAST) {
+                if (gPlayer.direction == DIRECTION_N) {
                     result = TRUE;
                     levelInteractionsInfo.mapAdditionsIndex = 9;
                     levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;
@@ -583,10 +564,11 @@ bool handleFarmLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
         
+        // bathroom/back door
         case 5:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-                if (gPlayer.direction == NORTHEAST) {
+                if (gPlayer.direction == DIRECTION_N) {
                     result = TRUE;
                     levelInteractionsInfo.mapAdditionsIndex = 0xD;
                     levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;
@@ -596,33 +578,36 @@ bool handleFarmLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
         
+        // barn entry
         case 6:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
                 result = TRUE;
-                levelInteractionsInfo.mapAdditionsIndex = 0xA;
+                levelInteractionsInfo.mapAdditionsIndex = 10;
                 levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;
                 setSpawnPoint(BARN_SPAWN_POINT_1);
             }
 
             break;
         
+        // coop entry
         case 7:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
                 result = TRUE;
-                levelInteractionsInfo.mapAdditionsIndex = 0xB;
+                levelInteractionsInfo.mapAdditionsIndex = 11;
                 levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;
                 setSpawnPoint(COOP_SPAWN_POINT_1);
             }
 
             break;
 
+        // greenhouse door
         case 8:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
                 result = TRUE;
-                levelInteractionsInfo.mapAdditionsIndex = 0x14;
+                levelInteractionsInfo.mapAdditionsIndex = 20;
                 levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;
                 setSpawnPoint(GREENHOUSE_SPAWN_POINT_1);
             }
@@ -632,9 +617,9 @@ bool handleFarmLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
         case 9:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-                if (gPlayer.direction == SOUTHEAST) {
+                if (gPlayer.direction == DIRECTION_E) {
                     result = TRUE;
-                    levelInteractionsInfo.mapAdditionsIndex = 0xC;
+                    levelInteractionsInfo.mapAdditionsIndex = 12;
                     levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;
                     setSpawnPoint(HOUSE_SPAWN_POINT_2);
                 }
@@ -642,11 +627,12 @@ bool handleFarmLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
         
+        // roof
         case 26:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
-                setSpawnPoint(0x70);
+                setSpawnPoint(HOUSE_SPAWN_POINT_4);
             }
 
             break;
@@ -658,10 +644,10 @@ bool handleFarmLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
                 if (gPlayer.heldItem == 0) {
                 
-                    if (!(gPlayer.flags & 1)) {
+                    if (!(gPlayer.flags & PLAYER_RIDING_HORSE)) {
                     
                         if (gLumber != 0) {
-                            gPlayer.heldItem = 3;
+                            gPlayer.heldItem = LOG_HELD_ITEM;
                             setPlayerAction(PICKING_UP_ITEM, ANIM_PICKING_UP_ITEM);
                             gLumber += adjustValue(gLumber, -1, MAX_LUMBER);
                             result = 2;
@@ -685,13 +671,14 @@ bool handleFarmLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
                 if (letterIndex != 0xFF) {
 
                     setAlbumPictureFromLetter(letterIndex);
-                    showTextBox(1, LETTERS_TEXT_INDEX, getTextIndexFromLetterIndex(letterIndex), 0, 2);
-                    
+                    showTextBox(1, LETTERS_TEXT_INDEX, getTextIndexFromLetterIndex(letterIndex), 0, 2); // letter body, chosen by letter index
+
                     if (letterIndex == 35) {
                         acquireKeyItem(GOLD_PENDANT);
-                        setSpecialDialogueBit(HAVE_GOLD_PENDANT);
+                        setSpecialDialogueBit(HAVE_GOLD_PENDANT_DIALOGUE);
                     }
 
+                // no mail
                 } else {
                     showTextBox(1, LETTERS_TEXT_INDEX, 58, 0, 2);
                 }
@@ -701,44 +688,48 @@ bool handleFarmLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
             
             break;
         
+        // lumber ledger
         case 19:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
                 
-                if (gPlayer.direction == NORTHWEST) {
+                if (gPlayer.direction == DIRECTION_W) {
                     convertNumberToGameVariableString(0x18, gLumber, 0);
-                    showTextBox(1, SHOP_TEXT_INDEX, 0xA3, 0, 2);
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 163, 0, 2);
                     result = TRUE;
                 }
             }
 
             break;
 
+        // fodder ledger
         case 20:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
                 convertNumberToGameVariableString(0x17, fodderQuantity, 0);
-                showTextBox(1, SHOP_TEXT_INDEX, 0xA2, 0, 2);
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 162, 0, 2);
                 result = TRUE;
             }
 
             break;
         
+        // shipping crate
         case 21:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-                showTextBox(1, SHOP_TEXT_INDEX, 0xA1, 0, 2);
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 161, 0, 2);
                 result = TRUE;
             }
 
             break;
         
+        // back of tree
         case 25:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
 
                 if (!checkHaveKeyItem(TREASURE_MAP)) {
-                    showTextBox(1, SHOP_TEXT_INDEX, 0xA7, 0, 2);
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 167, 0, 2);
                     acquireKeyItem(TREASURE_MAP);
                     result = TRUE;
                     toolUse.musicBoxTileDigCounter = 0;
@@ -757,16 +748,15 @@ bool handleFarmLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
    
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleHouseLevelInteractions);
-
 bool handleHouseLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     bool result = FALSE;
     
     switch (levelInteractionIndex) {
 
+        // door to farm
         case 1:
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 if (gWeather != TYPHOON) {
                     result = TRUE;
                     setSpawnPoint(FARM_SPAWN_POINT_1);
@@ -774,6 +764,7 @@ bool handleHouseLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
             }
             break;     
 
+        // kitchen door
         case 2:
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A) && gWeather != TYPHOON) {
                 levelInteractionsInfo.mapAdditionsIndex = 2;
@@ -787,26 +778,38 @@ bool handleHouseLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
             }            
             break;
 
+        // roof
         case 3:
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 if (gWeather != TYPHOON) {
                     result = TRUE;
-                    setSpawnPoint(0x6F);
+                    setSpawnPoint(FARM_SPAWN_POINT_11);
                 }
             }
             break;
 
         // diary
-        case 0x10:
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A) && gPlayer.heldItem == 0 && checkLifeEventBit(MAYOR_TOUR) && !checkDailyEventBit(0x15)) {
-                showPinkOverlayText(0);
-                result = TRUE; 
+        case 16:
+
+#if TESTING
+            // skip mayor tour
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A) && gPlayer.heldItem == 0 && !checkDailyEventBit(DIARY_BLOCKED)) {
+                showDialogueTextBox(DIALOGUE_MENU_DIARY_ROOT);
+                result = TRUE;
             }
             break;
 
+#else
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A) && gPlayer.heldItem == 0 && checkLifeEventBit(MAYOR_TOUR) && !checkDailyEventBit(DIARY_BLOCKED)) {
+                showDialogueTextBox(DIALOGUE_MENU_DIARY_ROOT);
+                result = TRUE;
+            }
+            break;
+#endif
+
         // TV
-        case 0x12:
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A) && gPlayer.direction == NORTHEAST) {
+        case 18:
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A) && gPlayer.direction == DIRECTION_N) {
                 loadTVCButtonIcons();
                 initializeTVAssets();
                 setPlayerAction(WATCHING_TV, ANIM_WATCHING_TV);
@@ -815,7 +818,8 @@ bool handleHouseLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
             }
             break;
 
-        case 0x13:
+        // toolbox
+        case 19:
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
                 activateMapAddition(MAIN_MAP_INDEX, 3, 1);
                 loadOverlayScreen(10, TOOLBOX_LOAD);
@@ -824,15 +828,17 @@ bool handleHouseLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
             }
             break;
 
-        case 0x14:
+        // calendar
+        case 20:
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
                 setMainLoopCallbackFunctionIndex(CALENDAR_LOAD);
-                levelInteractionsInfo.interactionSfxIndex  = MENU_OPEN_SFX;
+                levelInteractionsInfo.interactionSfxIndex = OPEN_SFX;
                 result = TRUE;
             }
             break;
 
-        case 0x15:
+        // cabinet
+        case 21:
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A) != 0) {
                 activateMapAddition(MAIN_MAP_INDEX, 10, 1);
                 loadOverlayScreen(10, CABINET_LOAD);
@@ -841,28 +847,28 @@ bool handleHouseLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
             }
             break;
 
-        // baby
-        case 0x16:
+        // crib
+        case 22:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A) && gPlayer.heldItem == 0) {
 
-                if (checkDailyEventBit(0x16)) {
+                if (checkDailyEventBit(PICKED_UP_BABY)) {
 
                     if (gBabyAge < 30) {
 
-                        gPlayer.heldItem = 0xBA;
+                        gPlayer.heldItem = BABY_HELD_ITEM;
                         
                         deactivateEntity(npcs[BABY].entityIndex);
                         npcs[BABY].flags &= ~4;
 
                         setPlayerAction(PICKING_UP_ITEM, ANIM_PICKING_UP_ITEM);
 
-                        if (!checkDailyEventBit(0x55)) {
+                        if (!checkDailyEventBit(HELD_BABY)) {
                             npcAffection[BABY] += adjustValue(npcAffection[BABY], 2, MAX_AFFECTION);
-                            setDailyEventBit(0x55);
+                            setDailyEventBit(HELD_BABY);
                         }
                         
-                        toggleDailyEventBit(0x16);
+                        clearDailyEventBit(PICKED_UP_BABY);
                         result = 2;
 
                     }
@@ -872,7 +878,8 @@ bool handleHouseLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
 
-        case 0x21:
+        // unused
+        case 33:
         default:
             break;
             
@@ -882,25 +889,23 @@ bool handleHouseLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleBarnLevelInteractions);
-
 u8 handleBarnLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     u8 result = 0;
-    s32 temp;
-    u16 temp2;
 
     switch (levelInteractionIndex) {
         
+        // exit to farm
         case 1:
             
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = 1;
                 setSpawnPoint(FARM_SPAWN_POINT_3);
             }
             
             break;
 
+        // fodder
         case 17:
             
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
@@ -914,28 +919,28 @@ u8 handleBarnLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
             
             break;
 
+        // unused
         case 18:
             
             // if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-            //     // unused code    
             // }
             break;
 
+        // stall 1
         case 19:
-            
+
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-                
-                if (gPlayer.heldItem != FODDER_HELD_ITEM && (gFarmAnimals[0].flags & 1)) {
 
-                    temp = gFarmAnimals[0].type;
-                    
-                    // FIXME: actually a switch
-                    if (temp >= 0) {
+                if (gPlayer.heldItem != FODDER_HELD_ITEM && (gFarmAnimals[0].flags & FARM_ANIMAL_ACTIVE)) {
 
-                        if (temp < 4) {
-                            
+                    switch (gFarmAnimals[0].type) {
+
+                        case BABY_COW:
+                        case CALF:
+                        case ADULT_COW:
+                        case PREGNANT_COW:
                             setGlobalSeasonName(gFarmAnimals[0].birthdaySeason);
-                        
+
                             gCurrentSeasonName[0] = gGlobalSeasonName[0];
                             gCurrentSeasonName[1] = gGlobalSeasonName[1];
                             gCurrentSeasonName[2] = gGlobalSeasonName[2];
@@ -943,30 +948,34 @@ u8 handleBarnLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
                             gCurrentSeasonName[4] = gGlobalSeasonName[4];
                             gCurrentSeasonName[5] = gGlobalSeasonName[5];
 
-                            convertNumberToGameVariableString(0x15, gFarmAnimals[0].birthdayDayOfMonth, 1);
+                            convertNumberToGameVariableString(21, gFarmAnimals[0].birthdayDayOfMonth, 1);
                             generateMilkTypeString(0);
-                            setGameVariableString(0x26, gFarmAnimals[0].motherName, 6);
+                            setGameVariableString(38, gFarmAnimals[0].motherName, 6);
                             func_80061690(gFarmAnimals[0].milkType);
-                            showTextBox(1, SHOP_TEXT_INDEX, 0xE5, 0, 2);
-                            
-                        } else if (temp < 7) {
-                            showTextBox(1, SHOP_TEXT_INDEX, 0xED, 0, 2);
-                        }
-                                    
-                    } 
-                    
+                            showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 229, 0, 2);
+                            break;
+
+                        case BABY_SHEEP:
+                        case ADULT_SHEEP:
+                        case SHEARED_SHEEP:
+                            showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 237, 0, 2);
+                            break;
+
+                    }
+
                     result = 1;
 
                 }
             }
-            
+
             break;
 
+        // stall 2
         case 20:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
                 
-                if (gPlayer.heldItem != FODDER_HELD_ITEM && gFarmAnimals[1].flags & 1) {
+                if (gPlayer.heldItem != FODDER_HELD_ITEM && gFarmAnimals[1].flags & FARM_ANIMAL_ACTIVE) {
 
                     switch (gFarmAnimals[1].type) {
 
@@ -981,19 +990,20 @@ u8 handleBarnLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
                             gCurrentSeasonName[3] = gGlobalSeasonName[3];
                             gCurrentSeasonName[4] = gGlobalSeasonName[4];
                             gCurrentSeasonName[5] = gGlobalSeasonName[5];
+
                         
-                            convertNumberToGameVariableString(0x15, gFarmAnimals[1].birthdayDayOfMonth, 1);
+                            convertNumberToGameVariableString(21, gFarmAnimals[1].birthdayDayOfMonth, 1);
                             generateMilkTypeString(1);
-                            setGameVariableString(0x26, gFarmAnimals[1].motherName, 6);
+                            setGameVariableString(38, gFarmAnimals[1].motherName, 6);
                             func_80061690(gFarmAnimals[1].milkType);
-                            showTextBox(1, SHOP_TEXT_INDEX, 0xE6, 0, 2);
+                            showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 230, 0, 2);
                             break;
 
                         case PREGNANT_COW:
                         case BABY_SHEEP:
                         case ADULT_SHEEP:
                         case SHEARED_SHEEP:
-                            showTextBox(1, SHOP_TEXT_INDEX, 0xEE, 0, 2);
+                            showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 238, 0, 2);
                             break;
 
                     }
@@ -1006,271 +1016,286 @@ u8 handleBarnLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
             
             break;
 
+        // stall 3
         case 21:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-                
-                if (gPlayer.heldItem != FODDER_HELD_ITEM && gFarmAnimals[2].flags & 1) {
 
-                    temp = gFarmAnimals[2].type;
-                
-                    // FIXME: actually a switch
-                    if (temp >= 0) {
+                if (gPlayer.heldItem != FODDER_HELD_ITEM && gFarmAnimals[2].flags & FARM_ANIMAL_ACTIVE) {
 
-                        if (temp < 4) {
-                            
+                    switch (gFarmAnimals[2].type) {
+
+                        case BABY_COW:
+                        case CALF:
+                        case ADULT_COW:
+                        case PREGNANT_COW:
                             setGlobalSeasonName(gFarmAnimals[2].birthdaySeason);
-                        
+
                             gCurrentSeasonName[0] = gGlobalSeasonName[0];
                             gCurrentSeasonName[1] = gGlobalSeasonName[1];
                             gCurrentSeasonName[2] = gGlobalSeasonName[2];
                             gCurrentSeasonName[3] = gGlobalSeasonName[3];
                             gCurrentSeasonName[4] = gGlobalSeasonName[4];
                             gCurrentSeasonName[5] = gGlobalSeasonName[5];
-                        
-                            convertNumberToGameVariableString(0x15, gFarmAnimals[2].birthdayDayOfMonth, 1);
-                            
+
+                            convertNumberToGameVariableString(21, gFarmAnimals[2].birthdayDayOfMonth, 1);
                             generateMilkTypeString(2);
-                            
                             setGameVariableString(38, gFarmAnimals[2].motherName, 6);
                             func_80061690(gFarmAnimals[2].milkType);
+                            showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 231, 0, 2);
+                            break;
 
-                            showTextBox(1, SHOP_TEXT_INDEX, 0xE7, 0, 2);
-                            
-                        } else if (temp < 7) {
-                            showTextBox(1, SHOP_TEXT_INDEX, 0xEF, 0, 2);
-                        }
+                        case BABY_SHEEP:
+                        case ADULT_SHEEP:
+                        case SHEARED_SHEEP:
+                            showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 239, 0, 2);
+                            break;
 
-                    } 
+                    }
 
                     result = 1;
-                    
+
                 }
             }
-            
+
             break;
 
+        // stall 4
         case 22:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-                
-                if (gPlayer.heldItem != FODDER_HELD_ITEM && gFarmAnimals[3].flags & 1) {
 
-                    temp = gFarmAnimals[3].type;
-                    
-                    // FIXME: actually a switch
-                    if (temp >= 0) {
+                if (gPlayer.heldItem != FODDER_HELD_ITEM && gFarmAnimals[3].flags & FARM_ANIMAL_ACTIVE) {
 
-                        if (temp < 4) {
-                            
+                    switch (gFarmAnimals[3].type) {
+
+                        case BABY_COW:
+                        case CALF:
+                        case ADULT_COW:
+                        case PREGNANT_COW:
                             setGlobalSeasonName(gFarmAnimals[3].birthdaySeason);
-                        
+
                             gCurrentSeasonName[0] = gGlobalSeasonName[0];
                             gCurrentSeasonName[1] = gGlobalSeasonName[1];
                             gCurrentSeasonName[2] = gGlobalSeasonName[2];
                             gCurrentSeasonName[3] = gGlobalSeasonName[3];
                             gCurrentSeasonName[4] = gGlobalSeasonName[4];
                             gCurrentSeasonName[5] = gGlobalSeasonName[5];
-                        
-                            convertNumberToGameVariableString(0x15, gFarmAnimals[3].birthdayDayOfMonth, 1);
+
+                            convertNumberToGameVariableString(21, gFarmAnimals[3].birthdayDayOfMonth, 1);
                             generateMilkTypeString(3);
                             setGameVariableString(38, gFarmAnimals[3].motherName, 6);
                             func_80061690(gFarmAnimals[3].milkType);
-                            showTextBox(1, SHOP_TEXT_INDEX, 0xE8, 0, 2);
-                            
-                        } else if (temp < 7) {
-                            showTextBox(1, SHOP_TEXT_INDEX, 0xF0, 0, 2);
-                        }
+                            showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 232, 0, 2);
+                            break;
 
-                    } 
+                        case BABY_SHEEP:
+                        case ADULT_SHEEP:
+                        case SHEARED_SHEEP:
+                            showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 240, 0, 2);
+                            break;
+
+                    }
 
                     result = 1;
-        
+
                 }
             }
-            
+
             break;
 
+        // stall 5
         case 23:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-                
-                if (gPlayer.heldItem != FODDER_HELD_ITEM && gFarmAnimals[4].flags & 1) {
 
-                    temp = gFarmAnimals[4].type;
+                if (gPlayer.heldItem != FODDER_HELD_ITEM && gFarmAnimals[4].flags & FARM_ANIMAL_ACTIVE) {
 
-                    // FIXME: actually a switch
-                    if (temp >= 0) {
+                    switch (gFarmAnimals[4].type) {
 
-                        if (temp < 4) {
-                            
+                        case BABY_COW:
+                        case CALF:
+                        case ADULT_COW:
+                        case PREGNANT_COW:
                             setGlobalSeasonName(gFarmAnimals[4].birthdaySeason);
-                        
+
                             gCurrentSeasonName[0] = gGlobalSeasonName[0];
                             gCurrentSeasonName[1] = gGlobalSeasonName[1];
                             gCurrentSeasonName[2] = gGlobalSeasonName[2];
                             gCurrentSeasonName[3] = gGlobalSeasonName[3];
                             gCurrentSeasonName[4] = gGlobalSeasonName[4];
                             gCurrentSeasonName[5] = gGlobalSeasonName[5];
-                        
-                            convertNumberToGameVariableString(0x15, gFarmAnimals[4].birthdayDayOfMonth, 1);
+
+                            convertNumberToGameVariableString(21, gFarmAnimals[4].birthdayDayOfMonth, 1);
                             generateMilkTypeString(4);
-                            setGameVariableString(0x26, gFarmAnimals[4].motherName, 6);
+                            setGameVariableString(38, gFarmAnimals[4].motherName, 6);
                             func_80061690(gFarmAnimals[4].milkType);
-                            showTextBox(1, SHOP_TEXT_INDEX, 0xE9, 0, 2);
-                            
-                        } else if (temp < 7) {
-                            showTextBox(1, SHOP_TEXT_INDEX, 0xF1, 0, 2);
-                        }
-                        
-                        
-                    } 
+                            showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 233, 0, 2);
+                            break;
+
+                        case BABY_SHEEP:
+                        case ADULT_SHEEP:
+                        case SHEARED_SHEEP:
+                            showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 241, 0, 2);
+                            break;
+
+                    }
 
                     result = 1;
-                    
+
                 }
             }
-            
+
             break;
 
+        // stall 6
         case 24:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-                
-                if (gPlayer.heldItem != FODDER_HELD_ITEM && gFarmAnimals[5].flags & 1) {
 
-                    temp = gFarmAnimals[5].type;
-                    
-                    // FIXME: actually a switch
-                    if (temp >= 0) {
+                if (gPlayer.heldItem != FODDER_HELD_ITEM && gFarmAnimals[5].flags & FARM_ANIMAL_ACTIVE) {
 
-                        if (temp < 4) {
-                            
+                    switch (gFarmAnimals[5].type) {
+
+                        case BABY_COW:
+                        case CALF:
+                        case ADULT_COW:
+                        case PREGNANT_COW:
                             setGlobalSeasonName(gFarmAnimals[5].birthdaySeason);
-                        
+
                             gCurrentSeasonName[0] = gGlobalSeasonName[0];
                             gCurrentSeasonName[1] = gGlobalSeasonName[1];
                             gCurrentSeasonName[2] = gGlobalSeasonName[2];
                             gCurrentSeasonName[3] = gGlobalSeasonName[3];
                             gCurrentSeasonName[4] = gGlobalSeasonName[4];
                             gCurrentSeasonName[5] = gGlobalSeasonName[5];
-                        
-                            convertNumberToGameVariableString(0x15, gFarmAnimals[5].birthdayDayOfMonth, 1);
+
+                            convertNumberToGameVariableString(21, gFarmAnimals[5].birthdayDayOfMonth, 1);
                             generateMilkTypeString(5);
-                            setGameVariableString(0x26, gFarmAnimals[5].motherName, 6);
+                            setGameVariableString(38, gFarmAnimals[5].motherName, 6);
                             func_80061690(gFarmAnimals[5].milkType);
-                            showTextBox(1, SHOP_TEXT_INDEX, 0xEA, 0, 2);
-                            
-                        } else if (temp < 7) {
-                            showTextBox(1, SHOP_TEXT_INDEX, 0xF2, 0, 2);
-                        }
-                        
-                        
-                    } 
+                            showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 234, 0, 2);
+                            break;
+
+                        case BABY_SHEEP:
+                        case ADULT_SHEEP:
+                        case SHEARED_SHEEP:
+                            showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 242, 0, 2);
+                            break;
+
+                    }
 
                     result = 1;
-                    
+
                 }
             }
-            
+
             break;
 
+        // stall 7
         case 25:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-                
-                if (gPlayer.heldItem != FODDER_HELD_ITEM && gFarmAnimals[6].flags & 1) {
 
-                    temp = gFarmAnimals[6].type;
-                    
-                    // FIXME: actually a switch
-                    if (temp >= 0) {
+                if (gPlayer.heldItem != FODDER_HELD_ITEM && gFarmAnimals[6].flags & FARM_ANIMAL_ACTIVE) {
 
-                        if (temp < 4) {
-                            
+                    switch (gFarmAnimals[6].type) {
+
+                        case BABY_COW:
+                        case CALF:
+                        case ADULT_COW:
+                        case PREGNANT_COW:
                             setGlobalSeasonName(gFarmAnimals[6].birthdaySeason);
-                        
+
                             gCurrentSeasonName[0] = gGlobalSeasonName[0];
                             gCurrentSeasonName[1] = gGlobalSeasonName[1];
                             gCurrentSeasonName[2] = gGlobalSeasonName[2];
                             gCurrentSeasonName[3] = gGlobalSeasonName[3];
                             gCurrentSeasonName[4] = gGlobalSeasonName[4];
                             gCurrentSeasonName[5] = gGlobalSeasonName[5];
-                        
-                            convertNumberToGameVariableString(0x15, gFarmAnimals[6].birthdayDayOfMonth, 1);
+
+                            convertNumberToGameVariableString(21, gFarmAnimals[6].birthdayDayOfMonth, 1);
                             generateMilkTypeString(6);
-                            setGameVariableString(0x26, gFarmAnimals[6].motherName, 6);
+                            setGameVariableString(38, gFarmAnimals[6].motherName, 6);
                             func_80061690(gFarmAnimals[6].milkType);
-                            showTextBox(1, SHOP_TEXT_INDEX, 0xEB, 0, 2);
-                            
-                        } else if (temp < 7) {
-                            showTextBox(1, SHOP_TEXT_INDEX, 0xF3, 0, 2);
-                        }
+                            showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 235, 0, 2);
+                            break;
 
-                    } 
+                        case BABY_SHEEP:
+                        case ADULT_SHEEP:
+                        case SHEARED_SHEEP:
+                            showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 243, 0, 2);
+                            break;
 
-                    result = 1; 
+                    }
+
+                    result = 1;
 
                 }
             }
-            
+
             break;
 
+        // stall 8
         case 26:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-                
-                if (gPlayer.heldItem != FODDER_HELD_ITEM && gFarmAnimals[7].flags & 1) {
 
-                    temp = gFarmAnimals[7].type;
-                    
-                    // FIXME: actually a switch
-                    if (temp >= 0) {
+                if (gPlayer.heldItem != FODDER_HELD_ITEM && gFarmAnimals[7].flags & FARM_ANIMAL_ACTIVE) {
 
-                        if (temp < 4) {
-                            
+                    switch (gFarmAnimals[7].type) {
+
+                        case BABY_COW:
+                        case CALF:
+                        case ADULT_COW:
+                        case PREGNANT_COW:
                             setGlobalSeasonName(gFarmAnimals[7].birthdaySeason);
-                        
+
                             gCurrentSeasonName[0] = gGlobalSeasonName[0];
                             gCurrentSeasonName[1] = gGlobalSeasonName[1];
                             gCurrentSeasonName[2] = gGlobalSeasonName[2];
                             gCurrentSeasonName[3] = gGlobalSeasonName[3];
                             gCurrentSeasonName[4] = gGlobalSeasonName[4];
                             gCurrentSeasonName[5] = gGlobalSeasonName[5];
-                        
-                            convertNumberToGameVariableString(0x15, gFarmAnimals[7].birthdayDayOfMonth, 1);
+
+                            convertNumberToGameVariableString(21, gFarmAnimals[7].birthdayDayOfMonth, 1);
                             generateMilkTypeString(7);
                             setGameVariableString(38, gFarmAnimals[7].motherName, 6);
                             func_80061690(gFarmAnimals[7].milkType);
-                            showTextBox(1, SHOP_TEXT_INDEX, 0xEC, 0, 2);
-                            
-                        } else if (temp < 7) {
-                            showTextBox(1, SHOP_TEXT_INDEX, 0xF4, 0, 2);
-                        }
-                            
-                    } 
+                            showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 236, 0, 2);
+                            break;
+
+                        case BABY_SHEEP:
+                        case ADULT_SHEEP:
+                        case SHEARED_SHEEP:
+                            showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 244, 0, 2);
+                            break;
+
+                    }
 
                     result = 1;
-                    
+
                 }
             }
-            
+
             break;
 
+        // fodder ledger
         case 27:
             
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-                convertNumberToGameVariableString(0x17, fodderQuantity, 0);
-                showTextBox(1, SHOP_TEXT_INDEX, 0xA8, 0, 2);
+                convertNumberToGameVariableString(23, fodderQuantity, 0);
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 168, 0, 2);
                 result = 1;
             }
-            
+
             break;
-        
+
+        // birthing place
         case 28:
-            
+
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-                showTextBox(1, SHOP_TEXT_INDEX, 0xA9, 0, 2);
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 169, 0, 2);
                 result = 1;
             }
             
@@ -1285,100 +1310,109 @@ u8 handleBarnLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleCoopLevelInteractions);
-
 bool handleCoopLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     bool result = FALSE;
 
     switch (levelInteractionIndex) {
         
+        // exit to farm
         case 1:
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
                 setSpawnPoint(FARM_SPAWN_POINT_4);
             }
             break;
         
+        // incubator
         case 18:
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-                showTextBox(1, SHOP_TEXT_INDEX, 0xAA, 0, 2);
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 170, 0, 2);
                 result = TRUE;
             }
             break;
 
+        // stall 1
         case 19:
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-                if (gChickens[0].flags & 1) {
-                    showTextBox(1, SHOP_TEXT_INDEX, 0xF5, 0, 2);
+                if (gChickens[0].flags & CHICKEN_ACTIVE) {
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 245, 0, 2);
                     result = TRUE;
                 }
             }
             break;
-        
+
+        // stall 2
         case 20:
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-                if (gChickens[1].flags & 1) {
-                    showTextBox(1, SHOP_TEXT_INDEX, 0xF6, 0, 2);
+                if (gChickens[1].flags & CHICKEN_ACTIVE) {
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 246, 0, 2);
                     result = TRUE;
                 }
             }
             break;
-        
+
+        // stall 3
         case 21:
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-                if (gChickens[2].flags & 1) {
-                    showTextBox(1, SHOP_TEXT_INDEX, 0xF7, 0, 2);
-                    result = TRUE;
-                }   
-            }           
-            break;
-        
-        case 22:
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-                if (gChickens[3].flags & 1) {
-                    showTextBox(1, SHOP_TEXT_INDEX, 0xF8, 0, 2);
-                    result = TRUE;
-                }         
-            }       
-            break;
-        
-        case 23:
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-                if (gChickens[4].flags & 1) {
-                    showTextBox(1, SHOP_TEXT_INDEX, 0xF9, 0, 2);
+                if (gChickens[2].flags & CHICKEN_ACTIVE) {
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 247, 0, 2);
                     result = TRUE;
                 }
-            }       
+            }
             break;
-        
-        case 24:     
+
+        // stall 4
+        case 22:
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-                if (gChickens[5].flags & 1) {
-                    showTextBox(1, SHOP_TEXT_INDEX, 0xFA, 0, 2);
+                if (gChickens[3].flags & CHICKEN_ACTIVE) {
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 248, 0, 2);
                     result = TRUE;
-                }          
-            }       
-            break;        
+                }
+            }
+            break;
+
+        // stall 5
+        case 23:
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
+                if (gChickens[4].flags & CHICKEN_ACTIVE) {
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 249, 0, 2);
+                    result = TRUE;
+                }
+            }
+            break;
+
+        // stall 6
+        case 24:
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
+                if (gChickens[5].flags & CHICKEN_ACTIVE) {
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 250, 0, 2);
+                    result = TRUE;
+                }
+            }
+            break;
+
     }
 
     return result;
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleKitchenLevelInteractions);
-
 bool handleKitchenLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     bool result = FALSE;
 
     switch (levelInteractionIndex) {
+
+        // exit to main house
         case 1:
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
                 setSpawnPoint(HOUSE_SPAWN_POINT_2);
             }
             break;
+
+        // bathroom door
         case 2:
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
                 result = TRUE;
@@ -1387,6 +1421,8 @@ bool handleKitchenLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
                 setSpawnPoint(BATHROOM_SPAWN_POINT_1);
             }        
             break;
+
+        // freezer
         case 16:
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
                 activateMapAddition(MAIN_MAP_INDEX, 0, 1);
@@ -1395,27 +1431,30 @@ bool handleKitchenLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
                 result = TRUE;
             }
             break;
+
+        // recipe book
         case 21:
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
                 setMainLoopCallbackFunctionIndex(RECIPE_BOOK_LOAD);
-                levelInteractionsInfo.interactionSfxIndex = MENU_OPEN_SFX;
+                levelInteractionsInfo.interactionSfxIndex = OPEN_SFX;
                 result = TRUE;
             }
             break;
+        
+        // kitchen picture
         case 22:
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
                 setMainLoopCallbackFunctionIndex(KITCHEN_PICTURE_LOAD);
-                levelInteractionsInfo.interactionSfxIndex = MENU_OPEN_SFX;
+                levelInteractionsInfo.interactionSfxIndex = OPEN_SFX;
                 result = TRUE;
             }
             break;
+
     }
 
     return result;
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleBathroomLevelInteractions);
 
 bool handleBathroomLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
@@ -1423,6 +1462,7 @@ bool handleBathroomLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     switch (levelInteractionIndex) {
 
+        // exit to house or kitchen
         case 1:
             
             result = TRUE;
@@ -1435,9 +1475,11 @@ bool handleBathroomLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
 
+        // unused
         case 2:
             break;
 
+        // bath
         case 16:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
@@ -1451,6 +1493,7 @@ bool handleBathroomLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
 
+        // toilet
         case 17:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
@@ -1464,20 +1507,20 @@ bool handleBathroomLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
             }            
 
             break;
+
     }
     
     return result;
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleGreenhouseLevelInteractions);
-
 bool handleGreenhouseLevelInteractions(u16 arg0, u8 levelInteractionIndex) {
 
     bool result = FALSE;
 
+    // exit to farm
     if (levelInteractionIndex == 1) {
-        if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+        if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
             result = TRUE;
             setSpawnPoint(FARM_SPAWN_POINT_8);
         }
@@ -1487,39 +1530,40 @@ bool handleGreenhouseLevelInteractions(u16 arg0, u8 levelInteractionIndex) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleVillage1LevelInteractions);
-
 bool handleVillage1LevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     bool result = FALSE;
 
     switch (levelInteractionIndex) {
         
+        // exit to road
         case 1:
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
                 setSpawnPoint(ROAD_SPAWN_POINT_4);
             }
             break;
         
+        // exit to village 2
         case 2:
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
-                setSpawnPoint(0x3F);
+                setSpawnPoint(VILLAGE_2_SPAWN_POINT_2);
             }
             break;
 
+        // flower shop entrance
         case 3:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
                 
-                if (checkDailyEventBit(0x28) || checkDailyEventBit(FESTIVAL)) { 
-                    showTextBox(1, SHOP_TEXT_INDEX, 0x168, 0, 2);
+                if (checkDailyEventBit(DAY_CONSUMING_CUTSCENE) || checkDailyEventBit(FESTIVAL)) { 
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 360, 0, 2);
                     result = TRUE;
                 } else {
                     levelInteractionsInfo.mapAdditionsIndex = 0;
                     result = TRUE;
-                    setSpawnPoint(0x56);
+                    setSpawnPoint(FLOWER_SHOP_SPAWN_POINT_1);
                 }
                 
                 levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;
@@ -1528,19 +1572,20 @@ bool handleVillage1LevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
         
             break;
 
+        // bakery entrance
         case 4:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
                 
-                if (gPlayer.direction == NORTHEAST) {
+                if (gPlayer.direction == DIRECTION_N) {
                     
-                    if (checkDailyEventBit(0x28) || checkDailyEventBit(FESTIVAL)) { 
-                        showTextBox(1, SHOP_TEXT_INDEX, 0x168, 0, 2);
+                    if (checkDailyEventBit(DAY_CONSUMING_CUTSCENE) || checkDailyEventBit(FESTIVAL)) { 
+                        showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 360, 0, 2);
                         result = TRUE;
                     } else {
                         levelInteractionsInfo.mapAdditionsIndex = 1;
                         result = TRUE;
-                        setSpawnPoint(0x59);
+                        setSpawnPoint(BAKERY_SPAWN_POINT_1);
                     }
                     
                     levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;
@@ -1551,17 +1596,18 @@ bool handleVillage1LevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
         
             break;
 
+        // rick store entrance
         case 5:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
                 
-                if (checkDailyEventBit(0x28) || checkDailyEventBit(FESTIVAL)) { 
-                    showTextBox(1, SHOP_TEXT_INDEX, 0x168, 0, 2);
+                if (checkDailyEventBit(DAY_CONSUMING_CUTSCENE) || checkDailyEventBit(FESTIVAL)) { 
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 360, 0, 2);
                     result = TRUE;
                 } else {
                     levelInteractionsInfo.mapAdditionsIndex = 4;
                     result = TRUE;
-                    setSpawnPoint(0x5D);
+                    setSpawnPoint(RICK_STORE_SPAWN_POINT_1);
                 }
                 
                 levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;
@@ -1570,17 +1616,18 @@ bool handleVillage1LevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
         
             break;
 
+        // saibara entrance
         case 6:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
                 
-                if (checkDailyEventBit(0x28) || checkDailyEventBit(FESTIVAL)) { 
-                    showTextBox(1, SHOP_TEXT_INDEX, 0x168, 0, 2);
+                if (checkDailyEventBit(DAY_CONSUMING_CUTSCENE) || checkDailyEventBit(FESTIVAL)) { 
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 360, 0, 2);
                     result = TRUE;
                 } else {
                     levelInteractionsInfo.mapAdditionsIndex = 3;
                     result = TRUE;
-                    setSpawnPoint(0x5E);
+                    setSpawnPoint(SOUVENIR_SHOP_SPAWN_POINT_1);
                 }
                 
                 levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;
@@ -1589,16 +1636,17 @@ bool handleVillage1LevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
         
             break;
 
+        // church entrance
         case 7:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
                 
-                if (checkDailyEventBit(0x28) || checkDailyEventBit(FESTIVAL)) { 
-                    showTextBox(1, SHOP_TEXT_INDEX, 0x168, 0, 2);
+                if (checkDailyEventBit(DAY_CONSUMING_CUTSCENE) || checkDailyEventBit(FESTIVAL)) { 
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 360, 0, 2);
                     result = TRUE;
                 } else {
                     result = TRUE;
-                    setSpawnPoint(0x5F);
+                    setSpawnPoint(CHURCH_SPAWN_POINT_1);
                 }
                 
                 levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;
@@ -1607,16 +1655,17 @@ bool handleVillage1LevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
         
             break;
 
+        // tavern entrance
         case 8:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
                 
-                if (checkDailyEventBit(0x28) || checkDailyEventBit(FESTIVAL)) { 
-                    showTextBox(1, SHOP_TEXT_INDEX, 0x168, 0, 2);
+                if (checkDailyEventBit(DAY_CONSUMING_CUTSCENE) || checkDailyEventBit(FESTIVAL)) { 
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 360, 0, 2);
                     result = TRUE;
                 } else {
                     result = TRUE;
-                    setSpawnPoint(0x60);
+                    setSpawnPoint(TAVERN_SPAWN_POINT_1);
                 }
                 
                 levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;
@@ -1625,93 +1674,101 @@ bool handleVillage1LevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
         
             break;
 
+        // square entrance 1
         case 9:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
-                if (gPlayer.direction == NORTHWEST) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
+                if (gPlayer.direction == DIRECTION_W) {
                     result = TRUE;
-                    setSpawnPoint(0x61);
+                    setSpawnPoint(SQUARE_SPAWN_POINT_1);
                 }
             }
             
             break;
 
+        // square entrance 2
         case 10:
             
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
-                if (gPlayer.direction == NORTHWEST) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
+                if (gPlayer.direction == DIRECTION_W) {
                     result = TRUE;
-                    setSpawnPoint(0x63);
+                    setSpawnPoint(SQUARE_SPAWN_POINT_3);
                 }
             }
             
             break;
 
+        // square entrance 3
         case 37:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
-                if (gPlayer.direction == WEST) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
+                if (gPlayer.direction == DIRECTION_SW) {
                     result = TRUE;
-                    setSpawnPoint(0x63);
+                    setSpawnPoint(SQUARE_SPAWN_POINT_3);
                 }
             }
             
             break;
 
+        // square entrance 4
         case 38:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
-                if (gPlayer.direction == NORTH) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
+                if (gPlayer.direction == DIRECTION_NW) {
                     result = TRUE;
-                    setSpawnPoint(0x63);
+                    setSpawnPoint(SQUARE_SPAWN_POINT_3);
                 }
             }
             
             break;
 
+        // square entrance 5
         case 39:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
-                if (gPlayer.direction == WEST) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
+                if (gPlayer.direction == DIRECTION_SW) {
                     result = TRUE;
-                    setSpawnPoint(0x61);
+                    setSpawnPoint(SQUARE_SPAWN_POINT_1);
                 }
             }
             
             break;
 
+        // square entrance 6
         case 40:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
-                if (gPlayer.direction == NORTH) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
+                if (gPlayer.direction == DIRECTION_NW) {
                     result = TRUE;
-                    setSpawnPoint(0x61);
+                    setSpawnPoint(SQUARE_SPAWN_POINT_1);
                 }
             }
             
             break;
 
+        // village 2 entrance 2
         case 11:
             
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
-                setSpawnPoint(0x44);
+                setSpawnPoint(VILLAGE_2_SPAWN_POINT_7);
             }
             
             break;
 
+        // bakery entrance 2
         case 12:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
 
-                if (checkDailyEventBit(0x28) || checkDailyEventBit(FESTIVAL)) {
-                    showTextBox(1, SHOP_TEXT_INDEX, 0x168, 0, 2);
+                if (checkDailyEventBit(DAY_CONSUMING_CUTSCENE) || checkDailyEventBit(FESTIVAL)) {
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 360, 0, 2);
                     result = TRUE;
 
                 } else {
                     levelInteractionsInfo.mapAdditionsIndex = 2;
                     result = TRUE;
-                    setSpawnPoint(0x5B);
+                    setSpawnPoint(BAKERY_SPAWN_POINT_3);
                 }
                 
                 levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;
@@ -1726,33 +1783,33 @@ bool handleVillage1LevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
    
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleFlowerShopLevelInteractions);
-
 u8 handleFlowerShopLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     u8 result = 0;
     
     switch (levelInteractionIndex) {
 
+        // exit to village
         case 1:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = 1;
-                setSpawnPoint(0x34);
+                setSpawnPoint(VILLAGE_1_SPAWN_POINT_3);
             }
             break;
         
+        // popuri room entrance
         case 2:
             
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
                 
-                if (checkDailyEventBit(0x28) || checkDailyEventBit(FESTIVAL)) { 
-                    showTextBox(1, SHOP_TEXT_INDEX, 0x168, 0, 2);
+                if (checkDailyEventBit(DAY_CONSUMING_CUTSCENE) || checkDailyEventBit(FESTIVAL)) { 
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 360, 0, 2);
                     result = 1;
                 } else {
                     levelInteractionsInfo.mapAdditionsIndex = 0;
                     result = 1;
-                    setSpawnPoint(0x58);
+                    setSpawnPoint(POPURI_ROOM_SPAWN_POINT_1);
                 }
                 
                 levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;
@@ -1761,9 +1818,10 @@ u8 handleFlowerShopLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
         
             break;
 
+        // Lilia interaction
         case 16:
 
-            if (gPlayer.direction == NORTHEAST) {
+            if (gPlayer.direction == DIRECTION_N) {
                 
                 if (gSeason == WINTER && (24 < gDayOfMonth && gDayOfMonth < 30)) {
 
@@ -1773,16 +1831,16 @@ u8 handleFlowerShopLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
                                 setMainLoopCallbackFunctionIndex(LOTTERY_LOAD);
                                 result = 1; 
                             } else {
-                                showTextBox(0, FESTIVALS_TEXT_INDEX, 0x3E, 0, 0);
+                                showTextBox(0, FESTIVALS_TEXT_INDEX, 62, 0, 0);
                                 result = 1;
                             }
                         }
                         result = 1;
                     }
-                    
+
                 } else {
                     if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-                        showMessageBox(0, 0x3D, 0x27, 0x80, 0);
+                        showMessageBox(0, DIALOGUE_SHOP, 39, 0x80, 0);
                         result = 1;
                     }
                 }
@@ -1791,22 +1849,23 @@ u8 handleFlowerShopLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
 
+        // selling prices list
         case 17:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
 
                 switch (gSeason) {
                     case SPRING:
-                        showTextBox(1, SHOP_TEXT_INDEX, 0xE, 0, 2);
+                        showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 14, 0, 2);
                         break;
                     case SUMMER:
-                        showTextBox(1, SHOP_TEXT_INDEX, 0xF, 0, 2);
+                        showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 15, 0, 2);
                         break;
                     case AUTUMN:
-                        showTextBox(1, SHOP_TEXT_INDEX, 0x10, 0, 2);
+                        showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 16, 0, 2);
                         break;
                     case WINTER:
-                        showTextBox(1, SHOP_TEXT_INDEX, 0xC9, 0, 2);
+                        showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 201, 0, 2);
                         break;
                     
                 }
@@ -1817,6 +1876,7 @@ u8 handleFlowerShopLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
 
+        // calendar
         case 18:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
@@ -1824,16 +1884,16 @@ u8 handleFlowerShopLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
                 switch (gSeason) {
 
                     case SPRING:
-                        showTextBox(1, SHOP_TEXT_INDEX, 0x11, 0, 2);
+                        showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 17, 0, 2);
                         break;
                     case SUMMER:
-                        showTextBox(1, SHOP_TEXT_INDEX, 0x12, 0, 2);
+                        showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 18, 0, 2);
                         break;
                     case AUTUMN:
-                        showTextBox(1, SHOP_TEXT_INDEX, 0x13, 0, 2);
+                        showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 19, 0, 2);
                         break;
                     case WINTER:
-                        showTextBox(1, SHOP_TEXT_INDEX, 0x14, 0, 2);
+                        showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 20, 0, 2);
                         break;
                     
                 }
@@ -1844,13 +1904,14 @@ u8 handleFlowerShopLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
 
+        // turnip seeds slot
         case 19:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
 
                 if (gPlayer.heldItem == 0) {
-                    if (checkShopItemShouldBeDisplayed(0)) {
-                        handlePickUpShopItem(0);
+                    if (checkShopItemShouldBeDisplayed(FLOWER_SHOP_TURNIP_SEEDS_ITEM)) {
+                        handlePickUpShopItem(FLOWER_SHOP_TURNIP_SEEDS_ITEM);
                     }
                     result = 2;
                 }
@@ -1859,13 +1920,14 @@ u8 handleFlowerShopLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
 
+        // potato seeds slot
         case 20:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
 
                 if (gPlayer.heldItem == 0) {
-                    if (checkShopItemShouldBeDisplayed(1)) {
-                        handlePickUpShopItem(1);
+                    if (checkShopItemShouldBeDisplayed(FLOWER_SHOP_POTATO_SEEDS_ITEM)) {
+                        handlePickUpShopItem(FLOWER_SHOP_POTATO_SEEDS_ITEM);
                     }
                     result = 2;
                 }
@@ -1874,13 +1936,14 @@ u8 handleFlowerShopLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
 
+        // cabbage seeds slot
         case 21:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
 
                 if (gPlayer.heldItem == 0) {
-                    if (checkShopItemShouldBeDisplayed(2)) {
-                        handlePickUpShopItem(2);
+                    if (checkShopItemShouldBeDisplayed(FLOWER_SHOP_CABBAGE_SEEDS_ITEM)) {
+                        handlePickUpShopItem(FLOWER_SHOP_CABBAGE_SEEDS_ITEM);
                     }
                     result = 2;
                 }
@@ -1889,13 +1952,14 @@ u8 handleFlowerShopLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
 
+        // tomato seeds slot
         case 22:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
 
                 if (gPlayer.heldItem == 0) {
-                    if (checkShopItemShouldBeDisplayed(4)) {
-                        handlePickUpShopItem(4);
+                    if (checkShopItemShouldBeDisplayed(FLOWER_SHOP_TOMATO_SEEDS_ITEM)) {
+                        handlePickUpShopItem(FLOWER_SHOP_TOMATO_SEEDS_ITEM);
                     }
                     result = 2;
                 }
@@ -1904,13 +1968,14 @@ u8 handleFlowerShopLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
 
+        // corn seeds slot
         case 23:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
 
                 if (gPlayer.heldItem == 0) {
-                    if (checkShopItemShouldBeDisplayed(5)) {
-                        handlePickUpShopItem(5);
+                    if (checkShopItemShouldBeDisplayed(FLOWER_SHOP_CORN_SEEDS_ITEM)) {
+                        handlePickUpShopItem(FLOWER_SHOP_CORN_SEEDS_ITEM);
                     }
                     result = 2;
                 }
@@ -1919,13 +1984,14 @@ u8 handleFlowerShopLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
 
+        // eggplant seeds slot
         case 24:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
 
                 if (gPlayer.heldItem == 0) {
-                    if (checkShopItemShouldBeDisplayed(6)) {
-                        handlePickUpShopItem(6);
+                    if (checkShopItemShouldBeDisplayed(FLOWER_SHOP_EGGPLANT_SEEDS_ITEM)) {
+                        handlePickUpShopItem(FLOWER_SHOP_EGGPLANT_SEEDS_ITEM);
                     }
                     result = 2;
                 }
@@ -1934,13 +2000,14 @@ u8 handleFlowerShopLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
 
+        // grass seeds slot
         case 25:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
 
                 if (gPlayer.heldItem == 0) {
-                    if (checkShopItemShouldBeDisplayed(3)) {
-                        handlePickUpShopItem(3);
+                    if (checkShopItemShouldBeDisplayed(FLOWER_SHOP_GRASS_SEEDS_ITEM)) {
+                        handlePickUpShopItem(FLOWER_SHOP_GRASS_SEEDS_ITEM);
                     }
                     result = 2;
                 }
@@ -1949,22 +2016,23 @@ u8 handleFlowerShopLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
 
+        // moon drop seeds slot
         case 26:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
 
                 if (gPlayer.heldItem == 0) {
                     
-                    if (!checkShopItemShouldBeDisplayed(7)) {
+                    if (!checkShopItemShouldBeDisplayed(FLOWER_SHOP_STRAWBERRY_SEEDS_ITEM)) {
                         
-                        if (checkShopItemShouldBeDisplayed(8)) {
-                            handlePickUpShopItem(8);
+                        if (checkShopItemShouldBeDisplayed(FLOWER_SHOP_MOON_DROP_SEEDS_ITEM)) {
+                            handlePickUpShopItem(FLOWER_SHOP_MOON_DROP_SEEDS_ITEM);
                         }
 
                         result = 2;
                         
                     } else {
-                        handlePickUpShopItem(7);
+                        handlePickUpShopItem(FLOWER_SHOP_STRAWBERRY_SEEDS_ITEM);
                         result = 2;
                     }
                     
@@ -1974,13 +2042,14 @@ u8 handleFlowerShopLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
 
+        // blue mist seeds slot
         case 27:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
 
                 if (gPlayer.heldItem == 0) {
-                    if (checkShopItemShouldBeDisplayed(10)) {
-                        handlePickUpShopItem(10);
+                    if (checkShopItemShouldBeDisplayed(FLOWER_SHOP_BLUE_MIST_SEEDS_ITEM)) {
+                        handlePickUpShopItem(FLOWER_SHOP_BLUE_MIST_SEEDS_ITEM);
                     }
                     result = 2;
                 }
@@ -1989,28 +2058,27 @@ u8 handleFlowerShopLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
 
+        // popuri's flower notebook
         case 30:
             
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
-                showMessageBox(0, 0x3D, 0x28, 0x80, 0);
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
+                showMessageBox(0, DIALOGUE_SHOP, DIALOGUE_SHOP_POPURIS_NOTEBOOK, 0x80, 0);
                 result = 1;
             }
-        
-        
-    }
+
+}
 
     return result;
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handlePopuriRoomLevelInteractions);
-
 bool handlePopuriRoomLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
     
     bool result = FALSE;
     
+    // exit to flower shop
     if (levelInteractionIndex == 1) {
-        if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+        if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
             result = TRUE;
             setSpawnPoint(FLOWER_SHOP_SPAWN_POINT_2);
         }
@@ -2020,34 +2088,34 @@ bool handlePopuriRoomLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleBakeryLevelInteractions);
-
 bool handleBakeryLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     bool result = FALSE;
 
     switch (levelInteractionIndex) {
 
+        // exit to village
         case 1:
             
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
-                setSpawnPoint(0x35);
+                setSpawnPoint(VILLAGE_1_SPAWN_POINT_4);
             }
             
             break;
 
+        // elli room entrance
         case 2:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
                 
-                if (checkDailyEventBit(0x28) || checkDailyEventBit(FESTIVAL)) { 
-                    showTextBox(1, SHOP_TEXT_INDEX, 0x168, 0, 2);
+                if (checkDailyEventBit(DAY_CONSUMING_CUTSCENE) || checkDailyEventBit(FESTIVAL)) { 
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 360, 0, 2);
                     result = TRUE;
                 } else {
                     levelInteractionsInfo.mapAdditionsIndex = 0;
                     result = TRUE;
-                    setSpawnPoint(0x5C);
+                    setSpawnPoint(ELLI_ROOM_SPAWN_POINT_1);
                 }
                 
                 levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;
@@ -2056,18 +2124,20 @@ bool handleBakeryLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
         
             break;
 
+        // exit 2 to village 
         case 3:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
-                setSpawnPoint(0x3D);
+                setSpawnPoint(VILLAGE_1_SPAWN_POINT_12);
             }
             
             break;
 
+        // jeff interaction
         case 16:
 
-            if (gPlayer.direction == NORTHEAST) {
+            if (gPlayer.direction == DIRECTION_N) {
                 
                 if (gSeason == WINTER && (24 < gDayOfMonth && gDayOfMonth < 30)) {
 
@@ -2077,16 +2147,16 @@ bool handleBakeryLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
                                 setMainLoopCallbackFunctionIndex(LOTTERY_LOAD);
                                 result = TRUE; 
                             } else {
-                                showTextBox(0, FESTIVALS_TEXT_INDEX, 0x46, 0, 0);
+                                showTextBox(0, FESTIVALS_TEXT_INDEX, 70, 0, 0);
                                 result = TRUE;
                             }
                         }
                         result = TRUE;
                     }
-                    
+
                 } else {
                     if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-                        showTextBox(0, SHOP_TEXT_INDEX, 0x43, 0, 0);
+                        showTextBox(0, LEVEL_INTERACTIONS_TEXT_INDEX, 67, 0, 0);
                         result = TRUE;
                     }
                 }
@@ -2095,13 +2165,13 @@ bool handleBakeryLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
 
+        // food menu
         case 17:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
                 
-                if (gPlayer.direction == NORTHEAST && gPlayer.heldItem == 0) {
-                    // show pink overlay message
-                    showPinkOverlayText(2);
+                if (gPlayer.direction == DIRECTION_N && gPlayer.heldItem == 0) {
+                    showDialogueTextBox(DIALOGUE_MENU_BAKERY_FOOD);
                     result = TRUE;
                 }
             
@@ -2109,13 +2179,13 @@ bool handleBakeryLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
 
+        // drink menu
         case 18:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
                 
                 if (gPlayer.heldItem == 0) {
-                    // show pink overlay message
-                    showPinkOverlayText(3);
+                    showDialogueTextBox(DIALOGUE_MENU_BAKERY_DRINK_MENU);
                     result = TRUE;
                 }
             
@@ -2123,23 +2193,21 @@ bool handleBakeryLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
 
-        
-    }
+}
     
     return result;
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleElliRoomLevelInteractions);
-
 bool handleElliRoomLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     bool result = FALSE;
 
+    // exit to bakery
     if (levelInteractionIndex == 1) {
-        if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+        if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
             result = TRUE;
-            setSpawnPoint(0x5A);
+            setSpawnPoint(BAKERY_SPAWN_POINT_2);
         }
     }
     
@@ -2147,29 +2215,29 @@ bool handleElliRoomLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleRickStoreLevelInteractions);
-
 bool handleRickStoreLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     bool result = FALSE;
 
     switch (levelInteractionIndex) {
 
+        // exit to village
         case 1:
         
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = 1;
-                setSpawnPoint(0x36);
+                setSpawnPoint(VILLAGE_1_SPAWN_POINT_5);
             }
             
             break;
 
+        // interaction with Rick
         case 16:
             
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
                 
-                if (gPlayer.direction == NORTHEAST) {
-                        showTextBox(0, SHOP_TEXT_INDEX, 0x44, 0, 0);
+                if (gPlayer.direction == DIRECTION_N) {
+                        showTextBox(0, LEVEL_INTERACTIONS_TEXT_INDEX, 68, 0, 0);
                         result = 1;
                 }
             
@@ -2177,13 +2245,14 @@ bool handleRickStoreLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
 
+        // clippers slot
         case 17:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
 
                 if (gPlayer.heldItem == 0) {
-                    if (checkShopItemShouldBeDisplayed(0x15)) {
-                        handlePickUpShopItem(0x15);
+                    if (checkShopItemShouldBeDisplayed(RICK_STORE_CLIPPERS_ITEM)) {
+                        handlePickUpShopItem(RICK_STORE_CLIPPERS_ITEM);
                     }
                     result = 2;
                 }
@@ -2192,13 +2261,14 @@ bool handleRickStoreLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
 
+        // brush slot
         case 18:
             
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
 
                 if (gPlayer.heldItem == 0) {
-                    if (checkShopItemShouldBeDisplayed(0x14)) {
-                        handlePickUpShopItem(0x14);
+                    if (checkShopItemShouldBeDisplayed(RICK_STORE_BRUSH_ITEM)) {
+                        handlePickUpShopItem(RICK_STORE_BRUSH_ITEM);
                     }
                     result = 2;
                 }
@@ -2207,13 +2277,14 @@ bool handleRickStoreLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
 
+        // milker slot
         case 19:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
 
                 if (gPlayer.heldItem == 0) {
-                    if (checkShopItemShouldBeDisplayed(0x13)) {
-                        handlePickUpShopItem(0x13);
+                    if (checkShopItemShouldBeDisplayed(RICK_STORE_MILKER_ITEM)) {
+                        handlePickUpShopItem(RICK_STORE_MILKER_ITEM);
                     }
                     result = 2;
                 }
@@ -2222,13 +2293,14 @@ bool handleRickStoreLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
 
+        // blue feather slot
         case 20:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
 
                 if (gPlayer.heldItem == 0) {
-                    if (checkShopItemShouldBeDisplayed(0x16)) {
-                        handlePickUpShopItem(0x16);
+                    if (checkShopItemShouldBeDisplayed(RICK_STORE_BLUE_FEATHER_ITEM)) {
+                        handlePickUpShopItem(RICK_STORE_BLUE_FEATHER_ITEM);
                     }
                     result = 2;
                 }
@@ -2237,16 +2309,17 @@ bool handleRickStoreLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
 
+        // cabinet or ice cream maker slot
         case 21:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
 
                 if (gPlayer.heldItem == 0) {
-                    if (checkShopItemShouldBeDisplayed(0x18)) {
-                        handlePickUpShopItem(0x18);
+                    if (checkShopItemShouldBeDisplayed(RICK_STORE_CABINET_ITEM)) {
+                        handlePickUpShopItem(RICK_STORE_CABINET_ITEM);
                     }
-                    if (checkShopItemShouldBeDisplayed(0x19)) {
-                        handlePickUpShopItem(0x19);
+                    if (checkShopItemShouldBeDisplayed(RICK_STORE_ICE_CREAM_MAKER_ITEM)) {
+                        handlePickUpShopItem(RICK_STORE_ICE_CREAM_MAKER_ITEM);
                     }
                     result = 2;
                 }
@@ -2255,13 +2328,14 @@ bool handleRickStoreLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
 
+        // rug slot
         case 22:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
 
                 if (gPlayer.heldItem == 0) {
-                    if (checkShopItemShouldBeDisplayed(0x17)) {
-                        handlePickUpShopItem(0x17);
+                    if (checkShopItemShouldBeDisplayed(RICK_STORE_RUG_ITEM)) {
+                        handlePickUpShopItem(RICK_STORE_RUG_ITEM);
                     }
                     result = 2;
                 }
@@ -2270,13 +2344,12 @@ bool handleRickStoreLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
 
+        // bookcases
         case 24:
 
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
-
-                showTextBox(0, SHOP_TEXT_INDEX, 0x36, 0, 0);
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
+                showTextBox(0, LEVEL_INTERACTIONS_TEXT_INDEX, 54, 0, 0);
                 result = 1;
-            
             }
 
             break;
@@ -2287,54 +2360,56 @@ bool handleRickStoreLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleSouvenirShopLevelInteractions);
-
 u8 handleSouvenirShopLevelInteractions(u16 arg0, u8 levelInteractionIndex) {
 
     u8 result = 0;
     
     switch (levelInteractionIndex) {
 
+        // exit to village
         case 1:
 
-            if (!checkDailyEventBit(0x2D)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = 1;
-                setSpawnPoint(0x37);
+                setSpawnPoint(VILLAGE_1_SPAWN_POINT_6);
             }
             break;
 
+        // ocarina slot
         case 17:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
                 if (gPlayer.heldItem == 0) {
-                    if (checkShopItemShouldBeDisplayed(0x25)) {
-                        handlePickUpShopItem(0x25);
+                    if (checkShopItemShouldBeDisplayed(SOUVENIR_SHOP_OCARINA_ITEM)) {
+                        handlePickUpShopItem(SOUVENIR_SHOP_OCARINA_ITEM);
                     }
                     result = 2;
                 }
             }
             break;
 
+        // vase slot
         case 18:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
                 if (gPlayer.heldItem == 0) {
-                    if (checkShopItemShouldBeDisplayed(0x26)) {
-                        handlePickUpShopItem(0x26);
+                    if (checkShopItemShouldBeDisplayed(SOUVENIR_SHOP_VASE_EARLY_ITEM)) {
+                        handlePickUpShopItem(SOUVENIR_SHOP_VASE_EARLY_ITEM);
                     }
-                    if (checkShopItemShouldBeDisplayed(0x27)) {
-                        handlePickUpShopItem(0x27);
+                    if (checkShopItemShouldBeDisplayed(SOUVENIR_SHOP_BLUE_VASE_ITEM)) {
+                        handlePickUpShopItem(SOUVENIR_SHOP_BLUE_VASE_ITEM);
                     }
                     result = 2;
                 }
             }
             break;
 
+        // don't touch
         case 16:
         case 19:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-                showTextBox(0, SHOP_TEXT_INDEX, 0xCA, 0, 0);
+                showTextBox(0, LEVEL_INTERACTIONS_TEXT_INDEX, 202, 0, 0);
                 result = 1;
             }
             break;
@@ -2345,46 +2420,47 @@ u8 handleSouvenirShopLevelInteractions(u16 arg0, u8 levelInteractionIndex) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleChurchLevelInteractions);
-
-// church
 bool handleChurchLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     bool result = FALSE;
 
     switch (levelInteractionIndex) {
 
+        // exit to village
         case 1:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
-                setSpawnPoint(0x38);
+                setSpawnPoint(VILLAGE_1_SPAWN_POINT_7);
             }
 
             break;
 
+        // harvest goddess statue
         case 16:
 
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {            
-                showTextBox(1, SHOP_TEXT_INDEX, 0xC0, 0, 2);
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 192, 0, 2);
                 result = TRUE;
-            }           
+            }
 
             break;
 
+        // organ
         case 17:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-                showTextBox(1, SHOP_TEXT_INDEX, 0xBF, 0, 2);
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 191, 0, 2);
                 result = TRUE;
             }
 
             break;
 
+        // stove
         case 19:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-                showTextBox(1, SHOP_TEXT_INDEX, 0xD0, 0, 2);
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 208, 0, 2);
                 result = TRUE;
             }
 
@@ -2395,8 +2471,6 @@ bool handleChurchLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
     return result;
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleTavernLevelInteractions);
 
 bool handleTavernLevelInteractions(u16 arg0, u8 levelInteractionIndex) {
 
@@ -2404,36 +2478,39 @@ bool handleTavernLevelInteractions(u16 arg0, u8 levelInteractionIndex) {
 
     switch (levelInteractionIndex) {
 
+        // exit to village
         case 1:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
-                setSpawnPoint(0x39);
+                setSpawnPoint(VILLAGE_1_SPAWN_POINT_8);
             }
 
             break;
 
+        // interaction with Duke
         case 17:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-                showTextBox(0, SHOP_TEXT_INDEX, 0x78, 0, 0);
+                showTextBox(0, LEVEL_INTERACTIONS_TEXT_INDEX, 120, 0, 0);
                 result = TRUE;
             }
 
             break;
 
+        // menu
         case 18:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {            
                 if (gPlayer.heldItem == 0) {
-                    // show pink overlay message
-                    showPinkOverlayText(4);
+                    showDialogueTextBox(DIALOGUE_MENU_TAVERN_MENU);
                     result = TRUE;
                 }  
             }
 
             break;
 
+        // calendar
         case 19:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {   
@@ -2441,16 +2518,16 @@ bool handleTavernLevelInteractions(u16 arg0, u8 levelInteractionIndex) {
                 switch (gSeason) {
 
                     case SPRING:
-                        showTextBox(1, SHOP_TEXT_INDEX, 0xCB, 0, 2);
+                        showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 203, 0, 2);
                         break;
                     case SUMMER:
-                        showTextBox(1, SHOP_TEXT_INDEX, 0xCC, 0, 2);
+                        showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 204, 0, 2);
                         break;
                     case AUTUMN:
-                        showTextBox(1, SHOP_TEXT_INDEX, 0xCD, 0, 2);
+                        showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 205, 0, 2);
                         break;
                     case WINTER:
-                        showTextBox(1, SHOP_TEXT_INDEX, 0xCE, 0, 2);
+                        showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 206, 0, 2);
                         break;      
 
                 }
@@ -2467,43 +2544,44 @@ bool handleTavernLevelInteractions(u16 arg0, u8 levelInteractionIndex) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleVillage2LevelInteractions);
-
 bool handleVillage2LevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     bool result = FALSE;
 
     switch (levelInteractionIndex) {
 
+        // exit to road
         case 1:
         
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
                 setSpawnPoint(ROAD_SPAWN_POINT_5);
             }
             
             break;
 
+        // exit to village 1
         case 2:
             
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
-                setSpawnPoint(0x33);
+                setSpawnPoint(VILLAGE_1_SPAWN_POINT_2);
             }
             
             break;
 
+        //  library entrance
         case 3:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
                 
-                if (checkDailyEventBit(0x28) || checkDailyEventBit(FESTIVAL) || checkDailyEventBit(0x56)) { 
-                    showTextBox(1, SHOP_TEXT_INDEX, 360, 0, 2);
+                if (checkDailyEventBit(DAY_CONSUMING_CUTSCENE) || checkDailyEventBit(FESTIVAL) || checkDailyEventBit(MARIA_LOCATION_OVERRIDE)) { 
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 360, 0, 2);
                     result = TRUE;
                 } else {
                     levelInteractionsInfo.mapAdditionsIndex = 1;
                     result = TRUE;
-                    setSpawnPoint(0x64);
+                    setSpawnPoint(LIBRARY_SPAWN_POINT_1);
                 }
                 
                 levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;
@@ -2512,17 +2590,18 @@ bool handleVillage2LevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
         
             break;
 
+        // mayor house entrance
         case 4:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
                 
-                if (checkDailyEventBit(0x28) || checkDailyEventBit(FESTIVAL)) { 
-                    showTextBox(1, SHOP_TEXT_INDEX, 0x168, 0, 2);
+                if (checkDailyEventBit(DAY_CONSUMING_CUTSCENE) || checkDailyEventBit(FESTIVAL)) { 
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 360, 0, 2);
                     result = TRUE;
                 } else {
                     levelInteractionsInfo.mapAdditionsIndex = 0;
                     result = TRUE;
-                    setSpawnPoint(0x65);
+                    setSpawnPoint(MAYOR_HOUSE_SPAWN_POINT_1);
                 }
                 
                 levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;
@@ -2531,17 +2610,18 @@ bool handleVillage2LevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
         
             break;
 
+        // potion shop entrance
         case 5:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
                 
-                if (checkDailyEventBit(0x28) || checkDailyEventBit(FESTIVAL)) { 
-                    showTextBox(1, SHOP_TEXT_INDEX, 0x168, 0, 2);
+                if (checkDailyEventBit(DAY_CONSUMING_CUTSCENE) || checkDailyEventBit(FESTIVAL)) { 
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 360, 0, 2);
                     result = TRUE;
                 } else {
                     levelInteractionsInfo.mapAdditionsIndex = 3;
                     result = TRUE;
-                    setSpawnPoint(0x68);
+                    setSpawnPoint(POTION_SHOP_SPAWN_POINT_1);
                 }
                 
                 levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;
@@ -2550,17 +2630,18 @@ bool handleVillage2LevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
         
             break;
 
+        // midwife's house entrance
         case 6:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
                 
-                if (checkDailyEventBit(0x28) || checkDailyEventBit(FESTIVAL)) { 
-                    showTextBox(1, SHOP_TEXT_INDEX, 0x168, 0, 2);
+                if (checkDailyEventBit(DAY_CONSUMING_CUTSCENE) || checkDailyEventBit(FESTIVAL)) { 
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 360, 0, 2);
                     result = TRUE;
                 } else {
                     levelInteractionsInfo.mapAdditionsIndex = 2;
                     result = TRUE;
-                    setSpawnPoint(0x6B);
+                    setSpawnPoint(MIDWIFE_HOUSE_SPAWN_POINT_1);
                 }
                 
                 levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;
@@ -2569,57 +2650,62 @@ bool handleVillage2LevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
         
             break;
         
+        // exit to village 1 2
         case 7:
             
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
-                setSpawnPoint(0x3C);
+                setSpawnPoint(VILLAGE_1_SPAWN_POINT_11);
             }
             
             break;
 
+        // library sign
         case 16:
-            
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
 
-                showTextBox(1, SHOP_TEXT_INDEX, 0xB8, 0, 2);
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
+
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 184, 0, 2);
                 result = TRUE;
-            
+
             }
 
             break;
 
+        // cemetery signs
         case 17:
-            
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
 
-                showTextBox(1, SHOP_TEXT_INDEX, 0xB5, 0, 2);
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
+
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 181, 0, 2);
                 result = TRUE;
-            
+
             }
 
             break;
-        
+
+        // grandpa grave
         case 18:
-            
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
 
-                showTextBox(1, SHOP_TEXT_INDEX, 0x160, 0, 2);
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
+
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 352, 0, 2);
                 result = TRUE;
-            
+
             }
 
             break;
 
+        // animal gravestone
         case 19:
 
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
-                
-                if (checkLifeEventBit(0x50)) {
-                    showTextBox(1, SHOP_TEXT_INDEX, 0x15F, 0, 2);
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
+
+                if (checkLifeEventBit(ANIMAL_FUNERAL)) {
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 351, 0, 2);
                     result = TRUE;
                 } else {
-                    showTextBox(1, SHOP_TEXT_INDEX, 0x167, 0, 2);
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 359, 0, 2);
                     result = TRUE;
                 }
             
@@ -2627,50 +2713,53 @@ bool handleVillage2LevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
 
+        // grave 3
         case 20:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
 
-                showTextBox(1, SHOP_TEXT_INDEX, 0x161, 0, 2);
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 353, 0, 2);
                 result = TRUE;
             
             }
 
             break;
 
+        // grave 4
         case 21:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
 
-                showTextBox(1, SHOP_TEXT_INDEX, 0x161, 0, 2);
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 353, 0, 2);
                 result = TRUE;
             
             }
 
             break;
 
+        // grave 5
         case 22:
 
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
 
-                showTextBox(1, SHOP_TEXT_INDEX, 0x162, 0, 2);
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 354, 0, 2);
                 result = TRUE;
-            
+
             }
 
             break;
 
+        // grave 6
         case 23:
 
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
 
-                showTextBox(1, SHOP_TEXT_INDEX, 0x163, 0, 2);
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 355, 0, 2);
                 result = TRUE;
-            
+
             }
 
             break;
-        
         
     }
     
@@ -2678,44 +2767,44 @@ bool handleVillage2LevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleLibraryLevelInteractions);
-
 bool handleLibraryLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     bool result = FALSE;
 
     switch (levelInteractionIndex) {
 
+        // exit to village 2
         case 1:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
-                setSpawnPoint(0x40);
+                setSpawnPoint(VILLAGE_2_SPAWN_POINT_3);
             }
             
             break;
 
+        // interaction with Maria
         case 16:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {  
 
-                if (gPlayer.direction == NORTHEAST) {
+                if (gPlayer.direction == DIRECTION_N) {
 
                     if (checkLifeEventBit(MARRIED) && gWife == MARIA) {
-                        showTextBox(0, SHOP_TEXT_INDEX, 0xD7, 0, 0);
+                        showTextBox(0, LEVEL_INTERACTIONS_TEXT_INDEX, 215, 0, 0);
                         result = TRUE;
                     } else {
-                        showTextBox(0, SHOP_TEXT_INDEX, 0xD6, 0, 0);
+                        showTextBox(0, LEVEL_INTERACTIONS_TEXT_INDEX, 214, 0, 0);
                         result = TRUE;
                     }
-                    
-                    
-                }
+
+}
                 
             }
 
             break;
 
+        // bookshelf 1
         case 17:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {  
@@ -2731,6 +2820,7 @@ bool handleLibraryLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;    
         
+        // bookshelf 2
         case 18:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {  
@@ -2746,6 +2836,7 @@ bool handleLibraryLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;          
 
+        // bookshelf 3
         case 19:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {  
@@ -2761,6 +2852,7 @@ bool handleLibraryLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;          
         
+        // bookshelf 4
         case 20:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {  
@@ -2776,6 +2868,7 @@ bool handleLibraryLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;          
         
+        // bookshelf 5
         case 21:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {  
@@ -2791,6 +2884,7 @@ bool handleLibraryLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;          
          
+        // bookshelf 6
         case 22:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {  
@@ -2806,6 +2900,7 @@ bool handleLibraryLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
         
+        // bookshelf 7
         case 23:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {  
@@ -2821,6 +2916,7 @@ bool handleLibraryLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;          
         
+        // bookshelf 8
         case 24:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {  
@@ -2836,11 +2932,12 @@ bool handleLibraryLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;          
         
+        // bookshelf 9
         case 25:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
 
-                if (gPlayer.direction == NORTHWEST && gPlayer.heldItem == 0) {
+                if (gPlayer.direction == DIRECTION_W && gPlayer.heldItem == 0) {
 
                     showTextBox(1, LIBRARY_TEXT_INDEX, 8, 0, 2);
                     result = TRUE;
@@ -2851,11 +2948,12 @@ bool handleLibraryLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;   
         
+        // bookshelf 10
         case 26:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {  
 
-                if (gPlayer.direction == NORTHWEST && gPlayer.heldItem == 0) {
+                if (gPlayer.direction == DIRECTION_W && gPlayer.heldItem == 0) {
 
                     showTextBox(1, LIBRARY_TEXT_INDEX, 9, 0, 2);
                     result = TRUE;
@@ -2872,27 +2970,27 @@ bool handleLibraryLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleMidwifeHouseLevelInteractions);
-
 bool handleMidwifeHouseLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     bool result = FALSE;
 
     switch (levelInteractionIndex) {
 
+        // exit to village 2
         case 1:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) { 
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) { 
                 result = TRUE;
-                setSpawnPoint(0x43);
+                setSpawnPoint(VILLAGE_2_SPAWN_POINT_6);
             }
 
             break;
 
+        // bookshelf
         case 16:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-                showTextBox(1, SHOP_TEXT_INDEX, 0xD1, 0, 2);
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 209, 0, 2);
                 result = TRUE;
             }
 
@@ -2904,34 +3002,34 @@ bool handleMidwifeHouseLevelInteractions(u16 mapIndex, u8 levelInteractionIndex)
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleMayorHouseLevelInteractions);
-
 bool handleMayorHouseLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     bool result = FALSE;
 
     switch (levelInteractionIndex) {
 
+        // exit to village 2
         case 1:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
-                setSpawnPoint(0x41);
+                setSpawnPoint(VILLAGE_2_SPAWN_POINT_4);
             }
             
             break;
 
+        // maria room entrance
         case 2:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
                 
-                if (checkDailyEventBit(0x28) || checkDailyEventBit(FESTIVAL)) { 
-                    showTextBox(1, SHOP_TEXT_INDEX, 0x168, 0, 2);
+                if (checkDailyEventBit(DAY_CONSUMING_CUTSCENE) || checkDailyEventBit(FESTIVAL)) { 
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 360, 0, 2);
                     result = TRUE;
                 } else {
                     levelInteractionsInfo.mapAdditionsIndex = 0;
                     result = TRUE;
-                    setSpawnPoint(0x67);
+                    setSpawnPoint(MARIA_ROOM_SPAWN_POINT_1);
                 }
                 
                 levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;
@@ -2940,6 +3038,7 @@ bool handleMayorHouseLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
         
             break;
 
+        // old stove
         case 16:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
@@ -2950,7 +3049,7 @@ bool handleMayorHouseLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
                     case SUMMER:
                     case AUTUMN:
                     case WINTER:
-                        showTextBox(1, SHOP_TEXT_INDEX, 0xCF, 0, 2);
+                        showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 207, 0, 2);
                         break;
 
                 }
@@ -2967,18 +3066,18 @@ bool handleMayorHouseLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleMariaRoomLevelInteractions);
-
 bool handleMariaRoomLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
    bool result = FALSE;
 
     switch (levelInteractionIndex) {
+
+        // exit to mayor house
         case 1:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
-                setSpawnPoint(0x66);
+                setSpawnPoint(MAYOR_HOUSE_SPAWN_POINT_2);
             }
             
             break;
@@ -2989,34 +3088,34 @@ bool handleMariaRoomLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handlePotionShopLevelInteractions);
-
 u8 handlePotionShopLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     bool result = 0;
 
     switch (levelInteractionIndex) {
 
+        // exit to village 2
         case 1:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = 1;
-                setSpawnPoint(0x42);
+                setSpawnPoint(VILLAGE_2_SPAWN_POINT_5);
             }
             
             break;
         
+        // bedroom door
         case 2:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
                 
-                if (checkDailyEventBit(0x28) || checkDailyEventBit(FESTIVAL)) { 
-                    showTextBox(1, SHOP_TEXT_INDEX, 0x168, 0, 2);
+                if (checkDailyEventBit(DAY_CONSUMING_CUTSCENE) || checkDailyEventBit(FESTIVAL)) { 
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 360, 0, 2);
                     result = 1;
                 } else {
                     levelInteractionsInfo.mapAdditionsIndex = 0;
                     result = 1;
-                    setSpawnPoint(0x6A);
+                    setSpawnPoint(POTION_SHOP_BEDROOM_SPAWN_POINT_1);
                 }
                 
                 levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;
@@ -3025,31 +3124,32 @@ u8 handlePotionShopLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
         
             break;
         
+        // cure-all slot
         case 16:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {  
 
                 if (gPlayer.heldItem == 0) {
 
-                    switch (checkShopItemShouldBeDisplayed(0x22)) {
+                    switch (checkShopItemShouldBeDisplayed(POTION_SHOP_CURE_ALL_ITEM)) {
 
                         case 0:
-                            showTextBox(0, SHOP_TEXT_INDEX, 0x6C, 0, 0);
+                            showTextBox(0, LEVEL_INTERACTIONS_TEXT_INDEX, 108, 0, 0);
                             result = 1;
                             break;
                         case 1:
-                            handlePickUpShopItem(0x22);
+                            handlePickUpShopItem(POTION_SHOP_CURE_ALL_ITEM);
                             result = 2;
                             break;
                         case 2:
-                            showTextBox(0, SHOP_TEXT_INDEX, 0x6F, 0, 0);
+                            showTextBox(0, LEVEL_INTERACTIONS_TEXT_INDEX, 111, 0, 0);
                             result = 1;
                             break;
                         case 3:
-                            showTextBox(0, SHOP_TEXT_INDEX, 0x6B, 0, 0);
+                            showTextBox(0, LEVEL_INTERACTIONS_TEXT_INDEX, 107, 0, 0);
                             result = 1;
                             break;
-                        
+
                     }
                     
                 } 
@@ -3058,32 +3158,32 @@ u8 handlePotionShopLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;    
         
-        
+        // vitamin slot
         case 17:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {  
 
                 if (gPlayer.heldItem == 0) {
 
-                    switch (checkShopItemShouldBeDisplayed(0x23)) {
+                    switch (checkShopItemShouldBeDisplayed(POTION_SHOP_VITAMIN_ITEM)) {
 
                         case 0:
-                            showTextBox(0, SHOP_TEXT_INDEX, 0x6C, 0, 0);
+                            showTextBox(0, LEVEL_INTERACTIONS_TEXT_INDEX, 108, 0, 0);
                             result = 1;
                             break;
                         case 1:
-                            handlePickUpShopItem(0x23);
+                            handlePickUpShopItem(POTION_SHOP_VITAMIN_ITEM);
                             result = 2;
                             break;
                         case 2:
-                            showTextBox(0, SHOP_TEXT_INDEX, 0x6F, 0, 0);
+                            showTextBox(0, LEVEL_INTERACTIONS_TEXT_INDEX, 111, 0, 0);
                             result = 1;
                             break;
                         case 3:
-                            showTextBox(0, SHOP_TEXT_INDEX, 0x6B, 0, 0);
+                            showTextBox(0, LEVEL_INTERACTIONS_TEXT_INDEX, 107, 0, 0);
                             result = 1;
                             break;
-                        
+
                     }
                     
                 } 
@@ -3092,31 +3192,32 @@ u8 handlePotionShopLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;    
         
+        // strong vitamin slot
         case 18:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {  
 
                 if (gPlayer.heldItem == 0) {
 
-                    switch (checkShopItemShouldBeDisplayed(0x24)) {
+                    switch (checkShopItemShouldBeDisplayed(POTION_SHOP_STRONG_VITAMINS_ITEM)) {
 
                         case 0:
-                            showTextBox(0, SHOP_TEXT_INDEX, 0x6C, 0, 0);
+                            showTextBox(0, LEVEL_INTERACTIONS_TEXT_INDEX, 108, 0, 0);
                             result = 1;
                             break;
                         case 1:
-                            handlePickUpShopItem(0x24);
+                            handlePickUpShopItem(POTION_SHOP_STRONG_VITAMINS_ITEM);
                             result = 2;
                             break;
                         case 2:
-                            showTextBox(0, SHOP_TEXT_INDEX, 0x6F, 0, 0);
+                            showTextBox(0, LEVEL_INTERACTIONS_TEXT_INDEX, 111, 0, 0);
                             result = 1;
                             break;
                         case 3:
-                            showTextBox(0, SHOP_TEXT_INDEX, 0x6B, 0, 0);
+                            showTextBox(0, LEVEL_INTERACTIONS_TEXT_INDEX, 107, 0, 0);
                             result = 1;
                             break;
-                        
+
                     }
                     
                 } 
@@ -3125,11 +3226,12 @@ u8 handlePotionShopLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;   
         
+        // bookshelf
         case 19:
 
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
 
-                showTextBox(0, SHOP_TEXT_INDEX, 0x70, 0, 0);
+                showTextBox(0, LEVEL_INTERACTIONS_TEXT_INDEX, 112, 0, 0);
                 result = 1;
             
             }
@@ -3142,22 +3244,21 @@ u8 handlePotionShopLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handlePotionShopBedroomLevelInteractions);
-
-// potion shop bedroom
 bool handlePotionShopBedroomLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     bool result = FALSE;
 
     switch (levelInteractionIndex) {
 
+        // exit to potion shop
         case 1:
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
-                setSpawnPoint(0x69);
+                setSpawnPoint(POTION_SHOP_SPAWN_POINT_2);
             }
             break;
 
+        // stove
         case 16:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
@@ -3168,7 +3269,7 @@ bool handlePotionShopBedroomLevelInteractions(u16 mapIndex, u8 levelInteractionI
                     case SUMMER:
                     case AUTUMN:
                     case WINTER:
-                        showTextBox(1, SHOP_TEXT_INDEX, 0xD0, 0, 2);
+                        showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 208, 0, 2);
                         break;
 
                 }
@@ -3184,26 +3285,23 @@ bool handlePotionShopBedroomLevelInteractions(u16 mapIndex, u8 levelInteractionI
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleSquareLevelInteractions);
-
-// FIXME: lots of unnecessary gotos
 u8 handleSquareLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     u8 result = 0;
-    u8 temp;
 
     switch (levelInteractionIndex) {
 
+        // exit to village 1
         case 1:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = 1;
-                setSpawnPoint(0x3A);
+                setSpawnPoint(VILLAGE_1_SPAWN_POINT_9);
             }
             
             break;
 
-
+        // race track entrance
         case 2:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {  
@@ -3211,17 +3309,18 @@ u8 handleSquareLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
                 levelInteractionsInfo.mapAdditionsIndex = 0;
                 levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;
                 result = 1;
-                setSpawnPoint(0x6C);
+                setSpawnPoint(RACE_TRACK_SPAWN_POINT_1);
                 
             }
             
             break;
 
+        // exit to village 1
         case 3:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = 1;
-                setSpawnPoint(0x3B);
+                setSpawnPoint(VILLAGE_1_SPAWN_POINT_10);
             }
             
             break;
@@ -3231,54 +3330,42 @@ u8 handleSquareLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
 
                 if (gPlayer.heldItem == 0) {
-                    temp = 10;
-label3:
-                    // show pink overlay message
-                    showPinkOverlayText(temp);
+                    showDialogueTextBox(DIALOGUE_MENU_SQUARE_STALL);
                     result = 1;
-label4:
                 }
-                
+
             }
 
             break;
         
+        // horse/dog race prizes/mayor interaction
         case 21:
 
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
 
-                if (checkDailyEventBit(0x41)) {
+                if (checkDailyEventBit(HORSE_RACE)) {
 
-                    if (func_800CE714(0) && func_800CE714(1)) {
-                        
-                        if (func_800CE714(2)) {
-                            goto label2;
-                        } else {
-                            goto label;
-                        }
-                        
+                    if (checkAlreadyHaveHorseRacePrize(0) && checkAlreadyHaveHorseRacePrize(1) && checkAlreadyHaveHorseRacePrize(2)) {
+                        showTextBox(0, FESTIVALS_TEXT_INDEX, 71, 0, 0);
                     } else {
                         pauseAllCutsceneExecutors();
                         setMainLoopCallbackFunctionIndex(RACE_GIFTS_LOAD);
                     }
-                    
-                } else if (func_800CE828(0) && func_800CE828(1) && func_800CE828(2)) {
-label2:
-                    showTextBox(0, FESTIVALS_TEXT_INDEX, 0x47, 0, 0);
-                    
+
+                } else if (checkAlreadyHaveDogRacePrize(0) && checkAlreadyHaveDogRacePrize(1) && checkAlreadyHaveDogRacePrize(2)) {
+                    showTextBox(0, FESTIVALS_TEXT_INDEX, 71, 0, 0);
                 } else {
-label:
                     pauseAllCutsceneExecutors();
                     setMainLoopCallbackFunctionIndex(RACE_GIFTS_LOAD);
-                    
                 }
-                
+
                 result = 1;
-                
+
             }
-            
+
             break;
 
+        // mayor wife horse/dog race interaction
         case 22:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {  
@@ -3300,16 +3387,17 @@ label:
             
             break;
 
+        // flower festival seeds stall
         case 24:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
 
                 if (gPlayer.heldItem == 0) {
                 
-                    if (checkShopItemShouldBeDisplayed(0x35)) {
+                    if (checkShopItemShouldBeDisplayed(FLOWER_FESTIVAL_PINK_CAT_MINT_SEEDS_ITEM)) {
                         pauseAllCutsceneExecutors();
                         // pick up shop item
-                        handlePickUpShopItem(0x35);
+                        handlePickUpShopItem(FLOWER_FESTIVAL_PINK_CAT_MINT_SEEDS_ITEM);
                     }
                     
                     result = 2;
@@ -3320,6 +3408,7 @@ label:
             
             break;
 
+        // flower festival goddess voting box and rick stall
         case 26:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
@@ -3327,41 +3416,35 @@ label:
                 if (gSeason == SPRING && (18 < gDayOfMonth && gDayOfMonth < 23)) {
 
                     if (gVoteForFlowerFestivalGoddess == 0xFF) {
-                        temp = 9;
-                        goto label3;
+                        showDialogueTextBox(DIALOGUE_MENU_FLOWER_FESTIVAL_VOTE);
                     } else {
-                        showTextBox(0, FESTIVALS_TEXT_INDEX, 0x23, 0, 2);
-                        result = 1;
-                        goto label4;
+                        showTextBox(0, FESTIVALS_TEXT_INDEX, 35, 0, 2);
                     }
-                    
-                }
 
-                if (!checkHaveTool(EMPTY_BOTTLE)) {
+                    result = 1;
+
+                } else if (!checkHaveTool(EMPTY_BOTTLE)) {
 
                     if (gPlayer.heldItem == 0) {
-                    
-                        if (checkShopItemShouldBeDisplayed(0x36)) {
+
+                        if (checkShopItemShouldBeDisplayed(FLOWER_FESTIVAL_EMPTY_BOTTLE_ITEM)) {
                             pauseAllCutsceneExecutors();
-                            handlePickUpShopItem(0x36);
-                            goto label5;
+                            handlePickUpShopItem(FLOWER_FESTIVAL_EMPTY_BOTTLE_ITEM);
+                        } else if (checkShopItemShouldBeDisplayed(FIREWORKS_FESTIVAL_EMPTY_BOTTLE_ITEM)) {
+                            pauseAllCutsceneExecutors();
+                            handlePickUpShopItem(FIREWORKS_FESTIVAL_EMPTY_BOTTLE_ITEM);
                         }
-                        
-                        if (checkShopItemShouldBeDisplayed(0x37)) {
-                            pauseAllCutsceneExecutors();   
-                            handlePickUpShopItem(0x37);
-label5:
-                        }
-                        
+
                         result = 2;
-                        
+
                     }
-                    
-                } else { 
-                    showTextBox(0, FESTIVALS_TEXT_INDEX, 0x26, 0, 0);
+
+                } else {
+                    showTextBox(0, FESTIVALS_TEXT_INDEX, 38, 0, 0);
                 }
+
             }
-            
+
             break;
         
     }
@@ -3370,43 +3453,45 @@ label5:
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleMountain1LevelInteractions);
-
 bool handleMountain1LevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     bool result = FALSE;
 
     switch (levelInteractionIndex) {
 
+        // exit to road
         case 1:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) { 
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) { 
                 result = TRUE;
                 setSpawnPoint(ROAD_SPAWN_POINT_6);                
             }
             break;
 
+        // exit to mountain 2
         case 2:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) { 
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) { 
                 result = TRUE;
                 setSpawnPoint(MOUNTAIN_2_SPAWN_POINT_1);                
             }
 
             break;
 
+        // exit to top of mountain 1
         case 3:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) { 
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) { 
                 result = TRUE;
                 setSpawnPoint(TOP_OF_MOUNTAIN_1_SPAWN_POINT_1);                
             }
             break;
 
+        // fisherman tent
         case 19:
 
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
-                showTextBox(1, SHOP_TEXT_INDEX, 0xAD, 0, 2);
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 173, 0, 2);
                 result = TRUE;
             }
 
@@ -3418,51 +3503,52 @@ bool handleMountain1LevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleMountain2LevelInteractions);
-
 u8 handleMountain2LevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     u8 result = 0;
     
     switch (levelInteractionIndex) {
         
+        // exit to mountain 1
         case 1:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = 1;
                 setSpawnPoint(MOUNTAIN_1_SPAWN_POINT_2);
             }
             
             break;
 
-    
+        // cave entrance
         case 2:
             
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = 1;
-                setSpawnPoint(0x45);
+                setSpawnPoint(CAVE_SPAWN_POINT_1);
             }
             
             break;
 
+        // exit to pond
         case 3:
             
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = 1;
-                setSpawnPoint(0x48);
+                setSpawnPoint(POND_SPAWN_POINT_1);
             }
             
             break;
 
+        // carpenter hut entrance
         case 4:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
                 
-                if (gPlayer.direction == NORTHEAST) {
+                if (gPlayer.direction == DIRECTION_N) {
                     
-                    if (checkDailyEventBit(0x28) || checkDailyEventBit(FESTIVAL)) { 
+                    if (checkDailyEventBit(DAY_CONSUMING_CUTSCENE) || checkDailyEventBit(FESTIVAL)) { 
                         
-                        showTextBox(1, SHOP_TEXT_INDEX, 360, 0, 2);
+                        showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 360, 0, 2);
                         result = 1;
                         
                     } else {
@@ -3473,28 +3559,28 @@ u8 handleMountain2LevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
                                 
                                 if (gSeason == WINTER) {
                                     if (8 < gDayOfMonth && gDayOfMonth < 17) {
-                                        showTextBox(1, SHOP_TEXT_INDEX, 360, 0, 2);
+                                        showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 360, 0, 2);
                                         result = 1;
                                     } else {
                                         levelInteractionsInfo.mapAdditionsIndex = 3;
                                         result = 1;
-                                        setSpawnPoint(0x49);
+                                        setSpawnPoint(CARPENTER_HUT_SPAWN_POINT_1);
                                     }
                                 } else {
                                     levelInteractionsInfo.mapAdditionsIndex = 3;
                                     result = 1;
-                                    setSpawnPoint(0x49);
+                                    setSpawnPoint(CARPENTER_HUT_SPAWN_POINT_1);
                                 }
 
                             } else {
-                                showTextBox(1, SHOP_TEXT_INDEX, 0x168, 0, 2);
+                                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 360, 0, 2);
                                 result = 1;
                             }
                             
                         } else {
                             levelInteractionsInfo.mapAdditionsIndex = 3;
                             result = 1;
-                            setSpawnPoint(0x49);
+                            setSpawnPoint(CARPENTER_HUT_SPAWN_POINT_1);
                         }
                     }
                     
@@ -3506,19 +3592,20 @@ u8 handleMountain2LevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
     
+        // exit to moon mountain
         case 5:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = 1;
-                setSpawnPoint(0x25);
+                setSpawnPoint(MOON_MOUNTAIN_SPAWN_POINT_1);
             }
             
             break;
 
-    
+        // exit to top of mountain 1
         case 6:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = 1;
                 setSpawnPoint(TOP_OF_MOUNTAIN_1_SPAWN_POINT_2);
             }
@@ -3543,12 +3630,12 @@ u8 handleMountain2LevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
             
             break;
     
-        // jumping down
+        // jumping down spot
         case 18:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
                 
-                if (gPlayer.direction == SOUTHWEST) {
+                if (gPlayer.direction == DIRECTION_S) {
                     setDailyEventBit(SUSPEND_TIME_DURING_ANIMATION);
                     setPlayerAction(JUMPING_DOWN, ANIM_JUMPING);
                     result = 2;
@@ -3558,10 +3645,11 @@ u8 handleMountain2LevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
             break;
     
+        // carpenter hut sign
         case 19:
 
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
-                showTextBox(1, SHOP_TEXT_INDEX, 175, 0, 2);
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 175, 0, 2);
                 result = 1;
             }
 
@@ -3573,39 +3661,40 @@ u8 handleMountain2LevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleTopOfMountain1LevelInteractions);
-
 u8 handleTopOfMountain1LevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     bool result = 0;
 
     switch (levelInteractionIndex) {
 
+        // exit to mountain 1
         case 1:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = 1;
                 setSpawnPoint(MOUNTAIN_1_SPAWN_POINT_3);
             }
             
             break;
 
+        // exit to mountain 2
         case 2:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = 1;
                 setSpawnPoint(MOUNTAIN_2_SPAWN_POINT_6);
             }
             
             break;
 
+        // bridge out sign
         case 17:
 
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
 
-                showTextBox(1, SHOP_TEXT_INDEX, 0xAB, 0, 2);
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 171, 0, 2);
                 result = 1;
-            
+
             }
 
             break;
@@ -3615,7 +3704,7 @@ u8 handleTopOfMountain1LevelInteractions(u16 mapIndex, u8 levelInteractionIndex)
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {  
 
-                if (!checkDailyEventBit(0x28)) {
+                if (!checkDailyEventBit(DAY_CONSUMING_CUTSCENE)) {
 
                     if (gPlayer.heldItem == 0) {
                         if (-48.0f <= entities[ENTITY_PLAYER].coordinates.x && entities[ENTITY_PLAYER].coordinates.x < -40.0f) {
@@ -3632,10 +3721,11 @@ u8 handleTopOfMountain1LevelInteractions(u16 mapIndex, u8 levelInteractionIndex)
 
             break;
         
+        // hot springs sign
         case 20:
 
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
-                showTextBox(1, SHOP_TEXT_INDEX, 0xAE, 0, 2);
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 174, 0, 2);
                 result = 1;
             }
 
@@ -3647,31 +3737,31 @@ u8 handleTopOfMountain1LevelInteractions(u16 mapIndex, u8 levelInteractionIndex)
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleMoonMountainLevelInteractions);
-
 bool handleMoonMountainLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     bool result = FALSE;
 
     switch (levelInteractionIndex) {
 
+        // exit to mountain 2
         case 1:
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) { 
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) { 
                 result = TRUE;
                 setSpawnPoint(MOUNTAIN_2_SPAWN_POINT_5);                
             }
             break;
 
+        // dumpling house entrance
         case 2:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
-                if (checkDailyEventBit(0x28) || checkDailyEventBit(FESTIVAL)) {
-                    showTextBox(1, SHOP_TEXT_INDEX, 0x168, 0, 2);
+                if (checkDailyEventBit(DAY_CONSUMING_CUTSCENE) || checkDailyEventBit(FESTIVAL)) {
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 360, 0, 2);
                     result = TRUE;
                 } else {
                     result = TRUE;
                     levelInteractionsInfo.mapAdditionsIndex = 0;
-                    setSpawnPoint(0x4A);                
+                    setSpawnPoint(DUMPLING_HOUSE_SPAWN_POINT_1);                
                 }
                 
                 levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;
@@ -3679,11 +3769,12 @@ bool handleMoonMountainLevelInteractions(u16 mapIndex, u8 levelInteractionIndex)
 
             break;        
 
+        // sign
         case 16:
             
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
-                showTextBox(1, SHOP_TEXT_INDEX, 0xB1, 0, 2);
-                result = TRUE;            
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 177, 0, 2);
+                result = TRUE;
             }
 
             break;
@@ -3693,8 +3784,6 @@ bool handleMoonMountainLevelInteractions(u16 mapIndex, u8 levelInteractionIndex)
     return result;
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleRoadLevelInteractions);
 
 bool handleRoadLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
@@ -3702,93 +3791,98 @@ bool handleRoadLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     switch (levelInteractionIndex) {
 
+        // exit to farm
         case 1:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
-                setSpawnPoint(0x1);
+                setSpawnPoint(FARM_SPAWN_POINT_2);
             }
             
             break;
 
-
+        // exit to ranch
         case 2:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
-                setSpawnPoint(0x29);
+                setSpawnPoint(RANCH_SPAWN_POINT_1);
             }
             
             break;
 
-
+        // exit to vineyard
         case 3:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
-                setSpawnPoint(0x2E);
+                setSpawnPoint(VINEYARD_SPAWN_POINT_1);
             }
             
             break;
 
+        // exit to village 1
         case 4:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
-                setSpawnPoint(0x32);
+                setSpawnPoint(VILLAGE_1_SPAWN_POINT_1);
             }
             
             break;
 
-
+        // exit to village 2
         case 5:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
-                setSpawnPoint(0x3E);
+                setSpawnPoint(VILLAGE_2_SPAWN_POINT_1);
             }
             
             break;
 
-
+        // exit to mountain 1
         case 6:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
                 setSpawnPoint(MOUNTAIN_1_SPAWN_POINT_1);
             }
             
             break;
 
+        // vineyard sign
         case 16:
 
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
 
-                showTextBox(1, SHOP_TEXT_INDEX, 0xB4, 0, 2);
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 180, 0, 2);
                 result = TRUE;
-            
+
             }
 
             break;
 
+        // ranch sign
         case 17:
 
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
 
-                showTextBox(1, SHOP_TEXT_INDEX, 0xB6, 0, 2);
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 182, 0, 2);
                 result = TRUE;
-            
+
             }
 
             break;
 
+        // village sign
         case 18:
 
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
 
-                showTextBox(1, SHOP_TEXT_INDEX, 0xB7, 0, 2);
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 183, 0, 2);
                 result = TRUE;
-            
+
             }
 
             break;
@@ -3798,8 +3892,6 @@ bool handleRoadLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
     return result;
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleCarpenterHutLevelInteractions);
 
 bool handleCarpenterHutLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
@@ -3807,36 +3899,39 @@ bool handleCarpenterHutLevelInteractions(u16 mapIndex, u8 levelInteractionIndex)
     
     switch (levelInteractionIndex) {
         
+        // exit to mountain 2
         case 1:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
                 setSpawnPoint(MOUNTAIN_2_SPAWN_POINT_4);
             } 
         
             break;
 
+        // house extensions selection
         case 16:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
 
-                if (!checkDailyEventBit(8)) {
+                if (!checkDailyEventBit(HOUSE_EXTENSION_SELECTED)) {
                     pauseGameplay();
                     loadOverlayScreen(1, HOME_EXTENSIONS_SELECT_LOAD);
                     result = TRUE;
                 } else {
-                    showTextBox(0, SHOP_TEXT_INDEX, 0x6E, 0, 0);
+                    showTextBox(0, LEVEL_INTERACTIONS_TEXT_INDEX, 110, 0, 0);
                     result = TRUE;
-                }     
+                }
             
             }  
 
             break;
 
+        // tools
         case 17:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-                showTextBox(0, SHOP_TEXT_INDEX, 0x91, 0, 0);
+                showTextBox(0, LEVEL_INTERACTIONS_TEXT_INDEX, 145, 0, 0);
                 result = TRUE;
             }
 
@@ -3847,17 +3942,16 @@ bool handleCarpenterHutLevelInteractions(u16 mapIndex, u8 levelInteractionIndex)
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleDumplingHouseLevelInteractions);
-
 bool handleDumplingHouseLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     bool result = FALSE;
 
     switch (levelInteractionIndex) {
 
+        // exit to moon mountain
         case 1:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
                 setSpawnPoint(MOON_MOUNTAIN_SPAWN_POINT_2);
             }
@@ -3870,43 +3964,44 @@ bool handleDumplingHouseLevelInteractions(u16 mapIndex, u8 levelInteractionIndex
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleCaveLevelInteractions);
-
 bool handleCaveLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     bool result = FALSE;
 
     switch (levelInteractionIndex) {
 
+        // exit to mountain 2
         case 1:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) { 
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) { 
                 result = TRUE;
                 setSpawnPoint(MOUNTAIN_2_SPAWN_POINT_2);                
             }
 
             break;
 
+        // harvest sprite cave entrance
         case 2:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
-                if (checkDailyEventBit(0x28) || checkDailyEventBit(FESTIVAL)) {
-                    showTextBox(1, SHOP_TEXT_INDEX, 0x168, 0, 2);
+                if (checkDailyEventBit(DAY_CONSUMING_CUTSCENE) || checkDailyEventBit(FESTIVAL)) {
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 360, 0, 2);
                     result = TRUE;
                 } else {
                     result = TRUE;
-                    setSpawnPoint(0x6D);
+                    setSpawnPoint(HARVEST_SPRITE_CAVE_SPAWN_POINT_1);
                 }
             }
 
             break;
 
+        // mine entrance
         case 3:
 
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
-                showTextBox(1, SHOP_TEXT_INDEX, 0xB2, 0, 2);
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 178, 0, 2);
                 result = TRUE;
-                levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;        
+                levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;
             }
 
             break;
@@ -3916,58 +4011,60 @@ bool handleCaveLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleHarvestSpriteCaveLevelInteractions);
-
 bool handleHarvestSpriteCaveLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     bool result = FALSE;
 
     switch (levelInteractionIndex) {
 
+        // exit to cave
         case 1:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) { 
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) { 
                 result = TRUE;
-                setSpawnPoint(0x46);                
+                setSpawnPoint(CAVE_SPAWN_POINT_2);                
             }
 
             break;
 
+        // tools
         case 16:
 
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
                 if (getRandomNumberInRange(0, 1)) {
-                    showTextBox(1, SHOP_TEXT_INDEX, 0x94, 0, 2);
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 148, 0, 2);
                     result = TRUE;
                 } else {
-                    showTextBox(1, SHOP_TEXT_INDEX, 0x95, 0, 2);
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 149, 0, 2);
                     result = TRUE;         
                 }
             }
 
             break;
 
+        // bunk bed
         case 17:
 
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {  
-                showTextBox(1, SHOP_TEXT_INDEX, 0x9D, 0, 2);
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 157, 0, 2);
                 result = TRUE;
             }
 
             break;
 
+        // little hole
         case 18:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
 
-                if (checkDailyEventBit(0x28) || checkDailyEventBit(FESTIVAL)) {
-                    showTextBox(1, SHOP_TEXT_INDEX, 0x168, 0, 2);
+                if (checkDailyEventBit(DAY_CONSUMING_CUTSCENE) || checkDailyEventBit(FESTIVAL)) {
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 360, 0, 2);
                     result = TRUE;
                 } else if (getRandomNumberInRange(0, 1)) {
-                    showTextBox(1, SHOP_TEXT_INDEX, 0x98, 0, 2);
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 152, 0, 2);
                     result = TRUE;
                 } else {
-                    showTextBox(1, SHOP_TEXT_INDEX, 0x99, 0, 2);
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 153, 0, 2);
                     result = TRUE;
                 }
                 
@@ -3981,19 +4078,18 @@ bool handleHarvestSpriteCaveLevelInteractions(u16 mapIndex, u8 levelInteractionI
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleMineLevelInteractions);
-
 bool handleMineLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     bool result = FALSE;
 
     switch (levelInteractionIndex) {
         
+        // exit to cave
         case 1:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
-                setSpawnPoint(71);
+                setSpawnPoint(CAVE_SPAWN_POINT_3);
             }
 
             break;
@@ -4004,17 +4100,16 @@ bool handleMineLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handlePondLevelInteractions);
-
 bool handlePondLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
     
     bool result = FALSE;
 
     switch (levelInteractionIndex) {
         
+        // exit to mountain 2
         case 1:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) { 
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) { 
                 result = TRUE;
                 setSpawnPoint(MOUNTAIN_2_SPAWN_POINT_3);                
             }
@@ -4027,34 +4122,34 @@ bool handlePondLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleVineyardLevelInteractions);
-
 bool handleVineyardLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     bool result = FALSE;
 
     switch (levelInteractionIndex) {
 
+        // exit to vineyard
         case 1:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
                 setSpawnPoint(ROAD_SPAWN_POINT_3);
             }
             
             break;
 
+        // vineyard house entrance
         case 2:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
                 
-                if (checkDailyEventBit(0x28) || checkDailyEventBit(FESTIVAL)) { 
-                    showTextBox(1, SHOP_TEXT_INDEX, 0x168, 0, 2);
+                if (checkDailyEventBit(DAY_CONSUMING_CUTSCENE) || checkDailyEventBit(FESTIVAL)) { 
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 360, 0, 2);
                     result = TRUE;
                 } else {
                     levelInteractionsInfo.mapAdditionsIndex = 0;
                     result = TRUE;
-                    setSpawnPoint(0x51);
+                    setSpawnPoint(VINEYARD_HOUSE_SPAWN_POINT_2);
                 }
                 
                 levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;
@@ -4063,17 +4158,18 @@ bool handleVineyardLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
         
             break;
 
+        // vineyard cellar entrance
         case 3:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
                 
-                if (checkDailyEventBit(0x28) || checkDailyEventBit(FESTIVAL)) { 
-                    showTextBox(1, SHOP_TEXT_INDEX, 0x168, 0, 2);
+                if (checkDailyEventBit(DAY_CONSUMING_CUTSCENE) || checkDailyEventBit(FESTIVAL)) { 
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 360, 0, 2);
                     result = TRUE;
                 } else {
                     levelInteractionsInfo.mapAdditionsIndex = 1;
                     result = TRUE;
-                    setSpawnPoint(0x53);
+                    setSpawnPoint(VINEYARD_CELLAR_SPAWN_POINT_1);
                 }
                 
                 levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;
@@ -4087,8 +4183,6 @@ bool handleVineyardLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
     return result;
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleVineyardHouseLevelInteractions);
 
 bool handleVineyardHouseLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
@@ -4096,39 +4190,41 @@ bool handleVineyardHouseLevelInteractions(u16 mapIndex, u8 levelInteractionIndex
 
     switch (levelInteractionIndex) {
 
+        // karen room entrance
         case 1:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) { 
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) { 
                 result = TRUE;
-                setSpawnPoint(0x52);                
+                setSpawnPoint(KAREN_ROOM_SPAWN_POINT_1);                
             }
 
             break;
 
+        // exit to vineyard
         case 2:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) { 
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) { 
                 result = TRUE;
-                setSpawnPoint(0x2F);                
+                setSpawnPoint(VINEYARD_SPAWN_POINT_2);                
             }
 
             break;
 
+        // stove
         case 17:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
-                showTextBox(1, SHOP_TEXT_INDEX, 0xCF, 0, 2);
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 207, 0, 2);
                 result = TRUE;
             }
 
             break;
+
     }
     
     return result;
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleKarenRoomLevelInteractions);
 
 bool handleKarenRoomLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
@@ -4136,13 +4232,14 @@ bool handleKarenRoomLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
     
     switch (levelInteractionIndex) {
 
+        // exit to vineyard house
         case 1:
         
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
 
-                if (gPlayer.direction == SOUTHEAST) { 
+                if (gPlayer.direction == DIRECTION_E) { 
                     result = TRUE;
-                    setSpawnPoint(0x50);
+                    setSpawnPoint(VINEYARD_HOUSE_SPAWN_POINT_1);
                 }
 
             }
@@ -4154,8 +4251,6 @@ bool handleKarenRoomLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
     return result;
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleVineyardCellarLevelInteractions);
 
 bool handleVineyardCellarLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
@@ -4163,38 +4258,42 @@ bool handleVineyardCellarLevelInteractions(u16 mapIndex, u8 levelInteractionInde
     
     switch (levelInteractionIndex) {
 
+        // exit to vineyard
         case 1:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
-                setSpawnPoint(0x30);
+                setSpawnPoint(VINEYARD_SPAWN_POINT_3);
             }
             break;
 
+        // stairs to basement
          case 2:
 
-             if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) { 
-                 if (EAST < gPlayer.direction && gPlayer.direction < (MAX_DIRECTIONS + 1) || gPlayer.direction == EAST) {
+             if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) { 
+                 if (DIRECTION_NE < gPlayer.direction && gPlayer.direction < (MAX_DIRECTIONS + 1) || gPlayer.direction == DIRECTION_NE) {
                     result = TRUE;
-                    setSpawnPoint(0x55);
+                    setSpawnPoint(VINEYARD_CELLAR_BASEMENT_SPAWN_POINT_1);
                  }
              }
 
             break;     
 
+        // press barrel
         case 16:
 
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {            
-                showTextBox(1, SHOP_TEXT_INDEX, 0xD2, 0, 2);
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 210, 0, 2);
                 result = TRUE;
-            }          
+            }
 
             break;
 
+        // machine
         case 17:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
-                showTextBox(1, SHOP_TEXT_INDEX, 0xD3, 0, 2);
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 211, 0, 2);
                 result = TRUE;
             }
             break;
@@ -4204,8 +4303,6 @@ bool handleVineyardCellarLevelInteractions(u16 mapIndex, u8 levelInteractionInde
     return result;
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleVineyardCellarBasementLevelInteractions);
 
 bool handleVineyardCellarBasementLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
@@ -4213,19 +4310,21 @@ bool handleVineyardCellarBasementLevelInteractions(u16 mapIndex, u8 levelInterac
 
     switch (levelInteractionIndex) {
 
+        // stairs to upper cellar
         case 1:
             
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) { 
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) { 
                 result = TRUE;
-                setSpawnPoint(0x54);
+                setSpawnPoint(VINEYARD_CELLAR_SPAWN_POINT_2);
             }
 
             break;
 
+        // wine rack
         case 16:
 
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
-                showTextBox(1, SHOP_TEXT_INDEX, 0xD4, 0, 2);            
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 212, 0, 2);
                 result = TRUE;
             }
 
@@ -4236,81 +4335,84 @@ bool handleVineyardCellarBasementLevelInteractions(u16 mapIndex, u8 levelInterac
     return result;
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleRaceTrackLevelInteractions);
 
 bool handleRaceTrackLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     bool result = FALSE; 
     
     switch (levelInteractionIndex) {
+        
+        // exit to square
         case 1:
             result = TRUE;
-            setSpawnPoint(0x62);
+            setSpawnPoint(SQUARE_SPAWN_POINT_2);
             break;
+        
+        // stall
         case 16:
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
                 if (gPlayer.heldItem == 0) {
-                    if (checkDailyEventBit(0x41)) {
-                        // show pink overlay message
-                        showPinkOverlayText(0xB);
+                    if (checkDailyEventBit(HORSE_RACE)) {
+                        showDialogueTextBox(DIALOGUE_MENU_HORSE_RACE_STALL);
                     } else {
-                        // show pink overlay message
-                        showPinkOverlayText(0xC);
+                        showDialogueTextBox(DIALOGUE_MENU_DOG_RACE_STALL);
                     }
                     result = TRUE;
                 }            
             }
             break;
+
     }
     
     return result;
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleRanchLevelInteractions);
-
-// FIXME: gotos
 bool handleRanchLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     bool result = FALSE;
     
     switch (levelInteractionIndex) {
 
+        // exit to road
         case 1:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
                 setSpawnPoint(ROAD_SPAWN_POINT_2);
             }
 
             break;
         
+        // exit to beach
         case 2:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
-                setSpawnPoint(0x28);
+                setSpawnPoint(BEACH_SPAWN_POINT_2);
             }
 
             break;
         
+        // ranch store entrance
         case 3:
             
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
                 
-                if (!checkDailyEventBit(0x28) && !checkDailyEventBit(FESTIVAL)) {
+                if (!checkDailyEventBit(DAY_CONSUMING_CUTSCENE) && !checkDailyEventBit(FESTIVAL)) {
 
                      if (!(gSeason == AUTUMN && gDayOfMonth == 3)) { 
                         levelInteractionsInfo.mapAdditionsIndex = 2;
                         result = TRUE;
-                        setSpawnPoint(0x4B);
+                        setSpawnPoint(RANCH_STORE_SPAWN_POINT_1);
                      } else {
                         result = TRUE;
-                        goto label;
+                        showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 360, 0, 2);
+                        result = TRUE;
                      }
                      
                 } else {
-                    goto label;
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 360, 0, 2);
+                    result = TRUE;
                 }
                 
                 levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;
@@ -4319,17 +4421,18 @@ bool handleRanchLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
             
             break;
         
+        // ranch house entrance
         case 4:
             
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
                 
-                if (checkDailyEventBit(0x28) || checkDailyEventBit(FESTIVAL)) { 
-                    showTextBox(1, SHOP_TEXT_INDEX, 0x168, 0, 2);
+                if (checkDailyEventBit(DAY_CONSUMING_CUTSCENE) || checkDailyEventBit(FESTIVAL)) { 
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 360, 0, 2);
                     result = TRUE;
                 } else {
                     levelInteractionsInfo.mapAdditionsIndex = 1;
                     result = TRUE;
-                    setSpawnPoint(0x4E);
+                    setSpawnPoint(RANCH_HOUSE_SPAWN_POINT_1);
                 }
                 
                 levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;
@@ -4338,19 +4441,19 @@ bool handleRanchLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
             
             break;
         
+        // ranch barn entrance
         case 5:
             
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
 
-                if (checkDailyEventBit(0x28) || checkDailyEventBit(FESTIVAL)) {
-label:
-                    showTextBox(1, SHOP_TEXT_INDEX, 0x168, 0, 2);
+                if (checkDailyEventBit(DAY_CONSUMING_CUTSCENE) || checkDailyEventBit(FESTIVAL)) {
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 360, 0, 2);
                     result = TRUE;
 
                 } else {
                     levelInteractionsInfo.mapAdditionsIndex = 0;
                     result = TRUE;
-                    setSpawnPoint(0x4F);
+                    setSpawnPoint(RANCH_BARN_SPAWN_POINT_1);
                 }
                 
                 levelInteractionsInfo.interactionSfxIndex = DOOR_OPEN_SFX;
@@ -4364,8 +4467,6 @@ label:
     return result;
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleRanchHouseLevelInteractions);
 
 bool handleRanchHouseLevelInteractions(u16 mapIndex, u8 collisionIndex) {
 
@@ -4373,37 +4474,41 @@ bool handleRanchHouseLevelInteractions(u16 mapIndex, u8 collisionIndex) {
 
     switch (collisionIndex) {
 
+        // exit to ranch
         case 1: 
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
                 setSpawnPoint(RANCH_SPAWN_POINT_4);
             }
 
             break;
 
+        // tools
         case 16:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
-                showTextBox(1, SHOP_TEXT_INDEX, 0x95, 0, 2);
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 149, 0, 2);
                 result = TRUE;
             }
 
             break;
 
+        // bed
         case 17:
 
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
-                showTextBox(1, SHOP_TEXT_INDEX, 0x93, 0, 2);
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 147, 0, 2);
                 result = TRUE;
             }
 
             break;
 
+        // stove
         case 18:
 
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
-                showTextBox(1, SHOP_TEXT_INDEX, 0xD0, 0, 2);
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 208, 0, 2);
                 result = TRUE;
             }
 
@@ -4412,8 +4517,6 @@ bool handleRanchHouseLevelInteractions(u16 mapIndex, u8 collisionIndex) {
     
     return result;
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleRanchStoreLevelInteractions);
 
 u8 handleRanchStoreLevelInteractions(u16 mapIndex, u8 collisionIndex) {
 
@@ -4424,7 +4527,7 @@ u8 handleRanchStoreLevelInteractions(u16 mapIndex, u8 collisionIndex) {
         // exit
         case 1:
         
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = 1;
                 setSpawnPoint(RANCH_SPAWN_POINT_3);
             }
@@ -4435,8 +4538,8 @@ u8 handleRanchStoreLevelInteractions(u16 mapIndex, u8 collisionIndex) {
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
 
-                if (checkDailyEventBit(0x28) || checkDailyEventBit(FESTIVAL)) {
-                    showTextBox(1, SHOP_TEXT_INDEX, 0x168, 0, 2);
+                if (checkDailyEventBit(DAY_CONSUMING_CUTSCENE) || checkDailyEventBit(FESTIVAL)) {
+                    showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 360, 0, 2);
                     result = 1;
                 } else {
                     levelInteractionsInfo.mapAdditionsIndex = 0;
@@ -4449,35 +4552,36 @@ u8 handleRanchStoreLevelInteractions(u16 mapIndex, u8 collisionIndex) {
 
             break;
 
-        // the following seem like unused items/interactions
+        // doug interaction
         case 16:
 
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A) && gPlayer.direction == NORTHWEST) {
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A) && gPlayer.direction == DIRECTION_W) {
 
-                    if (!checkDailyEventBit(1) && !checkDailyEventBit(2)) {
+                    if (!checkDailyEventBit(PURCHASED_ANIMAL) && !checkDailyEventBit(ANIMAL_SALE_IN_PROGRESS)) {
 
-                         if (checkDailyEventBit(5)) {
-                            showTextBox(0, SHOP_TEXT_INDEX, 357, 0, 0);
+                         if (checkDailyEventBit(DAILY_ANIMAL_TRANSACTION)) {
+                            showTextBox(0, LEVEL_INTERACTIONS_TEXT_INDEX, 357, 0, 0);
                         } else {
-                            // show pink overlay message
-                            showPinkOverlayText(5);  
+                            showDialogueTextBox(DIALOGUE_MENU_RANCH_STORE_ANIMALS_ROOT);
                         }
 
                     } else {
-                        showTextBox(0, SHOP_TEXT_INDEX, 356, 0, 0);
+                        showTextBox(0, LEVEL_INTERACTIONS_TEXT_INDEX, 356, 0, 0);
                     }
 
                 result = 1;   
+
             } 
 
             break;
 
+        // chicken feed slot
         case 17:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
                 if (gPlayer.heldItem == 0) {
-                    if (checkShopItemShouldBeDisplayed(0x1A)) {
-                        handlePickUpShopItem(0x1A);
+                    if (checkShopItemShouldBeDisplayed(RANCH_STORE_CHICKEN_FEED_ITEM)) {
+                        handlePickUpShopItem(RANCH_STORE_CHICKEN_FEED_ITEM);
                     }
                     result = 2;
                 }
@@ -4485,12 +4589,13 @@ u8 handleRanchStoreLevelInteractions(u16 mapIndex, u8 collisionIndex) {
 
             break;
 
+        // fodder slot
         case 18:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
                 if (gPlayer.heldItem == 0) {
-                    if (checkShopItemShouldBeDisplayed(0x1D)) {
-                        handlePickUpShopItem(0x1D);
+                    if (checkShopItemShouldBeDisplayed(RANCH_STORE_FODDER_ITEM)) {
+                        handlePickUpShopItem(RANCH_STORE_FODDER_ITEM);
                     }
                     result = 2;
                 }
@@ -4498,12 +4603,13 @@ u8 handleRanchStoreLevelInteractions(u16 mapIndex, u8 collisionIndex) {
 
             break;
 
+        // miracle potion slot
         case 19:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
                 if (gPlayer.heldItem == 0) {
-                     if (checkShopItemShouldBeDisplayed(0x1B)) {
-                        handlePickUpShopItem(0x1B);
+                     if (checkShopItemShouldBeDisplayed(RANCH_STORE_MIRACLE_POTION_ITEM)) {
+                        handlePickUpShopItem(RANCH_STORE_MIRACLE_POTION_ITEM);
                     }
                     result = 2;
                 }
@@ -4511,12 +4617,13 @@ u8 handleRanchStoreLevelInteractions(u16 mapIndex, u8 collisionIndex) {
 
             break;
 
+        // cow medicine slot
         case 20:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
                 if (gPlayer.heldItem == 0) {
-                     if (checkShopItemShouldBeDisplayed(0x1C)) {
-                        handlePickUpShopItem(0x1C);
+                     if (checkShopItemShouldBeDisplayed(RANCH_STORE_COW_MEDICINE_ITEM)) {
+                        handlePickUpShopItem(RANCH_STORE_COW_MEDICINE_ITEM);
                     }
                     result = 2;
                 }
@@ -4524,10 +4631,11 @@ u8 handleRanchStoreLevelInteractions(u16 mapIndex, u8 collisionIndex) {
 
             break;
 
+        // animal notebook
         case 21:
 
-            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
-                showMessageBox(1, 0x3D, 0x29, 0x80, 2);
+            if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) {
+                showMessageBox(1, DIALOGUE_SHOP, DIALOGUE_SHOP_ANIMAL_NOTEBOOK, 0x80, 2);
                 result = 1;
             }
 
@@ -4539,27 +4647,27 @@ u8 handleRanchStoreLevelInteractions(u16 mapIndex, u8 collisionIndex) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleAnnRoomLevelInteractions);
-
 bool handleAnnRoomLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     bool result = FALSE; 
 
     switch (levelInteractionIndex) {
 
+        // exit to ranch store
         case 1:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
-                setSpawnPoint(0x4C);
+                setSpawnPoint(RANCH_STORE_SPAWN_POINT_2);
             }
 
             break;
 
+        // stove
         case 19:
 
             if (checkButtonPressed(CONTROLLER_1, BUTTON_A)) { 
-                showTextBox(1, SHOP_TEXT_INDEX, 0xCF, 0, 2);
+                showTextBox(1, LEVEL_INTERACTIONS_TEXT_INDEX, 207, 0, 2);
                 result = TRUE;
             }
 
@@ -4571,16 +4679,15 @@ bool handleAnnRoomLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleRanchBarnLevelInteractions);
-
 bool handleRanchBarnLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     bool result = FALSE;    
 
+    // exit to ranch
     if (levelInteractionIndex == 1) {
-        if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+        if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
             result = TRUE;
-            setSpawnPoint(0x2D);
+            setSpawnPoint(RANCH_SPAWN_POINT_5);
         }
     }
     
@@ -4588,22 +4695,22 @@ bool handleRanchBarnLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/levelInteractions", handleBeachLevelInteractions);
-
 bool handleBeachLevelInteractions(u16 mapIndex, u8 levelInteractionIndex) {
 
     bool result = FALSE;    
     
     switch (levelInteractionIndex) {
 
+        // unused
         case 1:
             break;
 
+        // exit to ranch
         case 2:
 
-            if (!checkDailyEventBit(FESTIVAL_DAY_TYPE_1)) {
+            if (!checkDailyEventBit(FESTIVAL_DAY_INTERACTION_GUARD)) {
                 result = TRUE;
-                setSpawnPoint(0x2A);
+                setSpawnPoint(RANCH_SPAWN_POINT_2);
             }
 
             break;

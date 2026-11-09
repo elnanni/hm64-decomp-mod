@@ -29,14 +29,52 @@ BUILTIN_CONSTANTS = {
 
     'ENTITY_PLAYER': 0,
     
-    'SOUTHWEST': 0, 
-    'WEST': 1, 
-    'NORTHWEST': 2, 
-    'NORTH': 3, 
-    'NORTHEAST': 4, 
-    'EAST': 5, 
-    'SOUTHEAST': 6, 
-    'SOUTH': 7, 
+    # World-compass facing direction (CW from S). Use with opcodes that route
+    # through convertWorldDirectionToScreenDirection at runtime (ENTITY_WALK,
+    # entity facing-direction commands). Source of truth: src/system/graphic.h.
+    'DIRECTION_S':  0,
+    'DIRECTION_SW': 1,
+    'DIRECTION_W':  2,
+    'DIRECTION_NW': 3,
+    'DIRECTION_N':  4,
+    'DIRECTION_NE': 5,
+    'DIRECTION_E':  6,
+    'DIRECTION_SE': 7,
+
+    # Legacy direction names (calibrated to the canonical SW iso view).
+    # Retained for backward compatibility with un-swept .cutscene files;
+    # prefer DIRECTION_* in new content.
+    'SOUTHWEST': 0,
+    'WEST':      1,
+    'NORTHWEST': 2,
+    'NORTH':     3,
+    'NORTHEAST': 4,
+    'EAST':      5,
+    'SOUTHEAST': 6,
+    'SOUTH':     7,
+
+    # Map-rotation index (CCW from S). Use with SET_ASSET_ROTATION (which
+    # calls setInitialMapRotation at runtime). Labels name the iso view the
+    # rotation produces (where world-S projects on screen). MAP_ROTATION_SW
+    # is the canonical Harvest Moon angle.
+    'MAP_ROTATION_S':  0,
+    'MAP_ROTATION_SE': 1,
+    'MAP_ROTATION_E':  2,
+    'MAP_ROTATION_NE': 3,
+    'MAP_ROTATION_N':  4,
+    'MAP_ROTATION_NW': 5,
+    'MAP_ROTATION_W':  6,
+    'MAP_ROTATION_SW': 7,
+
+    # Legacy short names; retained for backward compatibility.
+    'MAP_ROT_S':  0,
+    'MAP_ROT_SE': 1,
+    'MAP_ROT_E':  2,
+    'MAP_ROT_NE': 3,
+    'MAP_ROT_N':  4,
+    'MAP_ROT_NW': 5,
+    'MAP_ROT_W':  6,
+    'MAP_ROT_SW': 7,
 
     "BUTTON_C_RIGHT": 0x0001,
     "BUTTON_C_LEFT": 0x0002,
@@ -148,12 +186,12 @@ BUILTIN_CONSTANTS = {
     'ENTITY_ASSET_HORSE_UNBRIDLED': 88,
     'ENTITY_ASSET_HORSE_RACER': 89,
     'ENTITY_ASSET_EMPTY_ENTITY': 90,
-    'ENTITY_ASSET_HOLDABLE_ITEMS_1': 91,
+    'ENTITY_ASSET_EXPRESSION_BUBBLES': 91,
     'ENTITY_ASSET_EXTRA_FESTIVAL_ITEMS': 92,
-    'ENTITY_ASSET_HOLDABLE_ITEMS_2': 93,
-    'ENTITY_ASSET_HOLDABLE_ITEMS_3': 94,
+    'ENTITY_ASSET_STATIC_ITEM': 93,
+    'ENTITY_ASSET_ITEM_IMPACT': 94,
     'ENTITY_ASSET_TOOLS': 95,
-    'ENTITY_ASSET_HOLDABLE_ITEMS_4': 96,
+    'ENTITY_ASSET_TOOL_EFFECT': 96,
     'ENTITY_ASSET_MARIA_HARRIS_BABY': 97,
     'ENTITY_ASSET_POPURI_GRAY_BABY': 98,
     'ENTITY_ASSET_ELLI_JEFF_BABY': 99,
@@ -365,13 +403,15 @@ BUILTIN_CONSTANTS = {
     'NPC_HARVEST_SPRITE_3': 0x23,
     'NPC_SYDNEY': 0x24,
     'NPC_BARLEY': 0x25,
-    'NPC_GOURMET_JUDGE': 0x26,
-    'NPC_PHOTOGRAPHER': 0x27,
+    'NPC_MRS_MANA': 0x26,
+    'NPC_JOHN': 0x27,
+    'NPC_GOURMET_JUDGE': 0x28,
     'NPC_MARIA_HARRIS_BABY': 0x29,
     'NPC_POPURI_GRAY_BABY': 0x2A,
     'NPC_ELLI_JEFF_BABY': 0x2B,
     'NPC_ANN_CLIFF_BABY': 0x2C,
     'NPC_KAREN_KAI_BABY': 0x2D,
+    'NPC_ENTOMOLOGIST': 0x2E,
 
     # Short NPC aliases (for array indexing convenience)
     'MARIA': 0,
@@ -432,7 +472,7 @@ BUILTIN_CONSTANTS = {
     'MIDWIFE_TEXT_INDEX': 42,
     'PASTOR_TEXT_INDEX': 43,
     'SAIBARA_TEXT_INDEX': 44,
-    'CUTSCENES_1_TEXT_INDEX': 45,
+    'RANCH_CUTSCENES_TEXT_INDEX': 45,
     'FUNERAL_INTRO_TEXT_INDEX': 46,
     'DIALOGUE_47_TEXT_INDEX': 47,
     'DIALOGUE_48_TEXT_INDEX': 48,
@@ -446,7 +486,7 @@ BUILTIN_CONSTANTS = {
     'NEW_YEAR_FESTIVAL_TEXT_INDEX': 56,
     'SPIRIT_FESTIVAL_TEXT_INDEX': 57,
     'HORSE_RACE_TEXT_INDEX': 58,
-    'MARRIED_DIALOGUES_TEXT_INDEX': 59,
+    'VILLAGE1_CUTSCENES_TEXT_INDEX': 59,
     'DIALOGUE_60_TEXT_INDEX': 60,
     'VINEYARD_CUTSCENES_TEXT_INDEX': 61,
     'DIALOGUE_62_TEXT_INDEX': 62,
@@ -1023,7 +1063,6 @@ class CutsceneTranspiler:
         """Emit file header"""
 
         self._emit(f"# Auto-generated from cutscene DSL")
-        self._emit(f"# Do not edit manually")
         self._emit()
         # self._emit(f'.section .{self.bank_name}, "a"')
         # Use .data section for linker compatibility with binary object replacement

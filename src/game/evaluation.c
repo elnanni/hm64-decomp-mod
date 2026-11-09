@@ -3,10 +3,8 @@
 #include "game/cutscenes.h"
 #include "game/game.h"
 #include "game/gameStatus.h"
-#include "game/fieldObjects.h"
+#include "game/groundObjects.h"
 #include "game/npc.h"
-
-//INCLUDE_ASM("asm/nonmatchings/game/evaluation", calculateNPCAffectionScore);
 
 u16 calculateNPCAffectionScore(void) {
     
@@ -20,8 +18,6 @@ u16 calculateNPCAffectionScore(void) {
     return score;
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/evaluation", calculateHouseExtensionScore);
 
 u32 calculateHouseExtensionScore(void) {
 
@@ -49,8 +45,6 @@ u32 calculateHouseExtensionScore(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/evaluation", calculateGrassScore);
-
 u16 calculateGrassScore(void) {
     
     u8 j, i;
@@ -72,8 +66,6 @@ u16 calculateGrassScore(void) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/evaluation", calculateFieldScore);
-
 u16 calculateFieldScore(void) {
 
     u8 i;
@@ -92,9 +84,7 @@ u16 calculateFieldScore(void) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/evaluation", calculateShippingScore);
-
-u8 calculateShippingScore(void) {
+u32 calculateShippingScore(void) {
 
     u8 score = 0;
     

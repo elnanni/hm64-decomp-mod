@@ -11,85 +11,75 @@ u16 sceneNodeCounter;
 SceneNode sceneNodes[MAX_SCENE_NODES];
 SceneMatrices sceneMatrices[2];
 
-
-//INCLUDE_ASM("asm/nonmatchings/system/sceneGraph", initializeSceneNodes);
-
 void initializeSceneNodes(void) {
 
     u16 i;
 
     for (i = 0; i < MAX_SCENE_NODES; i++) {
-        sceneNodes[i].flags = 0;
-        sceneNodes[i].positions.x = 0;
-        sceneNodes[i].positions.y = 0;
-        sceneNodes[i].positions.z = 0;
-        sceneNodes[i].scaling.x = 0;
-        sceneNodes[i].scaling.y = 0;
-        sceneNodes[i].scaling.z = 0;
-        sceneNodes[i].rotation.x = 0;
-        sceneNodes[i].rotation.y = 0;
-        sceneNodes[i].rotation.z = 0;
+        SceneNode *sn = &sceneNodes[i];
+        sn->flags = 0;
+        sn->positions.x = 0;
+        sn->positions.y = 0;
+        sn->positions.z = 0;
+        sn->scaling.x = 0;
+        sn->scaling.y = 0;
+        sn->scaling.z = 0;
+        sn->rotation.x = 0;
+        sn->rotation.y = 0;
+        sn->rotation.z = 0;
     }
     
     resetSceneNodeCounter();
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/sceneGraph", resetSceneNodeCounter);
-
 void resetSceneNodeCounter(void) {
     sceneNodeCounter = 0;
 }
 
 // empty function
-void func_80029294(void) {}
-
-//INCLUDE_ASM("asm/nonmatchings/system/sceneGraph", addSceneNode);
+// void func_80029294(void) {}
 
 u16 addSceneNode(Gfx *dl, u16 flags) {
 
     u16 index = sceneNodeCounter;
+    SceneNode *sn = &sceneNodes[index];
 
-    sceneNodes[index].dl = dl;
-    sceneNodes[index].flags = flags | SCENE_NODE_ACTIVE;
-    
+    sn->dl = dl;
+    sn->flags = flags | SCENE_NODE_ACTIVE;
+
     sceneNodeCounter++;
-    
+
     return index;
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/sceneGraph", addSceneNodePosition);
-
 bool addSceneNodePosition(u16 index, f32 x, f32 y, f32 z) {
-    sceneNodes[index].positions.x = x;
-    sceneNodes[index].positions.y = y;
-    sceneNodes[index].positions.z = z;
+    SceneNode *sn = &sceneNodes[index];
+    sn->positions.x = x;
+    sn->positions.y = y;
+    sn->positions.z = z;
     return TRUE;
 }
-
-//INCLUDE_ASM("asm/nonmatchings/system/sceneGraph", addSceneNodeScaling);
 
 bool addSceneNodeScaling(u16 index, f32 x, f32 y, f32 z) {
-    sceneNodes[index].scaling.x = x;
-    sceneNodes[index].scaling.y = y;
-    sceneNodes[index].scaling.z = z;
+    SceneNode *sn = &sceneNodes[index];
+    sn->scaling.x = x;
+    sn->scaling.y = y;
+    sn->scaling.z = z;
     return TRUE;
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/sceneGraph", addSceneNodeRotation);
-
 bool addSceneNodeRotation(u16 index, f32 x, f32 y, f32 z) {
-    sceneNodes[index].rotation.x = x;
-    sceneNodes[index].rotation.y = y;
-    sceneNodes[index].rotation.z = z;
+    SceneNode *sn = &sceneNodes[index];
+    sn->rotation.x = x;
+    sn->rotation.y = y;
+    sn->rotation.z = z;
     return TRUE;
 }
 
 // empty function
-void func_800293B8(void) {}
-
-//INCLUDE_ASM("asm/nonmatchings/system/sceneGraph", renderSceneGraph);
+// void func_800293B8(void) {}
 
 Gfx* renderSceneGraph(Gfx* dl, SceneMatrices* matrices) {
 
@@ -107,9 +97,6 @@ Gfx* renderSceneGraph(Gfx* dl, SceneMatrices* matrices) {
     f32 cosYPrevious;
     
     f32 x, y, z;
-    f32 rotatedX;
-    f32 rotatedY;
-    f32 tempZ;
     
     gDPPipeSync(dl++);
     gDPSetCycleType(dl++, G_CYC_1CYCLE);
@@ -169,63 +156,60 @@ Gfx* renderSceneGraph(Gfx* dl, SceneMatrices* matrices) {
     }
 
     for (i = 0; i < MAX_SCENE_NODES; i++) {
-        
-        if (sceneNodes[i].flags & SCENE_NODE_ACTIVE) {
-        
-            if (sceneNodes[i].flags & SCENE_NODE_TRANSFORM_EXEMPT) {
+        SceneNode *sn = &sceneNodes[i];
 
-                vec = sceneNodes[i].positions;
-                
+        if (sn->flags & SCENE_NODE_ACTIVE) {
+
+            if (sn->flags & SCENE_NODE_TRANSFORM_EXEMPT) {
+
+                vec = sn->positions;
+
             } else {
-        
-                x = sceneNodes[i].positions.x;
-                y = sceneNodes[i].positions.y;
-                z = sceneNodes[i].positions.z;
-        
-                // FIXME: possibly don't need to use tempZ
-                rotatedX = (sceneNodes[i].positions.z * sinYCurrent) + (x * cosYCurrent);
-                tempZ = (sceneNodes[i].positions.z * cosYCurrent) - (x * sinYCurrent);
-                rotatedY = ((-tempZ) * sinXCurrent) + (y * cosXCurrent);
-        
-                vec.x = rotatedX;
-                vec.y = rotatedY;
-                vec.z = (tempZ * cosXCurrent) + (y * sinXCurrent);
-                       
+
+                x = sn->positions.x;
+                y = sn->positions.y;
+                z = sn->positions.z;
+
+                vec.x = (z * sinYCurrent) + (x * cosYCurrent);
+                vec.z = (z * cosYCurrent) - (x * sinYCurrent);
+                vec.y = ((-vec.z) * sinXCurrent) + (y * cosXCurrent);
+                vec.z = (vec.z * cosXCurrent) + (y * sinXCurrent);
+
             }
 
-            if (sceneNodes[i].flags & 0x80) {
-                guTranslate(&sceneNodes[i].translation, vec.x, vec.y, vec.z + 24.0f);
+            if (sn->flags & 0x80) {
+                guTranslate(&sn->translation, vec.x, vec.y, vec.z + 24.0f);
             } else {
-                guTranslate(&sceneNodes[i].translation, vec.x, vec.y, vec.z);
-            }
-            
-            gSPMatrix(dl++, OS_K0_TO_PHYSICAL(&sceneNodes[i].translation), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-
-            if (sceneNodes[i].flags & SCENE_NODE_UPDATE_ROTATION) {
-
-                guRotateRPY(&sceneNodes[i].rotationX, sceneNodes[i].rotation.x, 0.0f, 0.0f);
-                guRotateRPY(&sceneNodes[i].rotationY, 0.0f, sceneNodes[i].rotation.y, 0.0f);
-                guRotateRPY(&sceneNodes[i].rotationZ, 0.0f, 0.0f, sceneNodes[i].rotation.z);
-                
-                gSPMatrix(dl++, OS_K0_TO_PHYSICAL(&sceneNodes[i].rotationX), G_MTX_NOPUSH | G_MTX_MUL | G_MTX_MODELVIEW);
-                gSPMatrix(dl++, OS_K0_TO_PHYSICAL(&sceneNodes[i].rotationY), G_MTX_NOPUSH | G_MTX_MUL | G_MTX_MODELVIEW);
-                gSPMatrix(dl++, OS_K0_TO_PHYSICAL(&sceneNodes[i].rotationZ), G_MTX_NOPUSH | G_MTX_MUL | G_MTX_MODELVIEW);
-                
+                guTranslate(&sn->translation, vec.x, vec.y, vec.z);
             }
 
-            if (sceneNodes[i].flags & SCENE_NODE_UPDATE_SCALE) {
+            gSPMatrix(dl++, OS_K0_TO_PHYSICAL(&sn->translation), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
 
-                guScale(&sceneNodes[i].scale, sceneNodes[i].scaling.x, sceneNodes[i].scaling.y, sceneNodes[i].scaling.z);                
-                gSPMatrix(dl++, OS_K0_TO_PHYSICAL(&sceneNodes[i].scale), G_MTX_NOPUSH | G_MTX_MUL | G_MTX_MODELVIEW);
+            if (sn->flags & SCENE_NODE_UPDATE_ROTATION) {
+
+                guRotateRPY(&sn->rotationX, sn->rotation.x, 0.0f, 0.0f);
+                guRotateRPY(&sn->rotationY, 0.0f, sn->rotation.y, 0.0f);
+                guRotateRPY(&sn->rotationZ, 0.0f, 0.0f, sn->rotation.z);
+
+                gSPMatrix(dl++, OS_K0_TO_PHYSICAL(&sn->rotationX), G_MTX_NOPUSH | G_MTX_MUL | G_MTX_MODELVIEW);
+                gSPMatrix(dl++, OS_K0_TO_PHYSICAL(&sn->rotationY), G_MTX_NOPUSH | G_MTX_MUL | G_MTX_MODELVIEW);
+                gSPMatrix(dl++, OS_K0_TO_PHYSICAL(&sn->rotationZ), G_MTX_NOPUSH | G_MTX_MUL | G_MTX_MODELVIEW);
 
             }
- 
-            gSPDisplayList(dl++, OS_K0_TO_PHYSICAL(sceneNodes[i].dl));
-            
-            sceneNodes[i].flags = 0;
-            
+
+            if (sn->flags & SCENE_NODE_UPDATE_SCALE) {
+
+                guScale(&sn->scale, sn->scaling.x, sn->scaling.y, sn->scaling.z);
+                gSPMatrix(dl++, OS_K0_TO_PHYSICAL(&sn->scale), G_MTX_NOPUSH | G_MTX_MUL | G_MTX_MODELVIEW);
+
+            }
+
+            gSPDisplayList(dl++, OS_K0_TO_PHYSICAL(sn->dl));
+
+            sn->flags = 0;
+
         }
- 
+
     }
     
     return dl++;

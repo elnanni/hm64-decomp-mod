@@ -13,17 +13,33 @@ from typing import List, Tuple, Dict, Optional
 import numpy as np
 
 from ..common.rom import get_rom
-from ..data import MAP_ADDRESSES_CSV
+from ..data import MAP_ADDRESSES_CSV, MAP_ADDRESSES_JP_CSV
+
+# Active map-addresses CSV. Defaults to US; switch via set_region().
+_active_csv: Path = MAP_ADDRESSES_CSV
 
 # Cache for CSV data
 _csv_cache: Optional[List[Tuple[str, ...]]] = None
+
+
+def set_region(region: str) -> None:
+    """Select which region's map-address CSV the loaders use ('us' or 'jp')."""
+    global _active_csv
+    region = region.lower()
+    if region == 'us':
+        _active_csv = MAP_ADDRESSES_CSV
+    elif region == 'jp':
+        _active_csv = MAP_ADDRESSES_JP_CSV
+    else:
+        raise ValueError(f"Unknown region: {region!r} (expected 'us' or 'jp')")
+    clear_cache()
 
 
 def _load_csv_cache() -> List[Tuple[str, ...]]:
     """Load and cache CSV data."""
     global _csv_cache
     if _csv_cache is None:
-        with open(MAP_ADDRESSES_CSV, newline='', encoding='utf-8') as f:
+        with open(_active_csv, newline='', encoding='utf-8') as f:
             reader = csv.reader(f)
             _csv_cache = [tuple(row) for row in reader]
     return _csv_cache
@@ -40,50 +56,38 @@ def clear_cache():
     _csv_cache = None
 
 
-# Explicit area mappings for non-obvious cases
+# Explicit area mappings for non-obvious cases.
+# Keys MUST match the map names in map_addresses.csv (the authoritative source
+# iterated by get_all_map_addresses). Note that these differ from the splat
+# config's naming style (e.g. CSV has `annRoom`, splat has `annRoomMap`).
 _EXPLICIT_AREA_MAPPINGS = {
     # Ranch area
-    'annsRoom': 'ranch',
+    'annRoom': 'ranch',
     'ranchBarn': 'ranch',
     'ranchStore': 'ranch',
     'ranchHouse': 'ranch',
     # Bakery area
-    'ellisRoom': 'bakery',
+    'elliRoom': 'bakery',
     'bakery': 'bakery',
     # Flower shop area
-    'popurisRoom': 'flowerShop',
+    'popuriRoom': 'flowerShop',
     'flowerShop': 'flowerShop',
-    # Church (standalone)
-    'church': 'church',
-    # Souvenir shop (standalone)
-    'souvenirShop': 'souvenirShop',
-    # Rick's shop
-    'ricksShop': 'rickShop',
-    # Midwife
-    'midwifesHouse': 'midwife',
-    # Tavern (standalone)
-    'tavern': 'tavern',
-    # Library (standalone)
-    'library': 'library',
     # Mayor's house area
-    'mariasRoom': 'mayorsHouse',
-    'mayorsHouse': 'mayorsHouse',
+    'mariaRoom': 'mayorHouse',
+    'mayorHouse': 'mayorHouse',
+    # Vineyard area
+    'karenRoom': 'vineyard',
+    'vineyardHouse': 'vineyard',
+    'vineyardCellar': 'vineyard',
+    'vineyardCellar2': 'vineyard',
     # Potion shop area
     'potionShopBackroom': 'potionShop',
     'potionShop': 'potionShop',
     # Cave area
-    'spriteCave': 'cave',
     'harvestSpriteCave': 'cave',
     'cave': 'cave',
-    # Mine area
-    'emptyMine': 'mine',
+    # Mine (standalone)
     'mine': 'mine',
-    # Vineyard area
-    'karensRoom': 'vineyard',
-    'vineyardHouse': 'vineyard',
-    'vineyardCellar': 'vineyard',
-    'vineyardCellar1': 'vineyard',
-    'vineyardCellar2': 'vineyard',
     # Farm area (player's farm)
     'greenhouse': 'farm',
     'barn': 'farm',
@@ -92,15 +96,15 @@ _EXPLICIT_AREA_MAPPINGS = {
     'house': 'house',
     'kitchen': 'house',
     'bathroom': 'house',
-    # Carpenter/dumpling (standalone)
-    'carpentersHut': 'carpenterHut',
+    # Standalone buildings
+    'church': 'church',
+    'souvenirShop': 'souvenirShop',
+    'rickShop': 'rickShop',
+    'midwifeHouse': 'midwifeHouse',
+    'tavern': 'tavern',
+    'library': 'library',
     'carpenterHut': 'carpenterHut',
     'dumplingHouse': 'dumplingHouse',
-    # Empty/unknown
-    'emptyMap1': 'unknown',
-    'emptyMap2': 'unknown',
-    'emptyMap3': 'unknown',
-    'emptyMap4': 'unknown',
 }
 
 # Nested area patterns (mountain1, village2, etc.)
@@ -183,6 +187,26 @@ def get_map_area_path(map_name: str) -> str:
         return area
 
     return f"{area}/{variant}"
+
+
+def is_placeholder_map(row_idx: int, rows: List[Tuple[str, ...]]) -> bool:
+    """Return True when the map at ``row_idx`` has no asset data.
+
+    Placeholder maps are either:
+    - named with the "empty" prefix or the "end" marker
+    - smaller than 48 bytes (the minimum size of a 12-entry asset
+      offsets array). These are alias/unused slots like ``raceTrackSummer``
+      whose 16 zero bytes would otherwise be misread as asset offsets
+      pointing into the next map's data.
+    """
+    name = rows[row_idx][1]
+    if name.startswith("empty") or name == "end":
+        return True
+    if row_idx + 1 >= len(rows):
+        return True
+    start_addr = int(rows[row_idx][0], 16)
+    end_addr = int(rows[row_idx + 1][0], 16)
+    return (end_addr - start_addr) < 48
 
 
 def get_asset_offsets_array(row: Tuple[str, ...]) -> np.ndarray:

@@ -14,7 +14,7 @@
 
 #include "game/animals.h"
 #include "game/cutscenes.h"
-#include "game/fieldObjects.h"
+#include "game/groundObjects.h"
 #include "game/game.h"
 #include "game/gameAudio.h"
 #include "game/gameFile.h"
@@ -45,8 +45,6 @@ s16 D_80182D8C;
 s16 D_8018A062;
 s16 D_80237A20; 
 
-//INCLUDE_ASM("asm/nonmatchings/game/transition", mainGameLoopCallback);
-
 void mainGameLoopCallback(void) {
     
     // for debugging?
@@ -72,8 +70,6 @@ void mainGameLoopCallback(void) {
     checkButtonPressed(CONTROLLER_1, BUTTON_Z);
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/transition", launchIntroCutscene);
 
 // used by game.c
 inline void launchIntroCutscene(u16 cutsceneIndex, u16 spawnPoint, u8 arg2) {
@@ -108,21 +104,18 @@ inline void launchIntroCutscene(u16 cutsceneIndex, u16 spawnPoint, u8 arg2) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/transition", loadLevel);
-
 // arg0 = entering new location
 // called by map load callback, end of day callback, cutscene completion
 void loadLevel(u8 arg0) {
 
     u8 mapIndex;
-    u32 *ptr;
 
     gCutsceneCompletionFlags = 0;
     gCutsceneIndex = 0;
     gCutsceneFlags = 0;    
     
-    toggleDailyEventBit(0x28);
-    toggleDailyEventBit(0x4B);
+    clearDailyEventBit(DAY_CONSUMING_CUTSCENE);
+    clearDailyEventBit(CUTSCENE_AUDIO_OVERRIDE);
 
     // update misc. game state
     func_8005CDCC();
@@ -136,11 +129,11 @@ void loadLevel(u8 arg0) {
     deactivateAnimalEntities();
     clearAllItemContextSlots();
     
-    if (!checkDailyEventBit(0x2F)) {
-        handleEndOfDayCutscenes();
+    if (!checkDailyEventBit(END_OF_DAY_CUTSCENES_HANDLED)) {
+        handleStartOfDayCutscenes();
     }
 
-    setDailyEventBit(0x2F);
+    setDailyEventBit(END_OF_DAY_CUTSCENES_HANDLED);
     
     mapIndex = getMapForSpawnPoint(gSpawnPointIndex);
     loadMapAtSpawnPoint(gSpawnPointIndex);
@@ -149,19 +142,18 @@ void loadLevel(u8 arg0) {
 
         switch (gCutsceneIndex) {
 
-            case FIREWORKS_FESTIVAL:
-            case SOWING_FESTIVAL_POTION_SHOP_DEALER ... SOWING_FESTIVAL_HARRIS:
-            case HORSE_RACE_SQUARE ... HORSE_RACE_STARTING_ANNOUNCEMENT:
-            case FLOWER_FESTIVAL:
-            case VEGETABLE_FESTIVAL_SQUARE:
-            case FIREFLY_FESTIVAL:
-            case HARVEST_FESTIVAL:
-            case SEA_FESTIVAL:
-            case EGG_FESTIVAL:
-            case DOG_RACE_SQUARE ... DOG_RACE_AFTER_RACE:
-            // spirit festival
-            case 1350 ... 1352:
-            case NEW_YEAR_FESTIVAL:
+            case CUTSCENE_FIREWORKS_FESTIVAL:
+            case CUTSCENE_SOWING_FESTIVAL_POTION_SHOP_DEALER ... CUTSCENE_SOWING_FESTIVAL_BACHELOR:
+            case CUTSCENE_HORSE_RACE_SQUARE ... CUTSCENE_HORSE_RACE_STARTING_ANNOUNCEMENT:
+            case CUTSCENE_FLOWER_FESTIVAL:
+            case CUTSCENE_VEGETABLE_FESTIVAL_SQUARE:
+            case CUTSCENE_FIREFLY_FESTIVAL:
+            case CUTSCENE_HARVEST_FESTIVAL:
+            case CUTSCENE_SEA_FESTIVAL:
+            case CUTSCENE_EGG_FESTIVAL:
+            case CUTSCENE_DOG_RACE_SQUARE ... CUTSCENE_DOG_RACE_AFTER_RACE:
+            case CUTSCENE_SPIRIT_FESTIVAL_HARVEST_KING ... CUTSCENE_SPIRIT_FESTIVAL_REPEAT:
+            case CUTSCENE_NEW_YEAR_FESTIVAL:
                 initializeEntityInstances(2);
                 break;            
 
@@ -169,11 +161,11 @@ void loadLevel(u8 arg0) {
 
                 switch (gCutsceneIndex) {
 
-                    case COW_FESTIVAL:
+                    case CUTSCENE_COW_FESTIVAL:
                         initializeEntityInstances(3);
                         break;
-                    case HARVEST_FESTIVAL:
-                    case SEA_FESTIVAL:
+                    case CUTSCENE_HARVEST_FESTIVAL:
+                    case CUTSCENE_SEA_FESTIVAL:
                     default:
                         initializeEntityInstances(1);
                         break;
@@ -188,24 +180,29 @@ void loadLevel(u8 arg0) {
         initializeEntityInstances(0);
     }
 
-   if (checkDailyEventBit(0x54)) {
+   if (checkDailyEventBit(DEFAULT_MORNING)) {
 
-        if (checkDailyEventBit(0x53)) {
+        if (checkDailyEventBit(EAT_BREAKFAST)) {
+#if TESTING
+            setPlayerAction(CONTROLLER_INPUT, ANIM_DEFAULT);
+            gPlayer.heldItem = 0;
+#else
             setPlayerAction(EATING, ANIM_EATING);
-            gPlayer.heldItem = RICE_CAKE;
+            gPlayer.heldItem = RICE_CAKE_HELD_ITEM;
+#endif
         } else {
             setPlayerAction(CONTROLLER_INPUT, ANIM_DEFAULT);
             gPlayer.heldItem = 0;
         }
 
-        if (!(gCutsceneFlags & 1) && getHealthyChickenCount()) {
+        if (!(gCutsceneFlags & CUTSCENE_ACTIVE) && getHealthyChickenCount() != 0) {
             playSfx(63);
         }
 
     }
     
-    toggleDailyEventBit(0x53);
-    toggleDailyEventBit(0x54);
+    clearDailyEventBit(EAT_BREAKFAST);
+    clearDailyEventBit(DEFAULT_MORNING);
     
     setupPlayerEntity(gSpawnPointIndex, arg0);
     
@@ -214,21 +211,18 @@ void loadLevel(u8 arg0) {
 
     if (arg0 != 2) {
 
-        ptr = &gCutsceneFlags;
-        
-        if (!(*ptr & (2 | 4))) {
-            
-            if (!checkDailyEventBit(0x4D)) {
-                spawnWildAnimals();
+        if (!(gCutsceneFlags & (CUTSCENE_SUPPRESS_NPC_SETUP | CUTSCENE_SUPPRESS_FARM_ANIMALS))) {
+
+            if (!checkDailyEventBit(FESTIVAL)) {
+                spawnMiscAnimals();
             }
 
-            if (!(*ptr & (2 | 4))) {
-                clearTempSpecialDialogueBits();
-                setupActiveNPCs();
-            }
+            clearNPCAlternateLocationDialogueBits();
+            setupActiveNPCs();
+
         }
 
-        if (!(gCutsceneFlags & 4)) {
+        if (!(gCutsceneFlags & CUTSCENE_SUPPRESS_FARM_ANIMALS)) {
             initializeAnimalEntities();
         }
 
@@ -247,9 +241,6 @@ void loadLevel(u8 arg0) {
     previousLightingRGBA.a = 0;
     
 }
-
-
-//INCLUDE_ASM("asm/nonmatchings/game/transition", initializeEntityInstances);
 
 void initializeEntityInstances(u8 arg0) {
 
@@ -354,10 +345,10 @@ void initializeEntityInstances(u8 arg0) {
             initializeEntity(0xA, 0xA, 0x3B, CHICK_TEX1(ENTITY_REGION_CHICK_BASE, 2), CHICK_TEX2(ENTITY_REGION_CHICK_BASE, 2), (u16*)ENTITY_SLOTS_8_13_PALETTE, (AnimationFrameMetadata*)ENTITY_SLOTS_8_13_ANIM_METADATA, (u32*)ENTITY_SLOTS_8_13_SPRITESHEET_INDEX, (u32*)ENTITY_SLOTS_8_13_TEXTURE_TO_PALETTE_LOOKUP);
             initializeEntity(0xB, 0xB, 0x3C, CHICK_TEX1(ENTITY_REGION_CHICK_BASE, 3), CHICK_TEX2(ENTITY_REGION_CHICK_BASE, 3), (u16*)ENTITY_SLOTS_8_13_PALETTE, (AnimationFrameMetadata*)ENTITY_SLOTS_8_13_ANIM_METADATA, (u32*)ENTITY_SLOTS_8_13_SPRITESHEET_INDEX, (u32*)ENTITY_SLOTS_8_13_TEXTURE_TO_PALETTE_LOOKUP);
             initializeEntity(0xC, 0xC, 0x3D, CHICK_TEX1(ENTITY_REGION_CHICK_BASE, 4), CHICK_TEX2(ENTITY_REGION_CHICK_BASE, 4), (u16*)ENTITY_SLOTS_8_13_PALETTE, (AnimationFrameMetadata*)ENTITY_SLOTS_8_13_ANIM_METADATA, (u32*)ENTITY_SLOTS_8_13_SPRITESHEET_INDEX, (u32*)ENTITY_SLOTS_8_13_TEXTURE_TO_PALETTE_LOOKUP);
-            initializeEntity(0xD, 0xD, 0x3E, CHICK_TEX1(ENTITY_REGION_CHICK_BASE, 5), CHICK_TEX2(ENTITY_REGION_CHICK_BASE, 5), (u16*)ENTITY_SLOTS_8_13_PALETTE, (AnimationFrameMetadata*)ENTITY_SLOTS_8_13_ANIM_METADATA, (u32*)ENTITY_SLOTS_8_13_SPRITESHEET_INDEX, (u32*)ENTITY_SLOTS_8_13_TEXTURE_TO_PALETTE_LOOKUP);
+            initializeEntity(13, 13, 0x3E, CHICK_TEX1(ENTITY_REGION_CHICK_BASE, 5), CHICK_TEX2(ENTITY_REGION_CHICK_BASE, 5), (u16*)ENTITY_SLOTS_8_13_PALETTE, (AnimationFrameMetadata*)ENTITY_SLOTS_8_13_ANIM_METADATA, (u32*)ENTITY_SLOTS_8_13_SPRITESHEET_INDEX, (u32*)ENTITY_SLOTS_8_13_TEXTURE_TO_PALETTE_LOOKUP);
 
             // Cows
-            initializeEntity(0xE, 0xE, 0x3F, (u8*)ENTITY_SLOT_14_TEXTURE_1, (u8*)ENTITY_SLOT_14_TEXTURE_2, (u16*)ENTITY_SLOT_14_PALETTE, (AnimationFrameMetadata*)ENTITY_SLOT_14_ANIM_METADATA, (u32*)ENTITY_SLOT_14_SPRITESHEET_INDEX, (u32*)ENTITY_SLOT_14_TEXTURE_TO_PALETTE_LOOKUP);
+            initializeEntity(14, 14, 0x3F, (u8*)ENTITY_SLOT_14_TEXTURE_1, (u8*)ENTITY_SLOT_14_TEXTURE_2, (u16*)ENTITY_SLOT_14_PALETTE, (AnimationFrameMetadata*)ENTITY_SLOT_14_ANIM_METADATA, (u32*)ENTITY_SLOT_14_SPRITESHEET_INDEX, (u32*)ENTITY_SLOT_14_TEXTURE_TO_PALETTE_LOOKUP);
             initializeEntity(0xF, 0xF, 0x40, (u8*)ENTITY_SLOT_15_TEXTURE_1, (u8*)ENTITY_SLOT_15_TEXTURE_2, (u16*)ENTITY_SLOT_15_PALETTE, (AnimationFrameMetadata*)ENTITY_SLOT_15_ANIM_METADATA, (u32*)ENTITY_SLOT_15_SPRITESHEET_INDEX, (u32*)ENTITY_SLOT_15_TEXTURE_TO_PALETTE_LOOKUP);
             initializeEntity(0x10, 0x10, 0x41, (u8*)ENTITY_SLOT_16_TEXTURE_1, (u8*)ENTITY_SLOT_16_TEXTURE_2, (u16*)ENTITY_SLOT_16_PALETTE, (AnimationFrameMetadata*)ENTITY_SLOT_16_ANIM_METADATA, (u32*)ENTITY_SLOT_16_SPRITESHEET_INDEX, (u32*)ENTITY_SLOT_16_TEXTURE_TO_PALETTE_LOOKUP);
             initializeEntity(0x11, 0x11, 0x42, (u8*)ENTITY_SLOT_17_TEXTURE_1, (u8*)ENTITY_SLOT_17_TEXTURE_2, (u16*)ENTITY_SLOT_17_PALETTE, (AnimationFrameMetadata*)ENTITY_SLOT_17_ANIM_METADATA, (u32*)ENTITY_SLOT_17_SPRITESHEET_INDEX, (u32*)ENTITY_SLOT_17_TEXTURE_TO_PALETTE_LOOKUP);
@@ -428,8 +419,8 @@ void initializeEntityInstances(u8 arg0) {
             initializeEntity(0xA, 0xA, 0x36, NPC_LARGE_TEX1(ENTITY_REGION_NPC_LARGE_2_BASE, 1), NPC_LARGE_TEX2(ENTITY_REGION_NPC_LARGE_2_BASE, 1), NPC_LARGE_PALETTE(ENTITY_REGION_NPC_LARGE_2_BASE, 1), NPC_LARGE_ANIM(ENTITY_REGION_NPC_LARGE_2_BASE, 1), NPC_LARGE_SPRITESHEET(ENTITY_REGION_NPC_LARGE_2_BASE, 1), NPC_LARGE_TEX_LOOKUP(ENTITY_REGION_NPC_LARGE_2_BASE, 1));
             initializeEntity(0xB, 0xB, 0x37, NPC_LARGE_TEX1(ENTITY_REGION_NPC_LARGE_2_BASE, 2), NPC_LARGE_TEX2(ENTITY_REGION_NPC_LARGE_2_BASE, 2), NPC_LARGE_PALETTE(ENTITY_REGION_NPC_LARGE_2_BASE, 2), NPC_LARGE_ANIM(ENTITY_REGION_NPC_LARGE_2_BASE, 2), NPC_LARGE_SPRITESHEET(ENTITY_REGION_NPC_LARGE_2_BASE, 2), NPC_LARGE_TEX_LOOKUP(ENTITY_REGION_NPC_LARGE_2_BASE, 2));
             initializeEntity(0xC, 0xC, 0x38, NPC_LARGE_TEX1(ENTITY_REGION_NPC_LARGE_2_BASE, 3), NPC_LARGE_TEX2(ENTITY_REGION_NPC_LARGE_2_BASE, 3), NPC_LARGE_PALETTE(ENTITY_REGION_NPC_LARGE_2_BASE, 3), NPC_LARGE_ANIM(ENTITY_REGION_NPC_LARGE_2_BASE, 3), NPC_LARGE_SPRITESHEET(ENTITY_REGION_NPC_LARGE_2_BASE, 3), NPC_LARGE_TEX_LOOKUP(ENTITY_REGION_NPC_LARGE_2_BASE, 3));
-            initializeEntity(0xD, 0xD, 0x39, NPC_LARGE_TEX1(ENTITY_REGION_NPC_LARGE_2_BASE, 4), NPC_LARGE_TEX2(ENTITY_REGION_NPC_LARGE_2_BASE, 4), NPC_LARGE_PALETTE(ENTITY_REGION_NPC_LARGE_2_BASE, 4), NPC_LARGE_ANIM(ENTITY_REGION_NPC_LARGE_2_BASE, 4), NPC_LARGE_SPRITESHEET(ENTITY_REGION_NPC_LARGE_2_BASE, 4), NPC_LARGE_TEX_LOOKUP(ENTITY_REGION_NPC_LARGE_2_BASE, 4));
-            initializeEntity(0xE, 0xE, 0x3A, NPC_LARGE_TEX1(ENTITY_REGION_NPC_LARGE_2_BASE, 5), NPC_LARGE_TEX2(ENTITY_REGION_NPC_LARGE_2_BASE, 5), NPC_LARGE_PALETTE(ENTITY_REGION_NPC_LARGE_2_BASE, 5), NPC_LARGE_ANIM(ENTITY_REGION_NPC_LARGE_2_BASE, 5), NPC_LARGE_SPRITESHEET(ENTITY_REGION_NPC_LARGE_2_BASE, 5), NPC_LARGE_TEX_LOOKUP(ENTITY_REGION_NPC_LARGE_2_BASE, 5));
+            initializeEntity(13, 13, 0x39, NPC_LARGE_TEX1(ENTITY_REGION_NPC_LARGE_2_BASE, 4), NPC_LARGE_TEX2(ENTITY_REGION_NPC_LARGE_2_BASE, 4), NPC_LARGE_PALETTE(ENTITY_REGION_NPC_LARGE_2_BASE, 4), NPC_LARGE_ANIM(ENTITY_REGION_NPC_LARGE_2_BASE, 4), NPC_LARGE_SPRITESHEET(ENTITY_REGION_NPC_LARGE_2_BASE, 4), NPC_LARGE_TEX_LOOKUP(ENTITY_REGION_NPC_LARGE_2_BASE, 4));
+            initializeEntity(14, 14, 0x3A, NPC_LARGE_TEX1(ENTITY_REGION_NPC_LARGE_2_BASE, 5), NPC_LARGE_TEX2(ENTITY_REGION_NPC_LARGE_2_BASE, 5), NPC_LARGE_PALETTE(ENTITY_REGION_NPC_LARGE_2_BASE, 5), NPC_LARGE_ANIM(ENTITY_REGION_NPC_LARGE_2_BASE, 5), NPC_LARGE_SPRITESHEET(ENTITY_REGION_NPC_LARGE_2_BASE, 5), NPC_LARGE_TEX_LOOKUP(ENTITY_REGION_NPC_LARGE_2_BASE, 5));
             initializeEntity(0xF, 0xF, 0x3B, NPC_LARGE_TEX1(ENTITY_REGION_NPC_LARGE_2_BASE, 6), NPC_LARGE_TEX2(ENTITY_REGION_NPC_LARGE_2_BASE, 6), NPC_LARGE_PALETTE(ENTITY_REGION_NPC_LARGE_2_BASE, 6), NPC_LARGE_ANIM(ENTITY_REGION_NPC_LARGE_2_BASE, 6), NPC_LARGE_SPRITESHEET(ENTITY_REGION_NPC_LARGE_2_BASE, 6), NPC_LARGE_TEX_LOOKUP(ENTITY_REGION_NPC_LARGE_2_BASE, 6));
             initializeEntity(0x10, 0x10, 0x3C, NPC_LARGE_TEX1(ENTITY_REGION_NPC_LARGE_2_BASE, 7), NPC_LARGE_TEX2(ENTITY_REGION_NPC_LARGE_2_BASE, 7), NPC_LARGE_PALETTE(ENTITY_REGION_NPC_LARGE_2_BASE, 7), NPC_LARGE_ANIM(ENTITY_REGION_NPC_LARGE_2_BASE, 7), NPC_LARGE_SPRITESHEET(ENTITY_REGION_NPC_LARGE_2_BASE, 7), NPC_LARGE_TEX_LOOKUP(ENTITY_REGION_NPC_LARGE_2_BASE, 7));
             initializeEntity(0x11, 0x11, 0x3D, NPC_LARGE_TEX1(ENTITY_REGION_NPC_LARGE_2_BASE, 8), NPC_LARGE_TEX2(ENTITY_REGION_NPC_LARGE_2_BASE, 8), NPC_LARGE_PALETTE(ENTITY_REGION_NPC_LARGE_2_BASE, 8), NPC_LARGE_ANIM(ENTITY_REGION_NPC_LARGE_2_BASE, 8), NPC_LARGE_SPRITESHEET(ENTITY_REGION_NPC_LARGE_2_BASE, 8), NPC_LARGE_TEX_LOOKUP(ENTITY_REGION_NPC_LARGE_2_BASE, 8));
@@ -445,7 +436,7 @@ void initializeEntityInstances(u8 arg0) {
             initializeEntity(0x1A, 0x1A, 0x45, SMALL_SPRITE_TEX1(ENTITY_REGION_SMALL_SPRITE_BASE, 4), SMALL_SPRITE_TEX2(ENTITY_REGION_SMALL_SPRITE_BASE, 4), (u16*)ENTITY_SLOTS_FESTIVAL_PALETTE, (AnimationFrameMetadata*)ENTITY_SLOTS_FESTIVAL_ANIM_METADATA, (u32*)ENTITY_SLOTS_FESTIVAL_SPRITESHEET, (u32*)ENTITY_SLOTS_FESTIVAL_TEXTURE_TO_PALETTE_LOOKUP);
             initializeEntity(0x1B, 0x1B, 0x47, SMALL_SPRITE_TEX1(ENTITY_REGION_SMALL_SPRITE_BASE, 5), SMALL_SPRITE_TEX2(ENTITY_REGION_SMALL_SPRITE_BASE, 5), (u16*)ENTITY_SLOTS_FESTIVAL_PALETTE, (AnimationFrameMetadata*)ENTITY_SLOTS_FESTIVAL_ANIM_METADATA, (u32*)ENTITY_SLOTS_FESTIVAL_SPRITESHEET, (u32*)ENTITY_SLOTS_FESTIVAL_TEXTURE_TO_PALETTE_LOOKUP);
  
-            if (gCutsceneIndex == SEA_FESTIVAL) {
+            if (gCutsceneIndex == CUTSCENE_SEA_FESTIVAL) {
                 initializeEntity(0x1E, 0x1E, 0x4A, SMALL_SPRITE_TEX1(ENTITY_REGION_SMALL_SPRITE_BASE, 7), SMALL_SPRITE_TEX1(ENTITY_REGION_SMALL_SPRITE_BASE, 8), (u16*)ENTITY_SLOTS_FESTIVAL_PALETTE, (AnimationFrameMetadata*)ENTITY_SLOTS_FESTIVAL_ANIM_METADATA, (u32*)ENTITY_SLOTS_FESTIVAL_SPRITESHEET, (u32*)ENTITY_SLOTS_FESTIVAL_TEXTURE_TO_PALETTE_LOOKUP);
             } else {
                 
@@ -489,8 +480,8 @@ void initializeEntityInstances(u8 arg0) {
             // Slots 11-21 (Cow festival large NPCs, second group - each has unique metadata)
             initializeEntity(0xB, 0xB, 0x37, NPC_LARGE_TEX1(ENTITY_REGION_NPC_LARGE_2_BASE, 0), NPC_LARGE_TEX2(ENTITY_REGION_NPC_LARGE_2_BASE, 0), NPC_LARGE_PALETTE(ENTITY_REGION_NPC_LARGE_2_BASE, 0), NPC_LARGE_ANIM(ENTITY_REGION_NPC_LARGE_2_BASE, 0), NPC_LARGE_SPRITESHEET(ENTITY_REGION_NPC_LARGE_2_BASE, 0), NPC_LARGE_TEX_LOOKUP(ENTITY_REGION_NPC_LARGE_2_BASE, 0));
             initializeEntity(0xC, 0xC, 0x38, NPC_LARGE_TEX1(ENTITY_REGION_NPC_LARGE_2_BASE, 1), NPC_LARGE_TEX2(ENTITY_REGION_NPC_LARGE_2_BASE, 1), NPC_LARGE_PALETTE(ENTITY_REGION_NPC_LARGE_2_BASE, 1), NPC_LARGE_ANIM(ENTITY_REGION_NPC_LARGE_2_BASE, 1), NPC_LARGE_SPRITESHEET(ENTITY_REGION_NPC_LARGE_2_BASE, 1), NPC_LARGE_TEX_LOOKUP(ENTITY_REGION_NPC_LARGE_2_BASE, 1));
-            initializeEntity(0xD, 0xD, 0x39, NPC_LARGE_TEX1(ENTITY_REGION_NPC_LARGE_2_BASE, 2), NPC_LARGE_TEX2(ENTITY_REGION_NPC_LARGE_2_BASE, 2), NPC_LARGE_PALETTE(ENTITY_REGION_NPC_LARGE_2_BASE, 2), NPC_LARGE_ANIM(ENTITY_REGION_NPC_LARGE_2_BASE, 2), NPC_LARGE_SPRITESHEET(ENTITY_REGION_NPC_LARGE_2_BASE, 2), NPC_LARGE_TEX_LOOKUP(ENTITY_REGION_NPC_LARGE_2_BASE, 2));
-            initializeEntity(0xE, 0xE, 0x3A, NPC_LARGE_TEX1(ENTITY_REGION_NPC_LARGE_2_BASE, 3), NPC_LARGE_TEX2(ENTITY_REGION_NPC_LARGE_2_BASE, 3), NPC_LARGE_PALETTE(ENTITY_REGION_NPC_LARGE_2_BASE, 3), NPC_LARGE_ANIM(ENTITY_REGION_NPC_LARGE_2_BASE, 3), NPC_LARGE_SPRITESHEET(ENTITY_REGION_NPC_LARGE_2_BASE, 3), NPC_LARGE_TEX_LOOKUP(ENTITY_REGION_NPC_LARGE_2_BASE, 3));
+            initializeEntity(13, 13, 0x39, NPC_LARGE_TEX1(ENTITY_REGION_NPC_LARGE_2_BASE, 2), NPC_LARGE_TEX2(ENTITY_REGION_NPC_LARGE_2_BASE, 2), NPC_LARGE_PALETTE(ENTITY_REGION_NPC_LARGE_2_BASE, 2), NPC_LARGE_ANIM(ENTITY_REGION_NPC_LARGE_2_BASE, 2), NPC_LARGE_SPRITESHEET(ENTITY_REGION_NPC_LARGE_2_BASE, 2), NPC_LARGE_TEX_LOOKUP(ENTITY_REGION_NPC_LARGE_2_BASE, 2));
+            initializeEntity(14, 14, 0x3A, NPC_LARGE_TEX1(ENTITY_REGION_NPC_LARGE_2_BASE, 3), NPC_LARGE_TEX2(ENTITY_REGION_NPC_LARGE_2_BASE, 3), NPC_LARGE_PALETTE(ENTITY_REGION_NPC_LARGE_2_BASE, 3), NPC_LARGE_ANIM(ENTITY_REGION_NPC_LARGE_2_BASE, 3), NPC_LARGE_SPRITESHEET(ENTITY_REGION_NPC_LARGE_2_BASE, 3), NPC_LARGE_TEX_LOOKUP(ENTITY_REGION_NPC_LARGE_2_BASE, 3));
             initializeEntity(0xF, 0xF, 0x3B, NPC_LARGE_TEX1(ENTITY_REGION_NPC_LARGE_2_BASE, 4), NPC_LARGE_TEX2(ENTITY_REGION_NPC_LARGE_2_BASE, 4), NPC_LARGE_PALETTE(ENTITY_REGION_NPC_LARGE_2_BASE, 4), NPC_LARGE_ANIM(ENTITY_REGION_NPC_LARGE_2_BASE, 4), NPC_LARGE_SPRITESHEET(ENTITY_REGION_NPC_LARGE_2_BASE, 4), NPC_LARGE_TEX_LOOKUP(ENTITY_REGION_NPC_LARGE_2_BASE, 4));
             initializeEntity(0x10, 0x10, 0x3C, NPC_LARGE_TEX1(ENTITY_REGION_NPC_LARGE_2_BASE, 5), NPC_LARGE_TEX2(ENTITY_REGION_NPC_LARGE_2_BASE, 5), NPC_LARGE_PALETTE(ENTITY_REGION_NPC_LARGE_2_BASE, 5), NPC_LARGE_ANIM(ENTITY_REGION_NPC_LARGE_2_BASE, 5), NPC_LARGE_SPRITESHEET(ENTITY_REGION_NPC_LARGE_2_BASE, 5), NPC_LARGE_TEX_LOOKUP(ENTITY_REGION_NPC_LARGE_2_BASE, 5));
             initializeEntity(0x11, 0x11, 0x3D, NPC_LARGE_TEX1(ENTITY_REGION_NPC_LARGE_2_BASE, 6), NPC_LARGE_TEX2(ENTITY_REGION_NPC_LARGE_2_BASE, 6), NPC_LARGE_PALETTE(ENTITY_REGION_NPC_LARGE_2_BASE, 6), NPC_LARGE_ANIM(ENTITY_REGION_NPC_LARGE_2_BASE, 6), NPC_LARGE_SPRITESHEET(ENTITY_REGION_NPC_LARGE_2_BASE, 6), NPC_LARGE_TEX_LOOKUP(ENTITY_REGION_NPC_LARGE_2_BASE, 6));
@@ -523,23 +514,17 @@ void initializeEntityInstances(u8 arg0) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/transition", resumeGameplay);
-
 void resumeGameplay(void) {
-    togglePauseEntities();
+    unpauseEntities();
     resumeCutsceneExecutors();
     setEntityMapSpaceIndependent(ENTITY_PLAYER, TRUE);
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/transition", pauseGameplay);
 
 inline void pauseGameplay(void) {
     pauseEntities();
     pauseAllCutsceneExecutors();
     setEntityMapSpaceIndependent(ENTITY_PLAYER, FALSE);
 }
- 
-//INCLUDE_ASM("asm/nonmatchings/game/transition", exitOverlayScreen);
 
 void exitOverlayScreen(void) {
 
@@ -561,16 +546,12 @@ void exitOverlayScreen(void) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/transition", openOverlayScreen);
-
 void inline openOverlayScreen(void) {
     pauseAllEntityLoads();
     pauseAllCutsceneExecutors();
     setEntityMapSpaceIndependent(ENTITY_PLAYER, FALSE);
     unloadMapAssets(MAIN_MAP_INDEX);
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/transition", startNewDay);
 
 void startNewDay(void) {
     
@@ -590,14 +571,14 @@ void startNewDay(void) {
     
     if (gSeason == WINTER && gDayOfMonth == 17) {
         setLifeEventBit(HOT_SPRINGS_COMPLETED);
-        setDailyEventBit(0x38);
+        setDailyEventBit(HOT_SPRINGS_COMPLETED_DAILY);
     }
     
     if (gDayOfMonth == 1) {
         
         for (i = 0; i < 5; i++) {
             for (j = 0; j < 7; j++) {
-                D_80189108[i][j] = 0xFF;
+                calendarStickerGrid[i][j] = 0xFF;
             }
         }
         
@@ -619,14 +600,15 @@ void startNewDay(void) {
             }
         }
 
-        if (gSeason == AUTUMN && gDayOfMonth == 13 && !checkDailyEventBit(0x5D) && gHarvestCoinFinder == PLAYER) {
+        if (gSeason == AUTUMN && gDayOfMonth == 13 && !checkDailyEventBit(HARVEST_FESTIVAL_DAILY) && gHarvestCoinFinder == PLAYER) {
             gHarvestCoinFinder = 3;
         }
+
     }
     
     if (checkLifeEventBit(ELLEN_DIED)) {
         if (gElliGrievingCounter >= 31) {
-            toggleSpecialDialogueBit(ELLI_FINISH_GRIEVING);
+            clearSpecialDialogueBit(ELLEN_DIED_DIALOGUE);
         } else {
             gElliGrievingCounter++;
         }
@@ -650,19 +632,17 @@ void startNewDay(void) {
 
     }
     
-    // dog/horse race
-    if (checkLifeEventBit(0x51) && checkDailyEventBit(0x41)) {
-        toggleLifeEventBit(0x51);
+    if (checkLifeEventBit(ENTERED_HORSE_RACE) && checkDailyEventBit(HORSE_RACE)) {
+        clearLifeEventBit(ENTERED_HORSE_RACE);
     }
     
-    if (checkLifeEventBit(0x52) && checkDailyEventBit(0x42)) {
-        toggleLifeEventBit(0x52);
+    if (checkLifeEventBit(ENTERED_DOG_RACE) && checkDailyEventBit(DOG_RACE)) {
+        clearLifeEventBit(ENTERED_DOG_RACE);
     }
     
-    // Mrs. Mana's cow
-    if (checkLifeEventBit(0x93)) {
-        toggleLifeEventBit(0x93);
-        setLifeEventBit(0x94);
+    if (checkLifeEventBit(MRS_MANA_COWS_ACCEPTED)) {
+        clearLifeEventBit(MRS_MANA_COWS_ACCEPTED);
+        setLifeEventBit(MRS_MANA_COWS_EVENT);
         setMrsManaCowsNames();
     }
     
@@ -673,17 +653,14 @@ void startNewDay(void) {
     npcAffection[HARVEST_SPRITE_3] = npcAffection[HARVEST_SPRITE_1];
     
     if (gWeather == RAIN) {
-        // update animal status based on rain
         updateFarmStatusRain();
     }
     
     if (gWeather == SNOW) {
-        // update animal status based on snow
         updateFarmStatusSnow();
     }
     
     if (gWeather == TYPHOON) {
-        // update animal status based on typhoon
         updateFarmStatusTyphoon();
     }
     
@@ -692,12 +669,11 @@ void startNewDay(void) {
     incrementVarietyShowCounter();
     setForecast();
     
-    if (checkLifeEventBit(0x7E)) {
-        // dead code
-        checkLifeEventBit(0x7F);
+    // dead code
+    if (checkLifeEventBit(KAREN_KEIFU_FAIRIES_INVITE) && checkLifeEventBit(FIRST_VINEYARD_WINE_GIFT)) {
     }
     
-    updateFieldObjectsOvernight();
+    updateGroundObjectsOvernight();
 
     resetAnimalStatuses();
     updateCropsIfRain();
@@ -709,8 +685,7 @@ void startNewDay(void) {
         handleWifeMorningHelp();
     }
     
-    if (checkDailyEventBit(7)) {
-        // save game
+    if (checkDailyEventBit(WROTE_IN_DIARY)) {
         saveGameToSram(gCurrentGameIndex);
     }
     

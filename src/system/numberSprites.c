@@ -14,55 +14,54 @@ static u32 powersOfTen[] = { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000 
 bool renderNumberSpriteDisplayDigits(u16 spriteIndex);
 bool renderNumberSpriteDisplayDigit(u16 spriteIndex, u8 arg1, u8 arg2);
 
-//INCLUDE_ASM("asm/nonmatchings/system/numberSprites", initializeNumberSprites);
-
 void initializeNumberSprites(void) {
 
     u16 i;
 
     for (i = 0; i < MAX_NUMBER_SPRITES; i++) {
-        numberSprites[i].spriteIndex = 0;
-        numberSprites[i].flags = 0;
+        NumberSprites *ns = &numberSprites[i];
+        ns->spriteIndex = 0;
+        ns->flags = 0;
     }
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/numberSprites", setNumberSprites);
-
 bool setNumberSprites(u16 index, u16 spriteIndex, u32 romSpritesheetStart, u32 romSpritesheetEnd, u32 romAssetsIndexStart, u32 romAssetsIndexEnd, 
     u8 *vaddrTexture, u16 *vaddrPalette, AnimationFrameMetadata *vaddrAnimationFrameMetadata, u32 *spriteToPaletteVaddr, 
     u32 *spritesheetIndexVaddr, u16 animationIndex, u8 animationBaseFrame, f32 x, f32 y, f32 z, u8 digitSpacing) {
+
+    NumberSprites *ns = &numberSprites[index];
     
     bool result = FALSE;
                     
     if (index < MAX_NUMBER_SPRITES) {
 
-        if (!(numberSprites[index].flags & NUMBER_SPRITES_FLAG_ACTIVE)) {
+        if (!(ns->flags & NUMBER_SPRITES_FLAG_ACTIVE)) {
         
             result = TRUE;
         
-            numberSprites[index].romSpritesheetStart = romSpritesheetStart;
-            numberSprites[index].romSpritesheetEnd = romSpritesheetEnd;
-            numberSprites[index].romAssetsIndexStart = romAssetsIndexStart;
-            numberSprites[index].romAssetsIndexEnd = romAssetsIndexEnd;
+            ns->romSpritesheetStart = romSpritesheetStart;
+            ns->romSpritesheetEnd = romSpritesheetEnd;
+            ns->romAssetsIndexStart = romAssetsIndexStart;
+            ns->romAssetsIndexEnd = romAssetsIndexEnd;
 
-            numberSprites[index].vaddrTexture = vaddrTexture;
-            numberSprites[index].vaddrPalette = vaddrPalette;
-            numberSprites[index].vaddrAnimationFrameMetadata = vaddrAnimationFrameMetadata;
-            numberSprites[index].spriteToPaletteVaddr = spriteToPaletteVaddr;
-            numberSprites[index].spritesheetIndexVaddr = spritesheetIndexVaddr;
+            ns->vaddrTexture = vaddrTexture;
+            ns->vaddrPalette = vaddrPalette;
+            ns->vaddrAnimationFrameMetadata = vaddrAnimationFrameMetadata;
+            ns->spriteToPaletteVaddr = spriteToPaletteVaddr;
+            ns->spritesheetIndexVaddr = spritesheetIndexVaddr;
             
-            numberSprites[index].animationIndex = animationIndex;
-            numberSprites[index].animationBaseFrame = animationBaseFrame;
+            ns->animationIndex = animationIndex;
+            ns->animationBaseFrame = animationBaseFrame;
             
-            numberSprites[index].coordinates.x = x;
-            numberSprites[index].coordinates.y = y;
-            numberSprites[index].coordinates.z = z;
+            ns->coordinates.x = x;
+            ns->coordinates.y = y;
+            ns->coordinates.z = z;
             
-            numberSprites[index].digitSpacing = digitSpacing;
+            ns->digitSpacing = digitSpacing;
             
-            numberSprites[index].spriteIndex = spriteIndex;
-            numberSprites[index].flags = NUMBER_SPRITES_FLAG_ACTIVE;
+            ns->spriteIndex = spriteIndex;
+            ns->flags = NUMBER_SPRITES_FLAG_ACTIVE;
 
         }
     
@@ -72,9 +71,9 @@ bool setNumberSprites(u16 index, u16 spriteIndex, u32 romSpritesheetStart, u32 r
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/numberSprites", dmaNumberSprites);
-
 bool dmaNumberSprites(u16 index, u32 value, u8 arg2, u16 flag) {
+
+    NumberSprites *ns = &numberSprites[index];
     
     bool result = FALSE;
 
@@ -83,30 +82,30 @@ bool dmaNumberSprites(u16 index, u32 value, u8 arg2, u16 flag) {
     
     if (index < MAX_NUMBER_SPRITES) {
         
-        if (numberSprites[index].flags & NUMBER_SPRITES_FLAG_ACTIVE) {
+        if (ns->flags & NUMBER_SPRITES_FLAG_ACTIVE) {
             
-            numberSprites[index].maxDigitIndex = arg2;
-            numberSprites[index].value = value;
+            ns->maxDigitIndex = arg2;
+            ns->value = value;
 
-            digitIndex = numberSprites[index].maxDigitIndex;
+            digitIndex = ns->maxDigitIndex;
             
-            numberSprites[index].flags |= NUMBER_SPRITES_FLAG_RENDER_READY;
+            ns->flags |= NUMBER_SPRITES_FLAG_RENDER_READY;
             
             do {
                 
-                dmaSprite(numberSprites[index].spriteIndex + digitIndex, 
-                    numberSprites[index].romSpritesheetStart, 
-                    numberSprites[index].romSpritesheetEnd, 
-                    numberSprites[index].romAssetsIndexStart, 
-                    numberSprites[index].romAssetsIndexEnd, 
+                dmaSprite(ns->spriteIndex + digitIndex, 
+                    ns->romSpritesheetStart, 
+                    ns->romSpritesheetEnd, 
+                    ns->romAssetsIndexStart, 
+                    ns->romAssetsIndexEnd, 
                     NULL, 
                     NULL, 
-                    numberSprites[index].vaddrTexture, 
+                    ns->vaddrTexture, 
                     NULL, 
-                    numberSprites[index].vaddrPalette, 
-                    numberSprites[index].vaddrAnimationFrameMetadata, 
-                    numberSprites[index].spriteToPaletteVaddr, 
-                    numberSprites[index].spritesheetIndexVaddr, 
+                    ns->vaddrPalette, 
+                    ns->vaddrAnimationFrameMetadata, 
+                    ns->spriteToPaletteVaddr, 
+                    ns->spritesheetIndexVaddr, 
                     0, 
                     FALSE);
                 
@@ -119,7 +118,7 @@ bool dmaNumberSprites(u16 index, u32 value, u8 arg2, u16 flag) {
             result = TRUE;
             
             if (flag == 3) {
-                numberSprites[index].flags |= NUMBER_SPRITES_FLAG_BLEND_DECAL;
+                ns->flags |= NUMBER_SPRITES_FLAG_BLEND_DECAL;
             }
 
         }
@@ -129,10 +128,9 @@ bool dmaNumberSprites(u16 index, u32 value, u8 arg2, u16 flag) {
     return result;
 }
 
-
-//INCLUDE_ASM("asm/nonmatchings/system/numberSprites", deactivateNumberSprites);
-
 bool deactivateNumberSprites(u16 index) {
+
+    NumberSprites *ns = &numberSprites[index];
     
     bool result = FALSE;
     
@@ -141,16 +139,16 @@ bool deactivateNumberSprites(u16 index) {
 
     if (index < MAX_NUMBER_SPRITES) {
         
-        if (numberSprites[index].flags & NUMBER_SPRITES_FLAG_ACTIVE) {
+        if (ns->flags & NUMBER_SPRITES_FLAG_ACTIVE) {
             
-            i = numberSprites[index].maxDigitIndex;
+            i = ns->maxDigitIndex;
 
             do {
-                deactivateSprite(numberSprites[index].spriteIndex+i);
+                deactivateSprite(ns->spriteIndex+i);
                 check = i--;
             } while (check);
         
-            numberSprites[index].flags = 0;
+            ns->flags = 0;
         
             result = TRUE;
         }
@@ -159,22 +157,22 @@ bool deactivateNumberSprites(u16 index) {
     
     return result;
 }
-
-//INCLUDE_ASM("asm/nonmatchings/system/numberSprites", setNumberSpritesRGBA);
 
 bool setNumberSpritesRGBA(u16 spriteIndex, u8 r, u8 g, u8 b, u8 a) {
 
+    NumberSprites *ns = &numberSprites[spriteIndex];
+
     u8 digitIndex = 0;
     bool result = FALSE;
 
     if (spriteIndex < MAX_NUMBER_SPRITES) {
 
-        if (numberSprites[spriteIndex].flags & NUMBER_SPRITES_FLAG_ACTIVE) {
+        if (ns->flags & NUMBER_SPRITES_FLAG_ACTIVE) {
 
-            digitIndex = numberSprites[spriteIndex].maxDigitIndex;
+            digitIndex = ns->maxDigitIndex;
 
             do {
-                setSpriteColor(numberSprites[spriteIndex].spriteIndex + digitIndex, r, g, b, a);
+                setSpriteColor(ns->spriteIndex + digitIndex, r, g, b, a);
             } while (digitIndex--);
 
             result = TRUE;
@@ -187,21 +185,21 @@ bool setNumberSpritesRGBA(u16 spriteIndex, u8 r, u8 g, u8 b, u8 a) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/numberSprites", setNumberSpritesAlpha);
-
 bool setNumberSpritesAlpha(u16 spriteIndex, u8 a) {
+
+    NumberSprites *ns = &numberSprites[spriteIndex];
 
     u8 digitIndex = 0;
     bool result = FALSE;
 
     if (spriteIndex < MAX_NUMBER_SPRITES) {
         
-        if (numberSprites[spriteIndex].flags & NUMBER_SPRITES_FLAG_ACTIVE) {
+        if (ns->flags & NUMBER_SPRITES_FLAG_ACTIVE) {
 
-            digitIndex = numberSprites[spriteIndex].maxDigitIndex;
+            digitIndex = ns->maxDigitIndex;
 
             do {
-                setSpriteAlpha(numberSprites[spriteIndex].spriteIndex + digitIndex, a);
+                setSpriteAlpha(ns->spriteIndex + digitIndex, a);
             } while (digitIndex--);
 
             result = TRUE;
@@ -214,21 +212,21 @@ bool setNumberSpritesAlpha(u16 spriteIndex, u8 a) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/numberSprites", updateOverlayScreenSpriteRGBA);
+bool updateNumberSpriteRGBA(u16 spriteIndex, u8 r, u8 g, u8 b, u8 a, u16 rate) {
 
-bool updateOverlayScreenSpriteRGBA(u16 spriteIndex, u8 r, u8 g, u8 b, u8 a, u16 rate) {
+    NumberSprites *ns = &numberSprites[spriteIndex];
 
     u8 digitIndex = 0;
     bool result = FALSE;
 
     if (spriteIndex < MAX_NUMBER_SPRITES) {
 
-        if (numberSprites[spriteIndex].flags & NUMBER_SPRITES_FLAG_ACTIVE) {
+        if (ns->flags & NUMBER_SPRITES_FLAG_ACTIVE) {
 
-            digitIndex = numberSprites[spriteIndex].maxDigitIndex;
+            digitIndex = ns->maxDigitIndex;
 
             do {
-                updateSpriteRGBA(numberSprites[spriteIndex].spriteIndex + digitIndex, r, g, b, a, rate);
+                updateSpriteRGBA(ns->spriteIndex + digitIndex, r, g, b, a, rate);
             } while (digitIndex--);
 
             result = TRUE;
@@ -240,22 +238,22 @@ bool updateOverlayScreenSpriteRGBA(u16 spriteIndex, u8 r, u8 g, u8 b, u8 a, u16 
     return result;
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/system/numberSprites", updateNumberSpriteAlphaWithTransition);
 
 bool updateNumberSpriteAlphaWithTransition(u16 spriteIndex, u8 a, s16 rate) {
 
+    NumberSprites *ns = &numberSprites[spriteIndex];
+
     u8 digitIndex = 0;
     bool result = FALSE;
 
     if (spriteIndex < MAX_NUMBER_SPRITES) {
 
-        if (numberSprites[spriteIndex].flags & NUMBER_SPRITES_FLAG_ACTIVE) {
+        if (ns->flags & NUMBER_SPRITES_FLAG_ACTIVE) {
 
-            digitIndex = numberSprites[spriteIndex].maxDigitIndex;
+            digitIndex = ns->maxDigitIndex;
 
             do {
-                updateSpriteAlpha(numberSprites[spriteIndex].spriteIndex + digitIndex, a, rate);
+                updateSpriteAlpha(ns->spriteIndex + digitIndex, a, rate);
             } while (digitIndex--);
 
             result = TRUE;
@@ -267,9 +265,9 @@ bool updateNumberSpriteAlphaWithTransition(u16 spriteIndex, u8 a, s16 rate) {
     return result;
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/numberSprites", renderNumberSpriteDisplayDigits);
-
 bool renderNumberSpriteDisplayDigits(u16 spriteIndex) {
+
+    NumberSprites *ns = &numberSprites[spriteIndex];
 
     u8 digitIndex = 0;
     u8 foundNonZero = FALSE;
@@ -281,14 +279,14 @@ bool renderNumberSpriteDisplayDigits(u16 spriteIndex) {
 
     if (spriteIndex < MAX_NUMBER_SPRITES) {
 
-        if (numberSprites[spriteIndex].flags & NUMBER_SPRITES_FLAG_ACTIVE) {
+        if (ns->flags & NUMBER_SPRITES_FLAG_ACTIVE) {
             
-            remainingValue = numberSprites[spriteIndex].value;
-            digitIndex = numberSprites[spriteIndex].maxDigitIndex;
+            remainingValue = ns->value;
+            digitIndex = ns->maxDigitIndex;
             
             do {
 
-                resetAnimationState(numberSprites[spriteIndex].spriteIndex + digitIndex);
+                resetAnimationState(ns->spriteIndex + digitIndex);
 
                 digitValue = remainingValue / powersOfTen[digitIndex];
 
@@ -317,32 +315,32 @@ bool renderNumberSpriteDisplayDigits(u16 spriteIndex) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/numberSprites", renderNumberSpriteDisplayDigit);
-
 bool renderNumberSpriteDisplayDigit(u16 spriteIndex, u8 digitValue, u8 digitIndex) {
+
+    NumberSprites *ns = &numberSprites[spriteIndex];
 
     bool result = FALSE;
     u16 tempIndex;
     
     if (spriteIndex < MAX_NUMBER_SPRITES) {
 
-        if (numberSprites[spriteIndex].flags & NUMBER_SPRITES_FLAG_ACTIVE) {
+        if (ns->flags & NUMBER_SPRITES_FLAG_ACTIVE) {
 
-            tempIndex = numberSprites[spriteIndex].spriteIndex + digitIndex; 
+            tempIndex = ns->spriteIndex + digitIndex; 
             
-            setSpriteViewSpacePosition(tempIndex, numberSprites[spriteIndex].coordinates.x - numberSprites[spriteIndex].digitSpacing * digitIndex, numberSprites[spriteIndex].coordinates.y, numberSprites[spriteIndex].coordinates.z);
+            setSpriteViewSpacePosition(tempIndex, ns->coordinates.x - ns->digitSpacing * digitIndex, ns->coordinates.y, ns->coordinates.z);
             setSpriteScale(tempIndex, 1.0f, 1.0f, 1.0f);
             setSpriteRotation(tempIndex, 0, 0, 0);
             
             setSpriteAnchorAlignment(tempIndex, SPRITE_ANCHOR_CENTER, SPRITE_ANCHOR_CENTER);;
 
-            if (numberSprites[spriteIndex].flags & NUMBER_SPRITES_FLAG_BLEND_DECAL) {
+            if (ns->flags & NUMBER_SPRITES_FLAG_BLEND_DECAL) {
                 setSpriteBlendMode(tempIndex, SPRITE_BLEND_ALPHA_DECAL);
             } else {
                 setSpriteBlendMode(tempIndex, SPRITE_BLEND_ALPHA_MODULATED);
             }
 
-            startSpriteAnimation(tempIndex, numberSprites[spriteIndex].animationIndex, numberSprites[spriteIndex].animationBaseFrame + digitValue);
+            startSpriteAnimation(tempIndex, ns->animationIndex, ns->animationBaseFrame + digitValue);
             
             result = TRUE;
         }
@@ -352,8 +350,6 @@ bool renderNumberSpriteDisplayDigit(u16 spriteIndex, u8 digitValue, u8 digitInde
     return result;
 
 } 
-
-//INCLUDE_ASM("asm/nonmatchings/system/numberSprites", updateNumberSprites);
 
 void updateNumberSprites(void) {
 

@@ -1,0 +1,23 @@
+#ifndef _JOHN_H_
+#define _JOHN_H_
+
+#define JOHN_ANIMATION_STANDING_DIRECTIONAL 0
+#define JOHN_ANIMATION_STANDING_S           0
+#define JOHN_ANIMATION_STANDING_SW          1
+#define JOHN_ANIMATION_STANDING_W           2
+#define JOHN_ANIMATION_STANDING_NW          3
+#define JOHN_ANIMATION_STANDING_N           4
+#define JOHN_ANIMATION_STANDING_NE          5
+#define JOHN_ANIMATION_STANDING_E           6
+#define JOHN_ANIMATION_STANDING_SE          7
+#define JOHN_ANIMATION_WALKING_DIRECTIONAL  8
+#define JOHN_ANIMATION_WALKING_S            8
+#define JOHN_ANIMATION_WALKING_SW           9
+#define JOHN_ANIMATION_WALKING_W            10
+#define JOHN_ANIMATION_WALKING_NW           11
+#define JOHN_ANIMATION_WALKING_N            12
+#define JOHN_ANIMATION_WALKING_NE           13
+#define JOHN_ANIMATION_WALKING_E            14
+#define JOHN_ANIMATION_WALKING_SE           15
+
+#endif

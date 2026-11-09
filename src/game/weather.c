@@ -33,8 +33,6 @@ u8 weatherLightingAdjustments[5][4] = {
 static const u8 weatherForecastProbabilities[4][5];
 static const u8 weatherForecastProbabilitiesAlternate[4][5];
 
-//INCLUDE_ASM("asm/nonmatchings/game/weather", setWeatherSprites);
-
 void setWeatherSprites(void) {
     
     u8 i;
@@ -60,8 +58,6 @@ void setWeatherSprites(void) {
     }
 }
 
-//INCLUDE_ASM("asm/nonmatchings/game/weather", setForecast);
-
 void setForecast(void) {
     
     u8 i;
@@ -81,7 +77,7 @@ void setForecast(void) {
 
     do {
         
-        if (checkLifeEventBit(0x44) || checkLifeEventBit(0x46)) {
+        if (checkLifeEventBit(WEATHER_WISH) || checkLifeEventBit(HAVE_TURTLE_FIGURINE)) {
            currentScore += buffer2[gSeasonTomorrow-1][i];
         } else {
             currentScore += buffer[gSeasonTomorrow-1][i];
@@ -94,8 +90,6 @@ void setForecast(void) {
     gForecast = i;
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/game/weather", setWeatherLighting);
 
 Vec4f setWeatherLighting(u8 weather) {
 

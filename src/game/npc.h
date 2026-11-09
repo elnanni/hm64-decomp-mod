@@ -98,7 +98,7 @@ extern u8 checkNPCInteraction();
 extern bool getBlueFeatherResponse(u8 index, u16 arg1);
 extern void setNPCAnimations();
 extern void setNPCSpawningLocations();        
-extern bool findNPCToTalkTo(void);                      
+extern bool findNPCToTalkTo(void);                           
 
 extern u8 npcAffection[MAX_NPCS];
 extern npcInfo npcs[MAX_NPCS];

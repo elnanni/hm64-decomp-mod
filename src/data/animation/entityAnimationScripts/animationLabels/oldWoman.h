@@ -1,0 +1,22 @@
+#ifndef _OLD_WOMAN_H_
+#define _OLD_WOMAN_H_
+
+#define OLD_WOMAN_ANIMATION_STANDING_DIRECTIONAL 0
+#define OLD_WOMAN_ANIMATION_STANDING_S           0
+#define OLD_WOMAN_ANIMATION_STANDING_SW          1
+#define OLD_WOMAN_ANIMATION_STANDING_W           2
+#define OLD_WOMAN_ANIMATION_STANDING_NW          3
+#define OLD_WOMAN_ANIMATION_STANDING_N           4
+#define OLD_WOMAN_ANIMATION_STANDING_NE          5
+#define OLD_WOMAN_ANIMATION_STANDING_E           6
+#define OLD_WOMAN_ANIMATION_STANDING_SE          7
+#define OLD_WOMAN_ANIMATION_8                    8
+#define OLD_WOMAN_ANIMATION_WALKING_SW           9
+#define OLD_WOMAN_ANIMATION_10                   10
+#define OLD_WOMAN_ANIMATION_WALKING_NW           11
+#define OLD_WOMAN_ANIMATION_12                   12
+#define OLD_WOMAN_ANIMATION_WALKING_NE           13
+#define OLD_WOMAN_ANIMATION_14                   14
+#define OLD_WOMAN_ANIMATION_WALKING_SE           15
+
+#endif

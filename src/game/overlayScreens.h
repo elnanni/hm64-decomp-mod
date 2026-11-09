@@ -133,8 +133,8 @@ extern void updateDogRaceContext(void);
 extern void initializeRaceContext(void); 
 extern void addRecipe(u16 bitIndex);
 extern u32 checkRecipe(u16 bitIndex);
-extern bool func_800CE714(bool);
-extern bool func_800CE828(bool); 
+extern bool checkAlreadyHaveHorseRacePrize(bool);
+extern bool checkAlreadyHaveDogRacePrize(bool); 
 
 // main loop callback functions
 extern void loadEstimateScreenCallback();
@@ -157,8 +157,8 @@ extern void kitchenPictureScreenCallback();
 extern void calendarScreenCallback();
 extern void recipeBookScreenCallback();
 extern void albumScreenCallback();
-extern void loadPauseScreenMapScreenCallback();
-extern void pauseScreenMapCallback();
+// extern void loadPauseScreenMapScreenCallback();
+// extern void pauseScreenMapCallback();
 extern void loadRaceBettingScreenCallback();
 extern void raceBettingScreenCallback();
 extern void loadRaceResultsScreenCallback();
@@ -168,15 +168,12 @@ extern void raceGiftsScreenCallback();
 extern void loadLotteryScreenCallback();
 extern void lotteryScreenCallback();
 
-extern u8 D_801890E8[31];
-// calendar
-// TODO: label
-extern u8 D_80189108[5][7];
-// refrigerator/freezer
-// TODO: label
+extern u8 cabinetItemSlots[32];
+extern u8 calendarStickerGrid[5][7];
 // FIXME: should be 2D array with [4][8]
-extern u8 D_80237420[31];
+extern u8 freezerItemSlots[32];
 
+extern u32 medalBalance;
 extern OverlayScreenTable overlayScreenTable;
 
 #endif

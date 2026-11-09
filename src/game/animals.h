@@ -10,6 +10,8 @@
 #define MAX_MISC_ANIMALS 7
 #define MAX_FARM_ANIMALS 8
 
+#define TOTAL_CHICKEN_STALLS 6
+
 #define CHICKEN_EGG 0
 #define CHICK 1
 #define ADULT_CHICKEN 2
@@ -91,6 +93,8 @@
 #define HORSE_BEING_RODE 		8	
 #define HORSE_FOLLOWING         0x10
 #define HORSE_COLLISION_WITH_PLAYER 0x20
+// 0x40
+// 0x80
 #define HORSE_BRUSHED_DAILY     0x100
 #define HORSE_WHISTLED_DAILY    0x200
 #define HORSE_RODE_DAILY        0x400
@@ -276,7 +280,7 @@ extern void initializeHorseEntity();
 extern void initializeChickenEntity(u8);
 extern void initializeFarmAnimalEntity(u8 index);
 extern void initializeMiscAnimalEntity(u8, u8);
-extern void spawnWildAnimals();
+extern void spawnMiscAnimals();
 extern void handleFarmAnimalPlayerCollision();
 extern void handleChickenPlayerCollision();
 extern void handleDogPlayerCollision();
@@ -342,20 +346,14 @@ extern u8 mrsManaCow2Index;
 
 extern u16 D_8016FDF0;
 extern u8 bornChickenIndex;
-// newest farm animal index?
 extern u8 bornAnimalIndex;
-// cow festival stall
 extern u8 gCowFestivalEnteredCowIndex;
 extern u8 gSelectedAnimalIndex;
 
-// dead animal count
-// TODO: label
 extern u16 deadAnimalCount;
 
-// purchased animal type
 extern u8 selectedAnimalType;
 
-// animal price?
 extern u32 gAnimalSalePrice;
 
 #endif

@@ -14,7 +14,7 @@
 
 #define CUTSCENE_ASSET_BEHAVIOR_TRACK_ENTITY 1
 #define CUTSCENE_ASSET_BEHAVIOR_WANDER 2
-#define CUTSCENE_ASSET_BEHAVIOR_WALKING 4
+#define CUTSCENE_ASSET_BEHAVIOR_MOVING_DEFAULT 4
 #define CUTSCENE_ASSET_BEHAVIOR_RUNNING 8
 #define CUTSCENE_ASSET_BEHAVIOR_HOLDING_ANIMATIONS 0x10
 
@@ -41,7 +41,7 @@ typedef struct {
 typedef struct {
     u16 functionIndex;
     u16 executorIndex;
-} CutsceneTogglePauseExecutorCmd;
+} CutsceneUnpauseExecutorCmd;
 
 typedef struct {
     u16 functionIndex;
@@ -49,7 +49,7 @@ typedef struct {
 
 typedef struct {
     u16 functionIndex;
-} CutsceneTogglePauseAllChildrenCmd;
+} CutsceneUnpauseAllChildrenCmd;
 
 typedef struct {
     u16 functionIndex;
@@ -118,10 +118,10 @@ typedef struct {
 } CutsceneClearSpecialBitCmd;
 
 typedef struct {
-    u8 variablePtr;
-    u8 unk_1;
-    u8 unk_2;
+    u16 functionIndex;
+    u8 pad;
     u8 value;
+    u8* variablePtr;
 } CutsceneSetU8ValueCmd;
 
 typedef struct {
@@ -347,7 +347,7 @@ typedef struct {
 typedef struct {
     u16 functionIndex;
     u16 entityIndex;
-} CutsceneTogglePauseEntityCmd;
+} CutsceneUnpauseEntityCmd;
 
 typedef struct {
     u16 functionIndex;

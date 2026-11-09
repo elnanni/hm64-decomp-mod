@@ -41,11 +41,12 @@
 #define ACQUIRING_TOOL 27
 #define JUMPING_DOWN 28
 #define USING_HOT_SPRINGS 29
-#define DIALOGUE_SELECTING 30
+#define READING_LIBRARY_BOOK 30
 #define PUTTING_FOOD_IN_DOG_BOWL 31
 #define DROPPING_ITEM_IN_WATER 32
 // 33 unused
 #define ACQUIRING_MUSIC_BOX 34
+#define PLAYING_OCARINA 35
 
 /* animation handlers */
 #define ANIM_DEFAULT 0
@@ -78,11 +79,12 @@
 #define ANIM_CLIMBING_TREE 27
 #define ANIM_TOOL_ACQUISITION 28
 // 29, 30 unused
-#define ANIM_DIALOGUE_SELECTING 31
+#define ANIM_READ_LIBRARY_BOOK 31
 #define ANIM_PUT_FOOD_IN_DOG_BOWL 32
 #define ANIM_DROP_ITEM_IN_WATER 33
 #define ANIM_DRINK_ALCOHOL 34
 #define ANIM_ACQUIRE_MUSIC_BOX 35
+#define ANIM_OCARINA 36
 
 #define PLAYER_RIDING_HORSE 0x1
 #define PLAYER_BATH_POSE_1 0x2
@@ -161,5 +163,8 @@ extern u8 gToolboxSlots[];
 // counter until napping animation
 extern u16 playerIdleCounter;
 extern u16 gSickDays;
+
+#define OCARINA_MUSIC_DUCK_DIVISOR 2
+#define OCARINA_NOTE_DELAY 2
 
 #endif

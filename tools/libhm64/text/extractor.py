@@ -19,6 +19,7 @@ Usage:
 
 import argparse
 import re
+import sys
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -28,7 +29,8 @@ from ..common import rom
 from . import addresses
 from .charmap import (
     CHAR_MAP, REVERSE_CHAR_MAP, CONTROL_CODES,
-    GAMEVAR_MACROS, CHARACTER_AVATAR_MACROS,
+    GAMEVAR_MACROS, get_character_avatar_macros,
+    CharacterAvatarMacrosError,
     BIT_MASKS
 )
 
@@ -36,6 +38,11 @@ from .charmap import (
 # Default output directory
 _REPO_DIR = Path(__file__).resolve().parent.parent.parent.parent
 DEFAULT_OUTPUT_DIR = _REPO_DIR / "assets" / "text"
+
+BASEROM_PATHS = {
+    'us': _REPO_DIR / "baserom.us.z64",
+    'jp': _REPO_DIR / "baserom.jp.z64",
+}
 
 
 # Message box types by line width
@@ -190,9 +197,13 @@ class TextDecoder:
                         else:
                             if item['name'] == 'INSERT_GAMEVAR' and item['parameter'] in GAMEVAR_MACROS:
                                 result.append(f"[{GAMEVAR_MACROS[item['parameter']]}]")
-                            elif item['name'] == 'CHARACTER_AVATAR' and item['parameter'] in CHARACTER_AVATAR_MACROS:
-                                result.append(f"[CHARACTER_AVATAR:{CHARACTER_AVATAR_MACROS[item['parameter']]}]")
-                            elif item['name'] in ('WAIT', 'CHARACTER_AVATAR', 'LOAD_TEXT'):
+                            elif item['name'] == 'CHARACTER_AVATAR':
+                                avatar_macros = get_character_avatar_macros()
+                                if item['parameter'] in avatar_macros:
+                                    result.append(f"[CHARACTER_AVATAR:{avatar_macros[item['parameter']]}]")
+                                else:
+                                    result.append(f"[CHARACTER_AVATAR:{item['parameter']}]")
+                            elif item['name'] in ('WAIT', 'LOAD_TEXT'):
                                 result.append(f"[{item['name']}:{item['parameter']}]")
                             else:
                                 result.append(f"[{item['name']}:{item['parameter']:02X}]")
@@ -206,7 +217,7 @@ class TextDecoder:
                         elif item['name'] == 'TEXTEND':
                             seen_textend = True
                             if self.modding:
-                                break
+                                break  # Stop here in modding mode
                         else:
                             if seen_textend:
                                 if not self.modding:
@@ -446,6 +457,8 @@ def extract_text_bank(bank: addresses.TextBankInfo, output_base: Path,
     """
     print(f"  Extracting: {bank.name}")
 
+    get_character_avatar_macros()
+
     output_path = output_base / bank.name
     output_path.mkdir(parents=True, exist_ok=True)
 
@@ -536,8 +549,8 @@ def extract_text_bank(bank: addresses.TextBankInfo, output_base: Path,
         return False
 
 
-def extract_all(output_dir: Path = DEFAULT_OUTPUT_DIR, modding: bool = False):
-    """Extract all text banks."""
+def extract_all(output_dir: Path = DEFAULT_OUTPUT_DIR, modding: bool = False) -> bool:
+    """Extract all text banks. Returns True if every bank succeeds."""
     banks = addresses.get_all_text_banks()
     print(f"Found {len(banks)} text banks to extract")
 
@@ -547,11 +560,12 @@ def extract_all(output_dir: Path = DEFAULT_OUTPUT_DIR, modding: bool = False):
             success += 1
 
     print(f"\nExtracted {success}/{len(banks)} text banks")
+    return success == len(banks)
 
 
 def extract_one(name: str, output_dir: Path = DEFAULT_OUTPUT_DIR,
-                modding: bool = False):
-    """Extract a single text bank by name."""
+                modding: bool = False) -> bool:
+    """Extract a single text bank by name. Returns True on success."""
     bank = addresses.get_text_bank_by_name(name)
 
     if bank is None:
@@ -559,9 +573,9 @@ def extract_one(name: str, output_dir: Path = DEFAULT_OUTPUT_DIR,
         print("Available banks:")
         for b in addresses.get_all_text_banks():
             print(f"  - {b.name}")
-        return
+        return False
 
-    extract_text_bank(bank, output_dir, modding=modding)
+    return extract_text_bank(bank, output_dir, modding=modding)
 
 
 def list_banks():
@@ -588,20 +602,31 @@ def main():
                         help='Output directory')
     parser.add_argument('--modding', action='store_true',
                         help='Enable modding mode: skip junk data, no metadata, human-readable output')
+    parser.add_argument('--region', choices=['us', 'jp'], default='us',
+                        help='ROM region: selects the address CSV and default baserom (default: us)')
+    parser.add_argument('--rom', type=str, default=None,
+                        help='Override the ROM path (defaults to baserom.<region>.z64 at repo root)')
 
     args = parser.parse_args()
     output_dir = Path(args.output)
 
+    addresses.set_region(args.region)
+    rom.set_rom_path(Path(args.rom) if args.rom else BASEROM_PATHS[args.region])
+
+    ok = True
     if args.command == 'extract_all':
-        extract_all(output_dir, modding=args.modding)
+        ok = extract_all(output_dir, modding=args.modding)
     elif args.command == 'extract':
         if not args.name:
             print("Error: extract requires a bank name")
             list_banks()
+            ok = False
         else:
-            extract_one(args.name, output_dir, modding=args.modding)
+            ok = extract_one(args.name, output_dir, modding=args.modding)
     elif args.command == 'list_banks':
         list_banks()
+
+    sys.exit(0 if ok else 1)
 
 
 if __name__ == '__main__':

@@ -4,54 +4,54 @@
 #include "common.h"
 
 #define TOTAL_ITEMS 67
-#define MAX_KEY_ITEMS 24 
+#define MAX_KEY_ITEMS 24
 #define MAX_TOOLS 30
 
-  /* holdable item flags */
-#define ITEM_EATABLE                    0x0001  
-#define ITEM_RUCKSACK_STORABLE          0x0002   
-#define ITEM_SHIPPABLE                  0x0004   
-#define ITEM_THROWABLE                  0x0008  
-#define ITEM_PLACEABLE_ON_GROUND        0x0010  
-#define ITEM_INCUBATOR_PLACEABLE        0x0020   
-#define ITEM_ANIMAL_FEED                0x0040   
-#define ITEM_SMALL_ANIMAL               0x0080  
-#define ITEM_BABY                       0x0100   
-#define ITEM_FREEZER_STORABLE           0x0200   
-#define ITEM_CRIB_PLACEABLE             0x0400
-#define ITEM_TOOL                       0x0800  
-#define ITEM_CABINET_STORABLE           0x1000  
+/* holdable item flags */
+#define ITEM_EATABLE                    0x1
+#define ITEM_RUCKSACK_STORABLE          0x2
+#define ITEM_SHIPPABLE                  0x4
+#define ITEM_THROWABLE                  0x8
+#define ITEM_PLACEABLE_ON_GROUND        0x10
+#define ITEM_INCUBATOR_PLACEABLE        0x20
+#define ITEM_ANIMAL_FEED                0x40
+#define ITEM_SMALL_ANIMAL               0x80
+#define ITEM_BABY                       0x100
+#define ITEM_FREEZER_STORABLE           0x200
+#define ITEM_CRIB_PLACEABLE             0x400
+#define ITEM_TOOL                       0x800
+#define ITEM_CABINET_STORABLE           0x1000
 #define ITEM_LUMBER_STORABLE            0x2000
-#define ITEM_HAS_ALCOHOL                0x4000  
-#define ITEM_HARVEST_GODDESS_OFFERABLE  0x8000 
+#define ITEM_HAS_ALCOHOL                0x4000
+#define ITEM_HARVEST_GODDESS_OFFERABLE  0x8000
 
 /* ItemContext flags */
-#define ITEM_CONTEXT_ACTIVE             0x01  
-#define ITEM_CONTEXT_USE_POSITION       0x02  
-#define ITEM_CONTEXT_HAS_DIRECTION_FRAME 0x04  
-#define ITEM_CONTEXT_USE_ATTACHMENT     0x08 
+#define ITEM_CONTEXT_ACTIVE             0x01
+#define ITEM_CONTEXT_USE_POSITION       0x02
+#define ITEM_CONTEXT_HAS_DIRECTION_FRAME 0x04
+#define ITEM_CONTEXT_USE_ATTACHMENT     0x08
 
 /* Item state indices */
-#define ITEM_STATE_INACTIVE             0   
+#define ITEM_STATE_INACTIVE             0
 #define ITEM_STATE_CLEANUP              1   // Wait then clear (after throw lands, shipping, etc.)
-#define ITEM_STATE_HELD                 2   
-#define ITEM_STATE_THROW_START          3  
-#define ITEM_STATE_THROW_MOTION         4  
-#define ITEM_STATE_THROW_FLIGHT         5   
-#define ITEM_STATE_PICKUP               6   
-#define ITEM_STATE_PICKUP_DONE          7   
-#define ITEM_STATE_PLACE                8   
-#define ITEM_STATE_PUT_DOWN             9   
-#define ITEM_STATE_EATING               10  
-#define ITEM_STATE_THROW_LANDED         12  
-#define ITEM_STATE_RAISED               13  
-#define ITEM_STATE_SHIP                 14 
-#define ITEM_STATE_DIALOGUE_SELECTION          16 
-#define ITEM_STATE_DOG_BOWL             17  
-#define ITEM_STATE_FEED_DOG             18  
-#define ITEM_STATE_RAISED_ALT           19 
-#define ITEM_STATE_DROP_IN_WATER        20  
-#define ITEM_STATE_TOOL_ACQUIRED        21  
+#define ITEM_STATE_HELD                 2
+#define ITEM_STATE_THROW_START          3
+#define ITEM_STATE_THROW_MOTION         4
+#define ITEM_STATE_THROW_FLIGHT         5
+#define ITEM_STATE_PICKUP               6
+#define ITEM_STATE_PICKUP_DONE          7
+#define ITEM_STATE_PLACE                8
+#define ITEM_STATE_PUT_DOWN             9
+#define ITEM_STATE_EATING               10
+#define ITEM_STATE_THROW_LANDED         12
+#define ITEM_STATE_RAISED               13
+#define ITEM_STATE_SHIP                 14
+#define ITEM_STATE_DIALOGUE_SELECTION          16
+#define ITEM_STATE_DOG_BOWL             17
+#define ITEM_STATE_FEED_DOG             18
+#define ITEM_STATE_RAISED_ALT           19
+#define ITEM_STATE_DROP_IN_WATER        20
+#define ITEM_STATE_TOOL_ACQUIRED        21
 
 /* tools */
 #define SICKLE 1
@@ -77,9 +77,9 @@
 #define BALL 21
 #define FEEDING_BOTTLE 22
 // 23
-#define FISHING_POLE 24
+#define FISHING_ROD 24
 #define MIRACLE_POTION 25
-#define COW_MEDICINE 26
+#define ANIMAL_MEDICINE 26
 #define GRASS_SEEDS 27
 #define BLUE_FEATHER 28
 #define EMPTY_BOTTLE 29
@@ -107,108 +107,80 @@
 #define FLOWER_BATH_CRYSTALS 20
 #define STAMINA_CARROT 21
 
-// TODO: finish adding items
 /* item indices */
 #define NONE_HELD_ITEM1 0
 #define WEED_HELD_ITEM 1
 #define ROCK_HELD_ITEM 2
 #define LOG_HELD_ITEM 3
 #define MOONDROP_FLOWER_HELD_ITEM 4
-#define PINK_CAT_MINT_FLOWER_HELD_ITEM 5  
+#define PINK_CAT_MINT_FLOWER_HELD_ITEM 5
 #define BLUE_MIST_FLOWER_HELD_ITEM 6
-#define CAKE 7
-#define PIE 8
-#define COOKIES 9
+#define CAKE_HELD_ITEM 7
+#define PIE_HELD_ITEM 8
+#define COOKIES_HELD_ITEM 9
 #define BLUE_FEATHER_HELD_ITEM 10
-#define OLD_WINE_HELD_ITEM 11
-#define CHOCOLATE_HELD_ITEM 12 // This one seems to be off as it uses sprite animation 0 for chocolate
-#define TURNIP 13
-#define POTATO 14
-#define CABBAGE 15
-#define TOMATO 16
-#define CORN 17
-#define EGGPLANT 18
-#define STRAWBERRY 19
+#define DOOR_TO_HEAVEN_HELD_ITEM 11
+// 12 = chocolate
+#define TURNIP_HELD_ITEM 13
+#define POTATO_HELD_ITEM 14
+#define CABBAGE_HELD_ITEM 15
+#define TOMATO_HELD_ITEM 16
+#define CORN_HELD_ITEM 17
+#define EGGPLANT_HELD_ITEM 18
+#define STRAWBERRY_HELD_ITEM 19
 #define EGG_HELD_ITEM 20
-#define SMALL_MILK 21
-#define MEDIUM_MILK 22
-#define LARGE_MILK 23
-#define GOLDEN_MILK 24
-#define WOOL 25
-#define HIGH_QUALITY_WOOL 26
-#define WILD_GRAPES 27
-#define VERYBERRY 28
-#define TROPICAL_FRUIT 29
-#define WALNUT 30
-#define MUSHROOM 31
-#define POISONOUS_MUSHROOM 32
-#define BOOK 33
-#define BERRY_OF_THE_FULLMOON 34
-#define MEDICINAL_HERB 35
-#define EDIBLE_HERB 36
-#define SMALL_FISH 37
-#define MEDIUM_FISH 38
-#define LARGE_FISH 39
-#define DUMPLING 40
-#define COTTON_CANDY 41
-#define FRIED_OCTUPUS 42
-#define ROASTED_CORN 43
-#define CANDY 44
-#define CHOCOLATE 45
-#define IRON_ORE 46
-#define BLUE_ROCK 47
-#define RARE_METAL 48
-#define MOONLIGHT_STONE 49
-#define PONTANA_ROOT 50
-#define WEATHER_VANE_HELD_ITEM 51
-#define CHOCOLATE_HELD_ITEM1 52 // This one seems to be off as it uses sprite animation 0 for chocolate
-#define NONE_HELD_ITEM2 53 // description is as diary
-#define OCARINA_HELD_ITEM 54
-#define NONE_HELD_ITEM3 55 // description is as diary
-#define CHOCOLATE_HELD_ITEM2 56 // This one seems to be off as it uses sprite animation 0 for chocolate
-#define FODDER_HELD_ITEM 57 // from this one we jump from index 58 to 97
-// What and why is the gap here for indexes on shopItemsAnimationScripts?
-#define TURNIP_SEEDS_HELD_ITEM 58 // we jump to index 97 in shopItemsAnimationScripts
-#define POTATO_SEEDS_HELD_ITEM 59
-#define CABBAGE_SEEDS_HELD_ITEM 60
-#define TOMATO_SEEDS_HELD_ITEM 61
-#define CORN_SEEDS_HELD_ITEM 62
-#define EGGPLANT_SEEDS_HELD_ITEM 63
-#define STRAWBERRY_SEEDS_HELD_ITEM 64
-#define GRASS_SEEDS_HELD_ITEM 65
-#define MOON_DROP_SEEDS_HELD_ITEM 66
-#define PINK_CAT_MINT_SEEDS_HELD_ITEM 67
-#define BLUE_MIST_SEEDS_HELD_ITEM 68 // seems seeds block ends here ends on index 107 on shopItemsAnimationScripts
-// What and why is the gap here for indexes on shopItemsAnimationScripts?
-#define CHICKEN_FEED_HELD_ITEM 69 // jumps to index 131 on shopItemsAnimationScripts
-#define BARN_FEED_HELD_ITEM 70
-#define MIRACLE_POTION_HELD_ITEM 71
+#define SMALL_MILK_HELD_ITEM 21
+#define MEDIUM_MILK_HELD_ITEM 22
+#define LARGE_MILK_HELD_ITEM 23
+#define GOLDEN_MILK_HELD_ITEM 24
+#define WOOL_HELD_ITEM 25
+#define HIGH_QUALITY_WOOL_HELD_ITEM 26
+#define WILD_GRAPES_HELD_ITEM 27
+#define VERYBERRY_HELD_ITEM 28
+#define TROPICAL_FRUIT_HELD_ITEM 29
+#define WALNUT_HELD_ITEM 30
+#define MUSHROOM_HELD_ITEM 31
+#define POISONOUS_MUSHROOM_HELD_ITEM 32
+#define BOOK_HELD_ITEM 33
+#define BERRY_OF_THE_FULLMOON_HELD_ITEM 34
+#define MEDICINAL_HERB_HELD_ITEM 35
+#define EDIBLE_HERB_HELD_ITEM 36
+#define SMALL_FISH_HELD_ITEM 37
+#define MEDIUM_FISH_HELD_ITEM 38
+#define LARGE_FISH_HELD_ITEM 39
+#define DUMPLING_HELD_ITEM 40
+#define COTTON_CANDY_HELD_ITEM 41
+#define FRIED_OCTUPUS_HELD_ITEM 42
+#define ROASTED_CORN_HELD_ITEM 43
+#define CANDY_HELD_ITEM 44
+#define CHOCOLATE_HELD_ITEM 45
+#define IRON_ORE_HELD_ITEM 46
+#define BLUE_ROCK_HELD_ITEM 47
+#define RARE_METAL_HELD_ITEM 48
+#define MOONLIGHT_STONE_HELD_ITEM 49
+#define PONTATA_ROOT_HELD_ITEM 50
+#define FODDER_HELD_ITEM 57
+#define SEEDS_HELD_ITEM 64
 #define MEDICINE_HELD_ITEM 72
 #define SHEARS_HELD_ITEM 73
-#define BRUSH_HELD_ITEM 74
-#define MILKER_HELD_ITEM 75
-#define CALENDAR_HELD_ITEM 76
-#define RUG_HELD_ITEM 77 // seems this block ends here ends on index 139 on shopItemsAnimationScripts
-// What and why is the gap here for indexes on shopItemsAnimationScripts?
-#define BLUE_VASE_HELD_ITEM 78 // jumps to index 156 on shopItemsAnimationScripts
-#define RED_VASE_HELD_ITEM 79 // really small block of 2 elements, breaks on index 157 on shopItemsAnimationScripts
-#define RICE_CAKE 80 // returns to index 58 on shopItemsAnimationScripts
-#define BREAD 81
-#define EGGS 82
-#define FISH_FILLET_HELD_ITEM 83
-#define SALAD_HELD_ITEM 84
-#define PASTA_HELD_ITEM 85
-#define WATERMELON_HELD_ITEM 86 // block ends on index 64 on shopItemsAnimationScripts
-#define POWER_NUT 87 // index 211 on shopItemsAnimationScripts
-#define DOG_HELD_ITEM 88 // index 65 on shopItemsAnimationScripts ends on index 72
+#define RICE_CAKE_HELD_ITEM 80
+#define BREAD_HELD_ITEM 81
+#define EGGS_HELD_ITEM 82
+#define POWER_NUT_HELD_ITEM 87
+#define DOG_HELD_ITEM 88
 // multiple directions
 #define CHICKEN_HELD_ITEM 96 // index 81 on shopItemsAnimationScripts ends on index 88
 // multiple directions
-#define CHICK_HELD_ITEM 104 // index 89 on shopItemsAnimationScripts ends on index 96
-// multiple directions
-#define EMPTY_BOTTLE_HELD_ITEM 112 // index 113 on shopItemsAnimationScripts
-#define BOTTLE_WITH_WATER_HELD_ITEM 113 // index 114 on shopItemsAnimationScripts
-#define BOTTLE_WITH_WINE_HELD_ITEM 114 // index 110 on shopItemsAnimationScripts
+#define CHICK_HELD_ITEM 104
+// 105-111
+#define EMPTY_BOTTLE_HELD_ITEM 112
+#define BOTTLE_WITH_WATER_HELD_ITEM 113
+#define BOTTLE_WITH_WINE_HELD_ITEM 114
+// 115-117
+#define BOTTLE_WITH_MILK_HELD_ITEM 118
+// 119
+#define BOTTLE_WITH_TEA_HELD_ITEM 120
+// 121-122
 #define PUPPY_1_HELD_ITEM 123
 // multiple directions
 #define CAT_HELD_ITEM 131
@@ -232,11 +204,9 @@
 #define CRICKET_HELD_ITEM 185
 #define BABY_HELD_ITEM 186
 // multiple directions
- #define BABY_HELD_ITEM2 192
-// multiple directions
 #define BABY_GROWN_HELD_ITEM 194
 // multiple directions
-#define OPEN_BOOK 202
+#define LIBRARY_BOOK_HELD_ITEM 202
 #define SICKLE_HELD_ITEM 203
 #define SILVER_SICKLE_HELD_ITEM 204
 #define GOLDEN_SICKLE_HELD_ITEM 205
@@ -260,32 +230,103 @@
 #define PLAYER_HELD_ITEM 223
 #define PLAYER_HELD_ITEM2 224
 
+/* held item dialogue indices */
+#define HELD_ITEM_DIALOGUE_TURNIP                1   // TURNIP (13)
+#define HELD_ITEM_DIALOGUE_POTATO                2   // POTATO (14)
+#define HELD_ITEM_DIALOGUE_CABBAGE               3   // CABBAGE (15)
+#define HELD_ITEM_DIALOGUE_TOMATO                4   // TOMATO (16)
+#define HELD_ITEM_DIALOGUE_CORN                  5   // CORN (17)
+#define HELD_ITEM_DIALOGUE_EGGPLANT              6   // EGGPLANT (18)
+#define HELD_ITEM_DIALOGUE_STRAWBERRY            7   // STRAWBERRY (19)
+#define HELD_ITEM_DIALOGUE_EGG                   8   // EGG_HELD_ITEM (20)
+#define HELD_ITEM_DIALOGUE_SMALL_MILK            9   // SMALL_MILK (21)
+#define HELD_ITEM_DIALOGUE_MEDIUM_MILK           10  // MEDIUM_MILK (22)
+#define HELD_ITEM_DIALOGUE_LARGE_MILK            11  // LARGE_MILK (23)
+#define HELD_ITEM_DIALOGUE_GOLDEN_MILK           12  // GOLDEN_MILK (24)
+#define HELD_ITEM_DIALOGUE_MOONDROP_FLOWER       13  // MOONDROP_FLOWER_HELD_ITEM (4)
+#define HELD_ITEM_DIALOGUE_PINK_CAT_MINT_FLOWER  14  // PINK_CAT_MINT_FLOWER_HELD_ITEM (5)
+#define HELD_ITEM_DIALOGUE_CAKE                  15  // CAKE (7)
+#define HELD_ITEM_DIALOGUE_PIE                   16  // PIE (8)
+#define HELD_ITEM_DIALOGUE_COOKIES               17  // COOKIES (9)
+#define HELD_ITEM_DIALOGUE_WOOL                  18  // WOOL (25)
+#define HELD_ITEM_DIALOGUE_HIGH_QUALITY_WOOL     19  // HIGH_QUALITY_WOOL (26)
+#define HELD_ITEM_DIALOGUE_WILD_GRAPES           20  // WILD_GRAPES (27)
+#define HELD_ITEM_DIALOGUE_VERYBERRY             21  // VERYBERRY (28)
+#define HELD_ITEM_DIALOGUE_TROPICAL_FRUIT        22  // TROPICAL_FRUIT (29)
+#define HELD_ITEM_DIALOGUE_WALNUT                23  // WALNUT (30)
+#define HELD_ITEM_DIALOGUE_MUSHROOM              24  // MUSHROOM (31)
+#define HELD_ITEM_DIALOGUE_BERRY_OF_THE_FULLMOON 25  // BERRY_OF_THE_FULLMOON (34)
+#define HELD_ITEM_DIALOGUE_DUMPLING              26  // DUMPLING (40)
+#define HELD_ITEM_DIALOGUE_MEDICINAL_HERB        27  // MEDICINAL_HERB (35)
+#define HELD_ITEM_DIALOGUE_EDIBLE_HERB           28  // EDIBLE_HERB (36)
+#define HELD_ITEM_DIALOGUE_SMALL_FISH            29  // SMALL_FISH (37)
+#define HELD_ITEM_DIALOGUE_MEDIUM_FISH           30  // MEDIUM_FISH (38)
+#define HELD_ITEM_DIALOGUE_LARGE_FISH            31  // LARGE_FISH (39)
+#define HELD_ITEM_DIALOGUE_COTTON_CANDY          32  // COTTON_CANDY (41)
+#define HELD_ITEM_DIALOGUE_FRIED_OCTUPUS         33  // FRIED_OCTUPUS (42)
+#define HELD_ITEM_DIALOGUE_CHOCOLATE             34  // CHOCOLATE (45)
+#define HELD_ITEM_DIALOGUE_CANDY                 35  // CANDY (44)
+// 36-40: no items remap to these indices
+#define HELD_ITEM_DIALOGUE_FODDER                41  // FODDER_HELD_ITEM (57)
+#define HELD_ITEM_DIALOGUE_LOG                   42  // LOG_HELD_ITEM (3)
+#define HELD_ITEM_DIALOGUE_IRON_ORE              43  // IRON_ORE (46)
+#define HELD_ITEM_DIALOGUE_RARE_METAL            44  // RARE_METAL (48)
+#define HELD_ITEM_DIALOGUE_BLUE_ROCK             45  // BLUE_ROCK (47)
+#define HELD_ITEM_DIALOGUE_MOONLIGHT_STONE       46  // MOONLIGHT_STONE (49)
+#define HELD_ITEM_DIALOGUE_ROCK                  47  // ROCK_HELD_ITEM (2)
+#define HELD_ITEM_DIALOGUE_WEED                  48  // WEED_HELD_ITEM (1)
+#define HELD_ITEM_DIALOGUE_POISONOUS_MUSHROOM    49  // POISONOUS_MUSHROOM (32)
+#define HELD_ITEM_DIALOGUE_BLUE_FEATHER          50  // BLUE_FEATHER_HELD_ITEM (10)
+#define HELD_ITEM_DIALOGUE_DOG                   51  // DOG_HELD_ITEM (88) + 7 direction variants
+#define HELD_ITEM_DIALOGUE_BABY                  52  // BABY_HELD_ITEM (186) + grown + 14 variants
+#define HELD_ITEM_DIALOGUE_HORNED_BEETLE         53  // HORNED_BEETLE_HELD_ITEM (182)
+#define HELD_ITEM_DIALOGUE_STAG_BEETLE           54  // STAG_BEETLE_HELD_ITEM (183)
+// 55: no items remap to this index
+#define HELD_ITEM_DIALOGUE_CICADA                56  // CICADA_HELD_ITEM (181)
+#define HELD_ITEM_DIALOGUE_BUTTERFLY             57  // BUTTERFLY_HELD_ITEM (179)
+#define HELD_ITEM_DIALOGUE_LADYBUG               58  // LADYBUG_HELD_ITEM (180)
+#define HELD_ITEM_DIALOGUE_RED_DRAGONFLY         59  // RED_DRAGONFLY_HELD_ITEM (184)
+#define HELD_ITEM_DIALOGUE_CRICKET               60  // CRICKET_HELD_ITEM (185)
+#define HELD_ITEM_DIALOGUE_PONTATA_ROOT          61  // PONTATA_ROOT (50)
+#define HELD_ITEM_DIALOGUE_CHICKEN               62  // CHICKEN_HELD_ITEM (96) + 7 direction variants
+#define HELD_ITEM_DIALOGUE_CHICK                 63  // CHICK_HELD_ITEM (104) + 7 direction variants
+#define HELD_ITEM_DIALOGUE_ANIMAL                64  // (CAT, FOX, SQUIRREL, RABBIT, MONKEY — 40 IDs)
+#define HELD_ITEM_DIALOGUE_PUPPY                 65  // PUPPY_1_HELD_ITEM (123) + 7 direction variants
+#define HELD_ITEM_DIALOGUE_DOG_2                 66  // DOG_2_HELD_ITEM (171) + 7 direction variants
+
 /* bottle contents */
-#define EMPTY 0
+#define BOTTLE_CONTENTS_EMPTY 0
+#define BOTTLE_CONTENTS_WATER 1
+#define BOTTLE_CONTENTS_WINE 2
+#define BOTTLE_CONTENTS_CURE_ALL_MEDICINE 3
+#define BOTTLE_CONTENTS_VITAMIN_PREPARATION 4
+#define BOTTLE_CONTENTS_VITAMIN_GOLD 5
+#define BOTTLE_CONTENTS_MILK 6
+#define BOTTLE_CONTENTS_HONEY 7
 
 // 0x80204DF8
 typedef struct {
-    Vec3f position;             
-    Vec3f movement;              
-    Vec3f attachmentOffset;      
-    u16 unk_24;                  
-    u16 itemAnimationFrameCounter; 
-    u16 heldItemIndex;           
-    u8 stateIndex;               
-    u8 flags;                
+    Vec3f position;
+    Vec3f movement;
+    Vec3f attachmentOffset;
+    u16 unk_24;
+    u16 itemAnimationFrameCounter;
+    u16 heldItemIndex;
+    u8 stateIndex;
+    u8 flags;
 } ItemContext;
 
 // 0x80189828
 typedef struct {
     u16 unk_0; // unused
     u8 stepIndex;
-    u8 stumpHitCounter; 
+    u8 stumpHitCounter;
     s16 stumpHitPositionX;
     s16 stumpHitPositionZ;
-    u8 boulderHitCounter; 
+    u8 boulderHitCounter;
     s16 boulderHitPositionX;
     s16 boulderHitPositionZ;
-    u8 toolUseState; 
+    u8 toolUseState;
     u8 musicBoxTileDigCounter;
 } ToolUse;
 
@@ -300,7 +341,7 @@ extern void spawnFishingRodEntity(u8, u8, f32, f32, f32);
 extern void setItemEntityAnimation(u8, u8);
 extern void deactivateItemEntity(u8);
 extern void processToolUseState();
-extern u8 initializeHeldItem(u8 index, u8 arg1, u32 arg2, s32 arg3, s32 arg4);
+extern u8 initializeHeldItem(u8 index, u8 arg1, u32 arg2, u16 arg3, bool arg4);
 extern u8 allocateHeldItemSlot(u8 index, u8 arg1, u32 arg2, u16 arg3, u8 arg4);
 extern void clearHeldItemSlot(u8);
 extern void setItemState(u8, u8);

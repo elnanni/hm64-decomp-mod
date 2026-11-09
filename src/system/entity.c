@@ -8,8 +8,12 @@
 #include "system/map.h"
 #include "system/mapController.h"
 
-#include "mainproc.h"
 #include "game/npc.h"
+
+#include "mainproc.h"
+
+#include "data/animation/entityAnimationScripts/entityAnimationScripts.h"
+
 
 // bss
 Entity entities[MAX_ENTITIES];
@@ -22,30 +26,30 @@ u16 checkTerrainMovementCollision(Entity*, f32, f32, u8);
 u8 detectEntityOverlap(Entity*, u16, f32, f32, u16, u16);
 void updateEntityPhysics(u16);
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", initializeEntities);
-
 void initializeEntities(void) {
     
     u16 i;
 
     for (i = 0; i < MAX_ENTITIES; i++) {
-        entities[i].flags = 0;
-        entities[i].globalSpriteIndex = 0;
-        entities[i].animationIndices.animationIndex = 0;
-        entities[i].animationIndices.nextAnimationIndex = 0xFFFF;
-        entities[i].direction = 0;
-        entities[i].entityCollidedWithIndex = 0xFFFF;
-        entities[i].buttonPressed = 0;
-        entities[i].collision = 0xFFFF;
-        entities[i].coordinates.x = 0;
-        entities[i].coordinates.y = 0;
-        entities[i].coordinates.z = 0;
-        entities[i].movementVector.x = 0;
-        entities[i].movementVector.y = 0;
-        entities[i].movementVector.z = 0;
-        entities[i].speed = 0.0f;
-        entities[i].yOffset = 0;
-        entities[i].paletteIndex = 0;
+        Entity *ent = &entities[i];
+
+        ent->flags = 0;
+        ent->globalSpriteIndex = 0;
+        ent->animationIndices.animationIndex = 0;
+        ent->animationIndices.nextAnimationIndex = 0xFFFF;
+        ent->direction = 0;
+        ent->entityCollidedWithIndex = 0xFFFF;
+        ent->buttonPressed = 0;
+        ent->collision = 0xFFFF;
+        ent->coordinates.x = 0;
+        ent->coordinates.y = 0;
+        ent->coordinates.z = 0;
+        ent->movementVector.x = 0;
+        ent->movementVector.y = 0;
+        ent->movementVector.z = 0;
+        ent->speed = 0.0f;
+        ent->yOffset = 0;
+        ent->paletteIndex = 0;
  
     }
     
@@ -58,24 +62,22 @@ void initializeEntities(void) {
     } 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", initializeEntityAsset);
-
-bool initializeEntityAsset(u16 entityAssetIndex, u32 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5, u32 arg6, u8 arg7, u8 arg8, u16* arg9) {
+bool initializeEntityAsset(u16 entityAssetIndex, u32 romTextureStart, u32 romTextureEnd, u32 romAssetsIndexStart, u32 romAssetsIndexEnd, u32 romSpritesheetIndexStart, u32 romSpritesheetIndexEnd, u8 isType1Sprite, u8 shadowSpriteIndex, u16* animationScripts) {
 
     bool result = FALSE;
 
     if (entityAssetIndex < MAX_ENTITY_ASSETS) {
 
-        if (!(entityAssetDescriptors[entityAssetIndex].flags & 1)) {
-            
-            entityAssetDescriptors[entityAssetIndex].romTextureStart = arg1;
-            entityAssetDescriptors[entityAssetIndex].romTextureEnd = arg2;
-            entityAssetDescriptors[entityAssetIndex].romAssetsIndexStart = arg3;
-            entityAssetDescriptors[entityAssetIndex].romAssetsIndexEnd = arg4;
-            entityAssetDescriptors[entityAssetIndex].romSpritesheetIndexStart = arg5;
-            entityAssetDescriptors[entityAssetIndex].romSpritesheetIndexEnd = arg6;
-            entityAssetDescriptors[entityAssetIndex].shadowSpriteIndex = arg8;
-            entityAssetDescriptors[entityAssetIndex].animationScripts = arg9;
+        if (!(entityAssetDescriptors[entityAssetIndex].flags & ENTITY_ASSET_ACTIVE)) {
+
+            entityAssetDescriptors[entityAssetIndex].romTextureStart = romTextureStart;
+            entityAssetDescriptors[entityAssetIndex].romTextureEnd = romTextureEnd;
+            entityAssetDescriptors[entityAssetIndex].romAssetsIndexStart = romAssetsIndexStart;
+            entityAssetDescriptors[entityAssetIndex].romAssetsIndexEnd = romAssetsIndexEnd;
+            entityAssetDescriptors[entityAssetIndex].romSpritesheetIndexStart = romSpritesheetIndexStart;
+            entityAssetDescriptors[entityAssetIndex].romSpritesheetIndexEnd = romSpritesheetIndexEnd;
+            entityAssetDescriptors[entityAssetIndex].shadowSpriteIndex = shadowSpriteIndex;
+            entityAssetDescriptors[entityAssetIndex].animationScripts = animationScripts;
 
             entityAssetDescriptors[entityAssetIndex].collisionBufferX = 0;
             entityAssetDescriptors[entityAssetIndex].collisionBufferY = 0;
@@ -83,10 +85,10 @@ bool initializeEntityAsset(u16 entityAssetIndex, u32 arg1, u32 arg2, u32 arg3, u
             entityAssetDescriptors[entityAssetIndex].spriteWidth = 0;
             entityAssetDescriptors[entityAssetIndex].spriteHeight = 0;
 
-            entityAssetDescriptors[entityAssetIndex].flags = 1;
+            entityAssetDescriptors[entityAssetIndex].flags = ENTITY_ASSET_ACTIVE;
 
-            if (arg7) {
-                entityAssetDescriptors[entityAssetIndex].flags = 3;
+            if (isType1Sprite) {
+                entityAssetDescriptors[entityAssetIndex].flags = (ENTITY_ASSET_ACTIVE | ENTITY_ASSET_IS_TYPE_1_SPRITE);
             }
             
             result = TRUE;
@@ -95,44 +97,45 @@ bool initializeEntityAsset(u16 entityAssetIndex, u32 arg1, u32 arg2, u32 arg3, u
     }
     
     return result;
-}
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", initializeSpriteInstance);
+}
 
 bool initializeEntity(u16 entityIndex, u16 globalSpriteIndex, u16 shadowSpriteIndex, u8* vaddrTexture1, u8* vaddrTexture2, 
     u16* vaddrPalette, AnimationFrameMetadata* vaddrAnimationMetadata, u32* vaddrTextureToPaletteLookup, u32* vaddrSpritesheetIndex) {
+    Entity *ent = &entities[entityIndex];
+
 
     bool set = FALSE;
     
     if (entityIndex < MAX_ENTITIES) {
 
-        if (!(entities[entityIndex].flags & ENTITY_ACTIVE)) {
+        if (!(ent->flags & ENTITY_ACTIVE)) {
 
-            entities[entityIndex].flags = 1;
+            ent->flags = ENTITY_ACTIVE;
 
-            entities[entityIndex].globalSpriteIndex = globalSpriteIndex;
-            entities[entityIndex].shadowSpriteIndex = shadowSpriteIndex;
+            ent->globalSpriteIndex = globalSpriteIndex;
+            ent->shadowSpriteIndex = shadowSpriteIndex;
 
-            entities[entityIndex].vaddrTexture1 = vaddrTexture1;
-            entities[entityIndex].vaddrTexture2 = vaddrTexture2;
-            entities[entityIndex].vaddrPalette = vaddrPalette;
-            entities[entityIndex].vaddrAnimationMetadata = vaddrAnimationMetadata;
-            entities[entityIndex].vaddrSpritesheetIndex = vaddrSpritesheetIndex;
-            entities[entityIndex].vaddrTextureToPaletteLookup = vaddrTextureToPaletteLookup;
+            ent->vaddrTexture1 = vaddrTexture1;
+            ent->vaddrTexture2 = vaddrTexture2;
+            ent->vaddrPalette = vaddrPalette;
+            ent->vaddrAnimationMetadata = vaddrAnimationMetadata;
+            ent->vaddrSpritesheetIndex = vaddrSpritesheetIndex;
+            ent->vaddrTextureToPaletteLookup = vaddrTextureToPaletteLookup;
 
-            entities[entityIndex].coordinates.x = 0;
-            entities[entityIndex].coordinates.y = 0;
-            entities[entityIndex].coordinates.z = 0;
+            ent->coordinates.x = 0;
+            ent->coordinates.y = 0;
+            ent->coordinates.z = 0;
 
-            entities[entityIndex].movementVector.x = 0;
-            entities[entityIndex].movementVector.y = 0;
-            entities[entityIndex].movementVector.z = 0;
+            ent->movementVector.x = 0;
+            ent->movementVector.y = 0;
+            ent->movementVector.z = 0;
 
-            entities[entityIndex].speed = 0;
+            ent->speed = 0;
 
-            entities[entityIndex].entityCollidedWithIndex = 0xFFFF;
+            ent->entityCollidedWithIndex = 0xFFFF;
 
-            entities[entityIndex].yOffset = 0;
+            ent->yOffset = 0;
         
             set = TRUE;
             
@@ -143,42 +146,41 @@ bool initializeEntity(u16 entityIndex, u16 globalSpriteIndex, u16 shadowSpriteIn
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", initializeAnimalEntity);
+bool initializeAnimalEntity(u16 index, u16* vaddrPalette, AnimationFrameMetadata* vaddrAnimationMetadata, u32* vaddrTextureToPaletteLookup, u32* vaddrSpritesheetIndex) {
+    Entity *ent = &entities[index];
 
-bool initializeAnimalEntity(u16 index, u16* arg1, AnimationFrameMetadata* arg2, u32* arg3, u32* arg4) {
 
     bool result = FALSE;
-    
+
     if (index < MAX_ENTITIES) {
-        
+
         result = TRUE;
-        
-        entities[index].vaddrSpritesheetIndex = arg4;
-        
-        entities[index].flags = 1;
-        
-        entities[index].vaddrPalette = arg1;
-        entities[index].vaddrAnimationMetadata = arg2;
-        entities[index].vaddrTextureToPaletteLookup = arg3;
 
-        entities[index].coordinates.x = 0;
-        entities[index].coordinates.y = 0;
-        entities[index].coordinates.z = 0;
+        ent->vaddrSpritesheetIndex = vaddrSpritesheetIndex;
 
-        entities[index].movementVector.x = 0;
-        entities[index].movementVector.y = 0;
-        entities[index].movementVector.z = 0;
+        ent->flags = 1;
 
-        entities[index].speed = 0.0f;
-        entities[index].entityCollidedWithIndex = 0xFFFF;
-        entities[index].yOffset = 0;
+        ent->vaddrPalette = vaddrPalette;
+        ent->vaddrAnimationMetadata = vaddrAnimationMetadata;
+        ent->vaddrTextureToPaletteLookup = vaddrTextureToPaletteLookup;
+
+        ent->coordinates.x = 0;
+        ent->coordinates.y = 0;
+        ent->coordinates.z = 0;
+
+        ent->movementVector.x = 0;
+        ent->movementVector.y = 0;
+        ent->movementVector.z = 0;
+
+        ent->speed = 0.0f;
+        ent->entityCollidedWithIndex = 0xFFFF;
+        ent->yOffset = 0;
         
     }
 
     return result;
-}
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", forceDeactivateEntity);
+}
 
 // unused; deactivate sprite without checking flags
 // bool forceDeactivateEntity(u16 index) {
@@ -203,26 +205,25 @@ bool initializeAnimalEntity(u16 index, u16* arg1, AnimationFrameMetadata* arg2, 
 
 // }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", deactivateSprite);
- 
 void deactivateSprites(void) {
 
     u16 i = 0;
     u16 temp;
 
     while (i < MAX_ENTITIES) {
+        Entity *ent = &entities[i];
+
 
         temp = i;
 
         if (temp < MAX_ENTITIES) {
 
-            entities[i].flags = 0;
+            ent->flags = 0;
         
-            deactivateSprite(entities[i].globalSpriteIndex);
+            deactivateSprite(ent->globalSpriteIndex);
             
-            // toggle flag on shadow sprite
-            if (entityAssetDescriptors[entities[i].entityAssetIndex].shadowSpriteIndex != 0xFF) {
-                deactivateSprite(entities[i].shadowSpriteIndex);
+            if (entityAssetDescriptors[ent->entityAssetIndex].shadowSpriteIndex != 0xFF) {
+                deactivateSprite(ent->shadowSpriteIndex);
             } 
         }
         
@@ -231,86 +232,86 @@ void deactivateSprites(void) {
     }
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", loadEntity);
-
 bool loadEntity(u16 index, u16 entityAssetIndex, bool transformExempt) {
+    Entity *ent = &entities[index];
+
 
     bool result = FALSE;
     
     if (index < MAX_ENTITIES) {
         
-        if (entities[index].flags & ENTITY_ACTIVE) {
+        if (ent->flags & ENTITY_ACTIVE) {
 
-            entities[index].entityAssetIndex = entityAssetIndex;
-            entities[index].transformExempt = transformExempt;
+            ent->entityAssetIndex = entityAssetIndex;
+            ent->transformExempt = transformExempt;
 
-            if (entityAssetDescriptors[entities[index].entityAssetIndex].flags & 2) {
+            if (entityAssetDescriptors[ent->entityAssetIndex].flags & ENTITY_ASSET_IS_TYPE_1_SPRITE) {
 
-                dmaSprite(entities[index].globalSpriteIndex, 
-                    entityAssetDescriptors[entities[index].entityAssetIndex].romTextureStart, 
-                    entityAssetDescriptors[entities[index].entityAssetIndex].romTextureEnd, 
-                    entityAssetDescriptors[entities[index].entityAssetIndex].romAssetsIndexStart, 
-                    entityAssetDescriptors[entities[index].entityAssetIndex].romAssetsIndexEnd, 
-                    entityAssetDescriptors[entities[index].entityAssetIndex].romSpritesheetIndexStart, 
-                    entityAssetDescriptors[entities[index].entityAssetIndex].romSpritesheetIndexEnd, 
-                    entities[index].vaddrTexture1,
-                    entities[index].vaddrTexture2,
-                    entities[index].vaddrPalette,
-                    entities[index].vaddrAnimationMetadata,
-                    entities[index].vaddrTextureToPaletteLookup,
-                    entities[index].vaddrSpritesheetIndex,
+                dmaSprite(ent->globalSpriteIndex, 
+                    entityAssetDescriptors[ent->entityAssetIndex].romTextureStart, 
+                    entityAssetDescriptors[ent->entityAssetIndex].romTextureEnd, 
+                    entityAssetDescriptors[ent->entityAssetIndex].romAssetsIndexStart, 
+                    entityAssetDescriptors[ent->entityAssetIndex].romAssetsIndexEnd, 
+                    entityAssetDescriptors[ent->entityAssetIndex].romSpritesheetIndexStart, 
+                    entityAssetDescriptors[ent->entityAssetIndex].romSpritesheetIndexEnd, 
+                    ent->vaddrTexture1,
+                    ent->vaddrTexture2,
+                    ent->vaddrPalette,
+                    ent->vaddrAnimationMetadata,
+                    ent->vaddrTextureToPaletteLookup,
+                    ent->vaddrSpritesheetIndex,
                     1,
-                    entities[index].transformExempt                    
+                    ent->transformExempt                    
                     );
                 
             } else {
                 
-                dmaSprite(entities[index].globalSpriteIndex, 
-                    entityAssetDescriptors[entities[index].entityAssetIndex].romTextureStart, 
-                    entityAssetDescriptors[entities[index].entityAssetIndex].romTextureEnd, 
-                    entityAssetDescriptors[entities[index].entityAssetIndex].romAssetsIndexStart, 
-                    entityAssetDescriptors[entities[index].entityAssetIndex].romAssetsIndexEnd, 
-                    entityAssetDescriptors[entities[index].entityAssetIndex].romSpritesheetIndexStart, 
-                    entityAssetDescriptors[entities[index].entityAssetIndex].romSpritesheetIndexEnd, 
-                    entities[index].vaddrTexture1,
+                dmaSprite(ent->globalSpriteIndex, 
+                    entityAssetDescriptors[ent->entityAssetIndex].romTextureStart, 
+                    entityAssetDescriptors[ent->entityAssetIndex].romTextureEnd, 
+                    entityAssetDescriptors[ent->entityAssetIndex].romAssetsIndexStart, 
+                    entityAssetDescriptors[ent->entityAssetIndex].romAssetsIndexEnd, 
+                    entityAssetDescriptors[ent->entityAssetIndex].romSpritesheetIndexStart, 
+                    entityAssetDescriptors[ent->entityAssetIndex].romSpritesheetIndexEnd, 
+                    ent->vaddrTexture1,
                     NULL,
-                    entities[index].vaddrPalette,
-                    entities[index].vaddrAnimationMetadata,
-                    entities[index].vaddrTextureToPaletteLookup,
+                    ent->vaddrPalette,
+                    ent->vaddrAnimationMetadata,
+                    ent->vaddrTextureToPaletteLookup,
                     NULL,
-                    entityAssetDescriptors[entities[index].entityAssetIndex].flags & 2 == 1,
-                    entities[index].transformExempt                    
+                    entityAssetDescriptors[ent->entityAssetIndex].flags & ENTITY_ASSET_IS_TYPE_1_SPRITE == TRUE,
+                    ent->transformExempt                    
                     );
                 
             }
 
-            if (entityAssetDescriptors[entities[index].entityAssetIndex].shadowSpriteIndex != 0xFF) {
+            if (entityAssetDescriptors[ent->entityAssetIndex].shadowSpriteIndex != 0xFF) {
                 
-                dmaSprite(entities[index].shadowSpriteIndex, 
-                    shadowSpriteDescriptors[entityAssetDescriptors[entities[index].entityAssetIndex].shadowSpriteIndex].romTextureStart, 
-                    shadowSpriteDescriptors[entityAssetDescriptors[entities[index].entityAssetIndex].shadowSpriteIndex].romTextureEnd, 
-                    shadowSpriteDescriptors[entityAssetDescriptors[entities[index].entityAssetIndex].shadowSpriteIndex].romAssetsIndexStart, 
-                    shadowSpriteDescriptors[entityAssetDescriptors[entities[index].entityAssetIndex].shadowSpriteIndex].romAssetsIndexEnd, 
+                dmaSprite(ent->shadowSpriteIndex, 
+                    shadowSpriteDescriptors[entityAssetDescriptors[ent->entityAssetIndex].shadowSpriteIndex].romTextureStart, 
+                    shadowSpriteDescriptors[entityAssetDescriptors[ent->entityAssetIndex].shadowSpriteIndex].romTextureEnd, 
+                    shadowSpriteDescriptors[entityAssetDescriptors[ent->entityAssetIndex].shadowSpriteIndex].romAssetsIndexStart, 
+                    shadowSpriteDescriptors[entityAssetDescriptors[ent->entityAssetIndex].shadowSpriteIndex].romAssetsIndexEnd, 
                     NULL, 
                     NULL, 
-                    shadowSpriteDescriptors[entityAssetDescriptors[entities[index].entityAssetIndex].shadowSpriteIndex].vaddrSpritesheet, 
+                    shadowSpriteDescriptors[entityAssetDescriptors[ent->entityAssetIndex].shadowSpriteIndex].vaddrSpritesheet, 
                     NULL, 
-                    shadowSpriteDescriptors[entityAssetDescriptors[entities[index].entityAssetIndex].shadowSpriteIndex].vaddrPalette, 
-                    shadowSpriteDescriptors[entityAssetDescriptors[entities[index].entityAssetIndex].shadowSpriteIndex].vaddrUnknownAssetSheet, 
-                    shadowSpriteDescriptors[entityAssetDescriptors[entities[index].entityAssetIndex].shadowSpriteIndex].vaddrAnimationMetadata, 
+                    shadowSpriteDescriptors[entityAssetDescriptors[ent->entityAssetIndex].shadowSpriteIndex].vaddrPalette, 
+                    shadowSpriteDescriptors[entityAssetDescriptors[ent->entityAssetIndex].shadowSpriteIndex].vaddrUnknownAssetSheet, 
+                    shadowSpriteDescriptors[entityAssetDescriptors[ent->entityAssetIndex].shadowSpriteIndex].vaddrAnimationMetadata, 
                     NULL, 
                     NULL, 
-                    entities[index].transformExempt
+                    ent->transformExempt
                     );
 
-                setSpriteBlendMode(entities[index].shadowSpriteIndex, SPRITE_BLEND_ALPHA_MODULATED);
+                setSpriteBlendMode(ent->shadowSpriteIndex, SPRITE_BLEND_ALPHA_MODULATED);
             
             }
 
-            entities[index].animationIndices.nextAnimationIndex = 0xFFFF;
-            entities[index].flags |= ENTITY_INITIALIZED;
+            ent->animationIndices.nextAnimationIndex = 0xFFFF;
+            ent->flags |= ENTITY_INITIALIZED;
 
-            setBilinearFiltering(entities[index].globalSpriteIndex, TRUE);
+            setBilinearFiltering(ent->globalSpriteIndex, TRUE);
             setEntityMovementVector(index, 0.0f, 0.0f, 0.0f, 0.0f);
             setEntityColor(index, currentMapLightingRGBA.r, currentMapLightingRGBA.g, currentMapLightingRGBA.b, currentMapLightingRGBA.a);
 
@@ -334,22 +335,20 @@ bool loadEntity(u16 index, u16 entityAssetIndex, bool transformExempt) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", initializeShadowSprite);
-
-bool initializeShadowSprite(u16 index, u32 arg1, u32 arg2, u32 arg3, u32 arg4, u32* arg5, u16* arg6, u16* arg7, u16* arg8, u16 animationIndex, u8 frameIndex) {
+bool initializeShadowSprite(u16 index, u32 romTextureStart, u32 romTextureEnd, u32 romAssetsIndexStart, u32 romAssetsIndexEnd, u32* vaddrSpritesheet, u16* vaddrPalette, u16* vaddrUnknownAssetSheet, u16* vaddrAnimationMetadata, u16 animationIndex, u8 frameIndex) {
 
     bool result = FALSE;
     
     if (index < MAX_SHADOW_SPRITES) {
         result = TRUE;
-        shadowSpriteDescriptors[index].romTextureStart = arg1;
-        shadowSpriteDescriptors[index].romTextureEnd = arg2;
-        shadowSpriteDescriptors[index].romAssetsIndexStart = arg3;
-        shadowSpriteDescriptors[index].romAssetsIndexEnd = arg4;
-        shadowSpriteDescriptors[index].vaddrSpritesheet = arg5;
-        shadowSpriteDescriptors[index].vaddrPalette = arg6;
-        shadowSpriteDescriptors[index].vaddrUnknownAssetSheet = arg7;
-        shadowSpriteDescriptors[index].vaddrAnimationMetadata = arg8;
+        shadowSpriteDescriptors[index].romTextureStart = romTextureStart;
+        shadowSpriteDescriptors[index].romTextureEnd = romTextureEnd;
+        shadowSpriteDescriptors[index].romAssetsIndexStart = romAssetsIndexStart;
+        shadowSpriteDescriptors[index].romAssetsIndexEnd = romAssetsIndexEnd;
+        shadowSpriteDescriptors[index].vaddrSpritesheet = vaddrSpritesheet;
+        shadowSpriteDescriptors[index].vaddrPalette = vaddrPalette;
+        shadowSpriteDescriptors[index].vaddrUnknownAssetSheet = vaddrUnknownAssetSheet;
+        shadowSpriteDescriptors[index].vaddrAnimationMetadata = vaddrAnimationMetadata;
         shadowSpriteDescriptors[index].animationIndex = animationIndex;
         shadowSpriteDescriptors[index].frameIndex = frameIndex;
     }
@@ -358,24 +357,24 @@ bool initializeShadowSprite(u16 index, u32 arg1, u32 arg2, u32 arg3, u32 arg4, u
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", setEntityTrackingTarget);
-
 bool setEntityTrackingTarget(u16 index, u16 targetEntityIndex, u16 trackingMode) {
+    Entity *ent = &entities[index];
+
 
     bool result = FALSE;
 
     if (index < MAX_ENTITIES) {
 
-        if ((entities[index].flags & ENTITY_ACTIVE) && (entities[index].flags & ENTITY_INITIALIZED)) {
+        if ((ent->flags & ENTITY_ACTIVE) && (ent->flags & ENTITY_INITIALIZED)) {
 
-            entities[index].targetEntityIndex = targetEntityIndex;
-            entities[index].trackingMode = trackingMode;
+            ent->targetEntityIndex = targetEntityIndex;
+            ent->trackingMode = trackingMode;
 
             if (targetEntityIndex == 0xFFFF) {
-                entities[index].flags &= ~ENTITY_TRACKING_ACTIVE;
+                ent->flags &= ~ENTITY_TRACKING_ACTIVE;
             } else {
-                entities[index].flags |= ENTITY_TRACKING_ACTIVE;
-                entities[index].flags &= ~ENTITY_PAUSED;
+                ent->flags |= ENTITY_TRACKING_ACTIVE;
+                ent->flags &= ~ENTITY_PAUSED;
             }
 
             result = TRUE;
@@ -385,52 +384,51 @@ bool setEntityTrackingTarget(u16 index, u16 targetEntityIndex, u16 trackingMode)
     return result;
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", setEntityPaletteIndex);
-
 // likely set a palette index if shared asset has multiple palettes (animals, itemHandlers, and cutscenes)
 bool setEntityPaletteIndex(u16 index, u16 paletteIndex) {
+    Entity *ent = &entities[index];
+
     
     bool result = FALSE;
 
     if (index < MAX_ENTITIES) {
-        if (entities[index].flags & ENTITY_ACTIVE) {
-            entities[index].paletteIndex = paletteIndex;
-            entities[index].flags |= ENTITY_PALETTE_SET;
+        if (ent->flags & ENTITY_ACTIVE) {
+            ent->paletteIndex = paletteIndex;
+            ent->flags |= ENTITY_PALETTE_SET;
             result = TRUE; 
         }
     }
     
     return result;
+
 }
- 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", setEntityAttachmentOffset);
 
 // used by animals, npcs, item handlers, and cutscenes
 bool setEntityAttachmentOffset(u16 index, s16 x, s16 y, s16 z) {
+    Entity *ent = &entities[index];
+
 
     bool result = FALSE;
 
     if (index < MAX_ENTITIES) {
-        if ((entities[index].flags & ENTITY_ACTIVE) && (entities[index].flags & ENTITY_INITIALIZED)) {
+        if ((ent->flags & ENTITY_ACTIVE) && (ent->flags & ENTITY_INITIALIZED)) {
             result = TRUE;
-            entities[index].attachmentOffset.x = x;
-            entities[index].attachmentOffset.y = y;
-            entities[index].attachmentOffset.z = z;
+            ent->attachmentOffset.x = x;
+            ent->attachmentOffset.y = y;
+            ent->attachmentOffset.z = z;
         }
     }
     
     return result;
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/system/entity", setMainMapIndex);
 
 // used by level.c and cutscene.c
 bool setMainMapIndex(u16 mapIndex) {
 
     bool result = FALSE;
 
-    if ((mapIndex == MAIN_MAP_INDEX) && (mapControllers[mapIndex].flags & 1) && (mapControllers[mapIndex].flags & 2)) {
+    if ((mapIndex == MAIN_MAP_INDEX) && (mapControllers[mapIndex].flags & MAP_CONTROLLER_INITIALIZED) && (mapControllers[mapIndex].flags & MAP_CONTROLLER_ASSETS_LOADED)) {
         gMainMapIndex = mapIndex;
         result = TRUE;
     }
@@ -439,16 +437,16 @@ bool setMainMapIndex(u16 mapIndex) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", setEntityViewSpacePosition);
-
 bool setEntityViewSpacePosition(u16 entityIndex, f32 x, f32 y, f32 z) {
+    Entity *ent = &entities[entityIndex];
+
 
     bool set = FALSE;
 
     if (entityIndex < MAX_ENTITIES) {
 
-        if ((entities[entityIndex].flags & ENTITY_ACTIVE) && (entities[entityIndex].flags & ENTITY_INITIALIZED)) {
-            setSpriteViewSpacePosition(entities[entityIndex].globalSpriteIndex, x, y, z);
+        if ((ent->flags & ENTITY_ACTIVE) && (ent->flags & ENTITY_INITIALIZED)) {
+            setSpriteViewSpacePosition(ent->globalSpriteIndex, x, y, z);
             set = TRUE;
         }
         
@@ -458,15 +456,15 @@ bool setEntityViewSpacePosition(u16 entityIndex, f32 x, f32 y, f32 z) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", adjustEntityViewSpacePosition);
-
 bool adjustEntityViewSpacePosition(u16 index, f32 x, f32 y, f32 z) {
+    Entity *ent = &entities[index];
+
 
     bool result = FALSE;
 
     if (index < MAX_ENTITIES) {
-        if ((entities[index].flags & ENTITY_ACTIVE) && (entities[index].flags & ENTITY_INITIALIZED)) {
-            adjustSpriteViewSpacePosition(entities[index].globalSpriteIndex, x, y, z);
+        if ((ent->flags & ENTITY_ACTIVE) && (ent->flags & ENTITY_INITIALIZED)) {
+            adjustSpriteViewSpacePosition(ent->globalSpriteIndex, x, y, z);
             result = TRUE;
         }
     }
@@ -475,21 +473,21 @@ bool adjustEntityViewSpacePosition(u16 index, f32 x, f32 y, f32 z) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", setEntityColor);
-
 bool setEntityColor(u16 index, u8 r, u8 g, u8 b, u8 a) {
+    Entity *ent = &entities[index];
+
 
     bool result = FALSE;
 
     if (index < MAX_ENTITIES) {
         
-        if ((entities[index].flags & ENTITY_ACTIVE) && (entities[index].flags & ENTITY_INITIALIZED)) {
+        if ((ent->flags & ENTITY_ACTIVE) && (ent->flags & ENTITY_INITIALIZED)) {
             
-            setSpriteColor(entities[index].globalSpriteIndex, r, g, b, a);
+            setSpriteColor(ent->globalSpriteIndex, r, g, b, a);
             
-            if (entityAssetDescriptors[entities[index].entityAssetIndex].shadowSpriteIndex != 0xFF) {
+            if (entityAssetDescriptors[ent->entityAssetIndex].shadowSpriteIndex != 0xFF) {
 
-                setSpriteColor(entities[index].shadowSpriteIndex, r, g, b, SHADOW_ALPHA);
+                setSpriteColor(ent->shadowSpriteIndex, r, g, b, SHADOW_ALPHA);
                 
             }
 
@@ -501,21 +499,21 @@ bool setEntityColor(u16 index, u8 r, u8 g, u8 b, u8 a) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", setEntityShadow);
-
 bool setEntityShadow(u16 index, u8 shadowSpriteIndex) {
+    Entity *ent = &entities[index];
+
 
     bool result = FALSE;
 
     if (index < MAX_ENTITIES) {
 
-        if ((entities[index].flags & ENTITY_ACTIVE) && (entities[index].flags & ENTITY_INITIALIZED)) {
+        if ((ent->flags & ENTITY_ACTIVE) && (ent->flags & ENTITY_INITIALIZED)) {
             
-            entityAssetDescriptors[entities[index].entityAssetIndex].shadowSpriteIndex = shadowSpriteIndex;
+            entityAssetDescriptors[ent->entityAssetIndex].shadowSpriteIndex = shadowSpriteIndex;
 
-            if (entityAssetDescriptors[entities[index].entityAssetIndex].shadowSpriteIndex == 0xFF) {
+            if (entityAssetDescriptors[ent->entityAssetIndex].shadowSpriteIndex == 0xFF) {
 
-                resetAnimationState(entities[index].shadowSpriteIndex);
+                resetAnimationState(ent->shadowSpriteIndex);
 
             }
 
@@ -526,21 +524,21 @@ bool setEntityShadow(u16 index, u8 shadowSpriteIndex) {
     return result;
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/system/entity", updateEntityRGBA);
 
 bool updateEntityRGBA(u16 index, u8 r, u8 g, u8 b, u8 a, s16 rate) {
+    Entity *ent = &entities[index];
+
 
     bool result = FALSE;
     
     if (index < MAX_ENTITIES) {
         
-        if ((entities[index].flags & ENTITY_ACTIVE) && (entities[index].flags & ENTITY_INITIALIZED)) {
+        if ((ent->flags & ENTITY_ACTIVE) && (ent->flags & ENTITY_INITIALIZED)) {
 
-            updateSpriteRGBA(entities[index].globalSpriteIndex, r, g, b, a, rate);
+            updateSpriteRGBA(ent->globalSpriteIndex, r, g, b, a, rate);
 
-            if (entityAssetDescriptors[entities[index].entityAssetIndex].shadowSpriteIndex != 0xFF) {
-                updateSpriteRGBA(entities[index].shadowSpriteIndex, r, g, b, SHADOW_ALPHA, rate);
+            if (entityAssetDescriptors[ent->entityAssetIndex].shadowSpriteIndex != 0xFF) {
+                updateSpriteRGBA(ent->shadowSpriteIndex, r, g, b, SHADOW_ALPHA, rate);
             }
             
             result = TRUE;
@@ -551,23 +549,23 @@ bool updateEntityRGBA(u16 index, u8 r, u8 g, u8 b, u8 a, s16 rate) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", setEntityAnimation);
-
 bool setEntityAnimation(u16 index, u16 animationIndex) {
+    Entity *ent = &entities[index];
+
 
     bool result = FALSE;
 
     if (index < MAX_ENTITIES) {
         
-        if ((entities[index].flags & ENTITY_ACTIVE) && (entities[index].flags & ENTITY_INITIALIZED) && !(entities[index].flags & ENTITY_LOAD_PENDING)) {
+        if ((ent->flags & ENTITY_ACTIVE) && (ent->flags & ENTITY_INITIALIZED) && !(ent->flags & ENTITY_LOAD_PENDING)) {
 
-            entities[index].animationIndices.animationIndex = animationIndex;
+            ent->animationIndices.animationIndex = animationIndex;
             
-            entities[index].flags |= ENTITY_IS_CURRENTLY_ANIMATED;
-            entities[index].flags &= ~ENTITY_ANIMATION_DIRECTION_CHANGE; 
+            ent->flags |= ENTITY_IS_CURRENTLY_ANIMATED;
+            ent->flags &= ~ENTITY_ANIMATION_TRACKS_DIRECTION; 
 
-            globalSprites[entities[index].globalSpriteIndex].stateFlags &= ~SPRITE_ANIMATION_STATE_CHANGED;
-            globalSprites[entities[index].globalSpriteIndex].audioTrigger = FALSE;
+            globalSprites[ent->globalSpriteIndex].stateFlags &= ~SPRITE_ANIMATION_CYCLE_ENDED;
+            globalSprites[ent->globalSpriteIndex].audioTrigger = FALSE;
             
             result = TRUE;
             
@@ -578,24 +576,24 @@ bool setEntityAnimation(u16 index, u16 animationIndex) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", setEntityAnimationWithDirectionChange);
+bool setEntityDirectionalAnimation(u16 index, u16 animationIndex) {
+    Entity *ent = &entities[index];
 
-bool setEntityAnimationWithDirectionChange(u16 index, u16 animationIndex) {
     
     bool result = FALSE;
 
     if (index < MAX_ENTITIES) {
 
-        if ((entities[index].flags & ENTITY_ACTIVE) && (entities[index].flags & ENTITY_INITIALIZED) && !(entities[index].flags & ENTITY_LOAD_PENDING)) {     
+        if ((ent->flags & ENTITY_ACTIVE) && (ent->flags & ENTITY_INITIALIZED) && !(ent->flags & ENTITY_LOAD_PENDING)) {     
         
-            entities[index].animationIndices.animationIndex = animationIndex;
-            entities[index].flags |= (8 | ENTITY_ANIMATION_DIRECTION_CHANGE);
+            ent->animationIndices.animationIndex = animationIndex;
+            ent->flags |= (ENTITY_IS_CURRENTLY_ANIMATED | ENTITY_ANIMATION_TRACKS_DIRECTION);
     
-            globalSprites[entities[index].globalSpriteIndex].stateFlags &= ~SPRITE_ANIMATION_STATE_CHANGED;
+            globalSprites[ent->globalSpriteIndex].stateFlags &= ~SPRITE_ANIMATION_CYCLE_ENDED;
     
             result = TRUE;
     
-            globalSprites[entities[index].globalSpriteIndex].audioTrigger = FALSE;
+            globalSprites[ent->globalSpriteIndex].audioTrigger = FALSE;
     
         }
         
@@ -604,21 +602,21 @@ bool setEntityAnimationWithDirectionChange(u16 index, u16 animationIndex) {
     return result;
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/system/entity", loadPendingEntity);
 
 bool loadPendingEntity(u16 index) {
+    Entity *ent = &entities[index];
+
 
     bool result = FALSE;
 
     if (index < MAX_ENTITIES) {
 
-        if ((entities[index].flags & ENTITY_ACTIVE) && (entities[index].flags & ENTITY_INITIALIZED) && (entities[index].flags & ENTITY_LOAD_PENDING)) {
+        if ((ent->flags & ENTITY_ACTIVE) && (ent->flags & ENTITY_INITIALIZED) && (ent->flags & ENTITY_LOAD_PENDING)) {
             
-            loadEntity(index, entities[index].entityAssetIndex, entities[index].transformExempt);
+            loadEntity(index, ent->entityAssetIndex, ent->transformExempt);
 
-            entities[index].flags |= ENTITY_IS_CURRENTLY_ANIMATED;
-            entities[index].flags &= ~ENTITY_LOAD_PENDING;
+            ent->flags |= ENTITY_IS_CURRENTLY_ANIMATED;
+            ent->flags &= ~ENTITY_LOAD_PENDING;
 
             result = TRUE;
 
@@ -630,32 +628,32 @@ bool loadPendingEntity(u16 index) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", pauseEntityLoad);
-
 bool pauseEntityLoad(u16 index) {
+    Entity *ent = &entities[index];
+
 
     bool result = FALSE;
     u16 temp;
 
     if (index < MAX_ENTITIES) {
 
-        if ((entities[index].flags & ENTITY_ACTIVE) && (entities[index].flags & ENTITY_INITIALIZED)) {
+        if ((ent->flags & ENTITY_ACTIVE) && (ent->flags & ENTITY_INITIALIZED)) {
             
-            if (entities[index].flags & ENTITY_IS_CURRENTLY_ANIMATED) {
+            if (ent->flags & ENTITY_IS_CURRENTLY_ANIMATED) {
 
                 setEntityMovementVector(index, 0.0f, 0.0f, 0.0f, 0.0f);
                 
-                temp = entities[index].flags & ENTITY_PALETTE_SET;
-                entities[index].flags |= ENTITY_LOAD_PENDING;
+                temp = ent->flags & ENTITY_PALETTE_SET;
+                ent->flags |= ENTITY_LOAD_PENDING;
 
                 deactivateEntity(index);
                 
-                entities[index].flags |= temp;
+                ent->flags |= temp;
                 
                 result = TRUE;
         
             } else {
-                entities[index].flags &= ~ENTITY_LOAD_PENDING;
+                ent->flags &= ~ENTITY_LOAD_PENDING;
             }
 
         }
@@ -666,17 +664,17 @@ bool pauseEntityLoad(u16 index) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", setEntityDirection);
-
 bool setEntityDirection(u16 index, u8 direction) {
+    Entity *ent = &entities[index];
+
 
     bool result = FALSE;
 
     if (index < MAX_ENTITIES) {
 
-        if ((entities[index].flags & ENTITY_ACTIVE) && (entities[index].flags & ENTITY_INITIALIZED) && !(entities[index].flags & ENTITY_LOAD_PENDING)) {
+        if ((ent->flags & ENTITY_ACTIVE) && (ent->flags & ENTITY_INITIALIZED) && !(ent->flags & ENTITY_LOAD_PENDING)) {
         
-            entities[index].direction = direction;
+            ent->direction = direction;
             result = TRUE;
 
         } 
@@ -685,8 +683,6 @@ bool setEntityDirection(u16 index, u8 direction) {
     return result;
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/system/entity", pauseEntities);
 
 void pauseEntities(void) {
 
@@ -698,9 +694,7 @@ void pauseEntities(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", togglePauseEntities);
-
-void togglePauseEntities(void) {
+void unpauseEntities(void) {
 
     u16 i;
 
@@ -710,36 +704,36 @@ void togglePauseEntities(void) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", rotateAllEntities);
-
 // increment/decrement rotation; used by map controller
 void rotateAllEntities(s16 arg0) {
 
     u16 i;
 
     for (i = 0; i < MAX_ENTITIES; i++) {
-        entities[i].direction += arg0;
-        entities[i].direction &= MAX_DIRECTIONS;
+        Entity *ent = &entities[i];
+
+        ent->direction += arg0;
+        ent->direction &= MAX_DIRECTIONS;
     }
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/system/entity", setEntitiesRGBA);
 
 void setEntitiesRGBA(u8 r, u8 g, u8 b, u8 a) {
 
     u16 i;
 
     for (i = 0; i < MAX_ENTITIES; i++) {
+        Entity *ent = &entities[i];
 
-        if (entities[i].flags & ENTITY_ACTIVE && entities[i].flags & ENTITY_IS_CURRENTLY_ANIMATED) {
 
-            if (i < MAX_ENTITIES && entities[i].flags & ENTITY_INITIALIZED) {
+        if (ent->flags & ENTITY_ACTIVE && ent->flags & ENTITY_IS_CURRENTLY_ANIMATED) {
 
-                setSpriteColor(entities[i].globalSpriteIndex, r, g, b, a);
+            if (i < MAX_ENTITIES && ent->flags & ENTITY_INITIALIZED) {
 
-                if (entityAssetDescriptors[entities[i].entityAssetIndex].shadowSpriteIndex != 0xFF) {
-                    setSpriteColor(entities[i].shadowSpriteIndex, r, g, b, SHADOW_ALPHA);
+                setSpriteColor(ent->globalSpriteIndex, r, g, b, a);
+
+                if (entityAssetDescriptors[ent->entityAssetIndex].shadowSpriteIndex != 0xFF) {
+                    setSpriteColor(ent->shadowSpriteIndex, r, g, b, SHADOW_ALPHA);
                 }
 
             }
@@ -749,23 +743,23 @@ void setEntitiesRGBA(u8 r, u8 g, u8 b, u8 a) {
     }
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/system/entity", setEntitiesRGBAWithTransition);
 
 void setEntitiesRGBAWithTransition(u8 r, u8 g, u8 b, u8 a, s16 arg4) {
 
     u16 i;
 
     for (i = 0; i < MAX_ENTITIES; i++) {
+        Entity *ent = &entities[i];
 
-        if ((entities[i].flags & ENTITY_ACTIVE) && (entities[i].flags & ENTITY_IS_CURRENTLY_ANIMATED)) {
+
+        if ((ent->flags & ENTITY_ACTIVE) && (ent->flags & ENTITY_IS_CURRENTLY_ANIMATED)) {
         
-            if (i < MAX_ENTITIES && entities[i].flags & ENTITY_INITIALIZED) {
+            if (i < MAX_ENTITIES && ent->flags & ENTITY_INITIALIZED) {
         
-                updateSpriteRGBA(entities[i].globalSpriteIndex, r, g, b, a, arg4);
+                updateSpriteRGBA(ent->globalSpriteIndex, r, g, b, a, arg4);
         
-                if (entityAssetDescriptors[entities[i].entityAssetIndex].shadowSpriteIndex != 0xFF) {
-                    updateSpriteRGBA(entities[i].shadowSpriteIndex, r, g, b, SHADOW_ALPHA, arg4);
+                if (entityAssetDescriptors[ent->entityAssetIndex].shadowSpriteIndex != 0xFF) {
+                    updateSpriteRGBA(ent->shadowSpriteIndex, r, g, b, SHADOW_ALPHA, arg4);
                 }
         
             }
@@ -776,21 +770,21 @@ void setEntitiesRGBAWithTransition(u8 r, u8 g, u8 b, u8 a, s16 arg4) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", deactivateEntity);
-
 bool deactivateEntity(u16 index) {
+    Entity *ent = &entities[index];
+
 
     bool result = FALSE;
 
     if (index < MAX_ENTITIES) {
 
-        if ((entities[index].flags & ENTITY_ACTIVE) && (entities[index].flags & ENTITY_IS_CURRENTLY_ANIMATED)) {
+        if ((ent->flags & ENTITY_ACTIVE) && (ent->flags & ENTITY_IS_CURRENTLY_ANIMATED)) {
             
-            entities[index].flags &= ~( 0x8 | ENTITY_PALETTE_SET);
-            deactivateSprite(entities[index].globalSpriteIndex);
+            ent->flags &= ~( 0x8 | ENTITY_PALETTE_SET);
+            deactivateSprite(ent->globalSpriteIndex);
             
-            if (entityAssetDescriptors[entities[index].entityAssetIndex].shadowSpriteIndex != 0xFF) {
-                deactivateSprite(entities[index].shadowSpriteIndex);
+            if (entityAssetDescriptors[ent->entityAssetIndex].shadowSpriteIndex != 0xFF) {
+                deactivateSprite(ent->shadowSpriteIndex);
             }
 
             result = TRUE;
@@ -802,8 +796,6 @@ bool deactivateEntity(u16 index) {
     return result;
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/system/entity", deactivateEntities);
 
 // unused
 // void deactivateEntities(void) {
@@ -816,8 +808,6 @@ bool deactivateEntity(u16 index) {
     
 // }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", pauseAllEntityLoads);
-
 // called by pause function
 void pauseAllEntityLoads(void) {
 
@@ -829,8 +819,6 @@ void pauseAllEntityLoads(void) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", loadAllPendingEntities);
-
 void loadAllPendingEntities(void) {
 
     u16 i;
@@ -841,19 +829,18 @@ void loadAllPendingEntities(void) {
 
 }
 
-
-//INCLUDE_ASM("asm/nonmatchings/system/entity", pauseEntity);
-
 bool pauseEntity(u16 index) {
+    Entity *ent = &entities[index];
+
 
     bool result = FALSE;
     
     if (index < MAX_ENTITIES) {
 
-        if (entities[index].flags & ENTITY_ACTIVE) {
+        if (ent->flags & ENTITY_ACTIVE) {
             
-            entities[index].flags |= ENTITY_PAUSED;
-            pauseSpriteAnimation(entities[index].globalSpriteIndex);
+            ent->flags |= ENTITY_PAUSED;
+            pauseSpriteAnimation(ent->globalSpriteIndex);
             
             result = TRUE;
 
@@ -864,19 +851,19 @@ bool pauseEntity(u16 index) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", unpauseEntity);
-
 bool unpauseEntity(u16 index) {
+    Entity *ent = &entities[index];
+
     
     bool result = FALSE;
     u16 temp;
 
     if (index < MAX_ENTITIES) {
 
-        if (entities[index].flags & ENTITY_ACTIVE) {
+        if (ent->flags & ENTITY_ACTIVE) {
         
-            entities[index].flags &= ~ENTITY_PAUSED;
-            resumeSpriteAnimation(entities[index].globalSpriteIndex);
+            ent->flags &= ~ENTITY_PAUSED;
+            resumeSpriteAnimation(ent->globalSpriteIndex);
         
             result = TRUE;
         
@@ -888,20 +875,20 @@ bool unpauseEntity(u16 index) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", setEntityMapSpaceIndependent);
-
 bool setEntityMapSpaceIndependent(u16 index, bool flag) {
+    Entity *ent = &entities[index];
+
     
     bool result = FALSE;
 
     if (index < MAX_ENTITIES) {
 
-        if ((entities[index].flags & ENTITY_ACTIVE) && (entities[index].flags & ENTITY_IS_CURRENTLY_ANIMATED)) {
+        if ((ent->flags & ENTITY_ACTIVE) && (ent->flags & ENTITY_IS_CURRENTLY_ANIMATED)) {
 
             if (flag) {
-                entities[index].flags &= ~ENTITY_MAP_SPACE_INDEPENDENT;
+                ent->flags &= ~ENTITY_MAP_SPACE_INDEPENDENT;
             } else {
-                entities[index].flags |= ENTITY_MAP_SPACE_INDEPENDENT;
+                ent->flags |= ENTITY_MAP_SPACE_INDEPENDENT;
             }
 
             result = TRUE;
@@ -914,18 +901,18 @@ bool setEntityMapSpaceIndependent(u16 index, bool flag) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", checkEntityMapSpaceDependent);
-
 // only used by main game loop callback
 bool checkEntityMapSpaceDependent(u16 index) {
+    Entity *ent = &entities[index];
+
     
     bool result = FALSE;
     u16 temp;
 
     if (index < MAX_ENTITIES) {
 
-        if ((entities[index].flags & ENTITY_ACTIVE) && (entities[index].flags & ENTITY_IS_CURRENTLY_ANIMATED)) {
-            temp = entities[index].flags & ENTITY_MAP_SPACE_INDEPENDENT;
+        if ((ent->flags & ENTITY_ACTIVE) && (ent->flags & ENTITY_IS_CURRENTLY_ANIMATED)) {
+            temp = ent->flags & ENTITY_MAP_SPACE_INDEPENDENT;
             result = !temp;
         }
 
@@ -935,19 +922,19 @@ bool checkEntityMapSpaceDependent(u16 index) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", setEntitycoordinates);
-
 bool setEntityCoordinates(u16 entityIndex, f32 x, f32 y, f32 z) {
+    Entity *ent = &entities[entityIndex];
+
 
     bool result = FALSE;
     
     if (entityIndex < MAX_ENTITIES) {
 
-        if ((entities[entityIndex].flags & ENTITY_ACTIVE) && !(entities[entityIndex].flags & ENTITY_LOAD_PENDING)) {
+        if ((ent->flags & ENTITY_ACTIVE) && !(ent->flags & ENTITY_LOAD_PENDING)) {
             
-            entities[entityIndex].coordinates.x = x;
-            entities[entityIndex].coordinates.y = y;
-            entities[entityIndex].coordinates.z = z;
+            ent->coordinates.x = x;
+            ent->coordinates.y = y;
+            ent->coordinates.z = z;
             
             result = TRUE;
 
@@ -957,23 +944,23 @@ bool setEntityCoordinates(u16 entityIndex, f32 x, f32 y, f32 z) {
     return result;
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/system/entity", setEntityMovementVector);
 
 // manually set movement vector 
 // animals, player, item handlers, cutscene
 bool setEntityMovementVector(u16 entityIndex, f32 x, f32 y, f32 z, f32 arg4) {
+    Entity *ent = &entities[entityIndex];
+
 
     bool result = FALSE;
     
     if (entityIndex < MAX_ENTITIES) {
 
-        if ((entities[entityIndex].flags & ENTITY_ACTIVE) && (entities[entityIndex].flags & ENTITY_IS_CURRENTLY_ANIMATED) && !(entities[entityIndex].flags & ENTITY_LOAD_PENDING)) {
+        if ((ent->flags & ENTITY_ACTIVE) && (ent->flags & ENTITY_IS_CURRENTLY_ANIMATED) && !(ent->flags & ENTITY_LOAD_PENDING)) {
             
-            entities[entityIndex].movementVector.x = x;
-            entities[entityIndex].movementVector.y = y;
-            entities[entityIndex].movementVector.z = z;
-            entities[entityIndex].speed = arg4 / 2.0f;
+            ent->movementVector.x = x;
+            ent->movementVector.y = y;
+            ent->movementVector.z = z;
+            ent->speed = arg4 / 2.0f;
             
             result = TRUE;
 
@@ -985,16 +972,16 @@ bool setEntityMovementVector(u16 entityIndex, f32 x, f32 y, f32 z, f32 arg4) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", checkEntityAnimationStateChanged);
-
 bool checkEntityAnimationStateChanged(u16 index) {
+    Entity *ent = &entities[index];
+
 
     bool result = FALSE;
     
     if (index < MAX_ENTITIES) {
 
-        if (entities[index].flags & ENTITY_ACTIVE) {
-            result = checkSpriteAnimationStateChanged(entities[index].globalSpriteIndex);
+        if (ent->flags & ENTITY_ACTIVE) {
+            result = checkSpriteAnimationCycleEnded(ent->globalSpriteIndex);
         }
 
     }
@@ -1003,20 +990,20 @@ bool checkEntityAnimationStateChanged(u16 index) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", setCameraTrackingEntity);
-
 bool setCameraTrackingEntity(u16 entityIndex, u16 flag) {
+    Entity *ent = &entities[entityIndex];
+
 
     bool result = FALSE;
 
     if (entityIndex < MAX_ENTITIES) {
 
-        if (entities[entityIndex].flags & ENTITY_ACTIVE) { 
+        if (ent->flags & ENTITY_ACTIVE) { 
 
             if (flag) {
-                entities[entityIndex].flags |= ENTITY_CAMERA_TRACKING;
+                ent->flags |= ENTITY_CAMERA_TRACKING;
             } else {
-                entities[entityIndex].flags &= ~ENTITY_CAMERA_TRACKING;
+                ent->flags &= ~ENTITY_CAMERA_TRACKING;
             }
 
             result = TRUE;
@@ -1028,15 +1015,13 @@ bool setCameraTrackingEntity(u16 entityIndex, u16 flag) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", setEntityCollisionBuffers);
-
 bool setEntityCollisionBuffers(u16 entityIndex, u8 xValue, u8 yValue) {
     
     bool result = FALSE;
     
     if (entityIndex < MAX_ENTITY_ASSETS) {
     
-        if (entityAssetDescriptors[entityIndex].flags & 1) {
+        if (entityAssetDescriptors[entityIndex].flags & ENTITY_ASSET_ACTIVE) {
             entityAssetDescriptors[entityIndex].collisionBufferX = xValue;
             entityAssetDescriptors[entityIndex].collisionBufferY = yValue;
             result = TRUE;
@@ -1048,42 +1033,39 @@ bool setEntityCollisionBuffers(u16 entityIndex, u8 xValue, u8 yValue) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", setEntitySpriteDimensions);
-
-bool setEntitySpriteDimensions(u16 entityAssetIndex, u8 arg1, u8 arg2) {
+bool setEntitySpriteDimensions(u16 entityAssetIndex, u8 spriteWidth, u8 spriteHeight) {
 
     bool result = FALSE;
 
     if (entityAssetIndex < MAX_ENTITY_ASSETS) {
 
-        if (entityAssetDescriptors[entityAssetIndex].flags & 1) {
-            entityAssetDescriptors[entityAssetIndex].spriteWidth = arg1;
-            entityAssetDescriptors[entityAssetIndex].spriteHeight = arg2;
+        if (entityAssetDescriptors[entityAssetIndex].flags & ENTITY_ASSET_ACTIVE) {
+            entityAssetDescriptors[entityAssetIndex].spriteWidth = spriteWidth;
+            entityAssetDescriptors[entityAssetIndex].spriteHeight = spriteHeight;
             result = TRUE;
         }
 
     }
 
     return result;
-    
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", setEntityYMovement);
-
 bool setEntityYMovement(u16 index, bool flag) {
+    Entity *ent = &entities[index];
+
 
     bool result = FALSE;
 
     if (flag == TRUE) {
         
-        entities[index].flags &= ~ENTITY_Y_MOVEMENT;
+        ent->flags &= ~ENTITY_Y_MOVEMENT;
         result = TRUE;
 
     } else {
 
-        if (index < MAX_ENTITIES && entities[index].flags & ENTITY_ACTIVE) {
-            entities[index].flags |= ENTITY_Y_MOVEMENT;
+        if (index < MAX_ENTITIES && ent->flags & ENTITY_ACTIVE) {
+            ent->flags |= ENTITY_Y_MOVEMENT;
             result = TRUE;
         }
 
@@ -1092,20 +1074,20 @@ bool setEntityYMovement(u16 index, bool flag) {
     return result;
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/system/entity", setEntityHandlesMultipleCollisions);
 
 // only used by farm animals and misc. animals
 bool setEntityHandlesMultipleCollisions(u16 index, u8 flag) {
+    Entity *ent = &entities[index];
+
 
     bool result = FALSE;
 
     if (flag == TRUE) {
-        entities[index].flags &= ~ENTITY_SINGLE_COLLISION_CHECK;
+        ent->flags &= ~ENTITY_SINGLE_COLLISION_CHECK;
         result = TRUE;
     } else {
-        if (index < MAX_ENTITIES && entities[index].flags & ENTITY_ACTIVE) {
-            entities[index].flags |= ENTITY_SINGLE_COLLISION_CHECK;
+        if (index < MAX_ENTITIES && ent->flags & ENTITY_ACTIVE) {
+            ent->flags |= ENTITY_SINGLE_COLLISION_CHECK;
             result = TRUE;
         }
     }
@@ -1113,19 +1095,19 @@ bool setEntityHandlesMultipleCollisions(u16 index, u8 flag) {
     return result;
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/system/entity", setEntityCollidable);
 
 bool setEntityCollidable(u16 index, bool flag) {
+    Entity *ent = &entities[index];
+
 
     bool result = FALSE;
 
     if (flag == TRUE) {
-        entities[index].flags &= ~ENTITY_NON_COLLIDABLE;
+        ent->flags &= ~ENTITY_NON_COLLIDABLE;
         result = TRUE;
     } else {
-        if (index < MAX_ENTITIES && entities[index].flags & ENTITY_ACTIVE) {
-            entities[index].flags |= ENTITY_NON_COLLIDABLE;
+        if (index < MAX_ENTITIES && ent->flags & ENTITY_ACTIVE) {
+            ent->flags |= ENTITY_NON_COLLIDABLE;
             result = TRUE;
         }
     }
@@ -1133,19 +1115,19 @@ bool setEntityCollidable(u16 index, bool flag) {
     return result;
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/system/entity", setEntityTracksCollisions);
 
 bool setEntityTracksCollisions(u16 index, bool flag) {
+    Entity *ent = &entities[index];
+
 
     bool result = FALSE;
 
     if (flag == TRUE) {
-        entities[index].flags &= ~ENTITY_COLLISION_EXEMPT;
+        ent->flags &= ~ENTITY_COLLISION_EXEMPT;
         result = TRUE;
     } else {
-        if (index < MAX_ENTITIES && entities[index].flags & ENTITY_ACTIVE) {
-            entities[index].flags |= ENTITY_COLLISION_EXEMPT;
+        if (index < MAX_ENTITIES && ent->flags & ENTITY_ACTIVE) {
+            ent->flags |= ENTITY_COLLISION_EXEMPT;
             result = TRUE;
         }
     }
@@ -1153,19 +1135,19 @@ bool setEntityTracksCollisions(u16 index, bool flag) {
     return result;
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/system/entity", enableEntityMovement);
 
 bool enableEntityMovement(u16 index, bool flag) {
+    Entity *ent = &entities[index];
+
 
     bool result = FALSE;
 
     if (flag == TRUE) {
-        entities[index].flags &= ~ENTITY_MOVEMENT_DISABLED;
+        ent->flags &= ~ENTITY_MOVEMENT_DISABLED;
         result = TRUE;
     } else {
-        if (index < MAX_ENTITIES && entities[index].flags & ENTITY_ACTIVE) {
-            entities[index].flags |= ENTITY_MOVEMENT_DISABLED;
+        if (index < MAX_ENTITIES && ent->flags & ENTITY_ACTIVE) {
+            ent->flags |= ENTITY_MOVEMENT_DISABLED;
             result = TRUE;
         }
     }
@@ -1174,16 +1156,16 @@ bool enableEntityMovement(u16 index, bool flag) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", checkEntityPaused);
-
 bool checkEntityPaused(u16 index) {
+    Entity *ent = &entities[index];
+
 
     bool result = FALSE;
 
     if (index < MAX_ENTITIES) {
         
-        if (entities[index].flags & ENTITY_ACTIVE) {
-            result = (entities[index].flags >> 6) & 1;
+        if (ent->flags & ENTITY_ACTIVE) {
+            result = (ent->flags >> 6) & 1;
         }
 
     }
@@ -1192,16 +1174,16 @@ bool checkEntityPaused(u16 index) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", checkEntityToEntityCollision);
-
 u16 checkEntityToEntityCollision(u16 entityIndex, f32 x, f32 z, u16 buttonPressed, u16 entityCount) {
+    Entity *ent = &entities[entityIndex];
+
 
     u16 i;
     u16 count = 0;
     
     if (entityIndex < MAX_ENTITIES) {
 
-        if ((entities[entityIndex].flags & ENTITY_ACTIVE) && !(entities[entityIndex].flags & ENTITY_PAUSED)) {
+        if ((ent->flags & ENTITY_ACTIVE) && !(ent->flags & ENTITY_PAUSED)) {
 
             for (i = 0; i < entityCount; i++) {
                 
@@ -1209,14 +1191,14 @@ u16 checkEntityToEntityCollision(u16 entityIndex, f32 x, f32 z, u16 buttonPresse
                     
                     if (!(entities[i].flags & ENTITY_COLLISION_EXEMPT)) {
 
-                        count = detectEntityOverlap(&entities[entityIndex], i, x, z, entityAssetDescriptors[entities[entityIndex].entityAssetIndex].spriteWidth, entityAssetDescriptors[entities[entityIndex].entityAssetIndex].spriteHeight);
+                        count = detectEntityOverlap(ent, i, x, z, entityAssetDescriptors[ent->entityAssetIndex].spriteWidth, entityAssetDescriptors[ent->entityAssetIndex].spriteHeight);
                         
                         if (count) {
 
                             entities[i].entityCollidedWithIndex = entityIndex;
                             // seems to imply plans to support different interactions with entities based on button pressed
                             entities[i].buttonPressed = buttonPressed;
-                            entities[entityIndex].collision = i;
+                            ent->collision = i;
                             
                             i = MAX_ENTITIES;
                             
@@ -1224,7 +1206,7 @@ u16 checkEntityToEntityCollision(u16 entityIndex, f32 x, f32 z, u16 buttonPresse
 
                             entities[i].entityCollidedWithIndex = 0xFFFF;
                             entities[i].buttonPressed = 0;
-                            entities[entityIndex].collision = 0xFFFF;
+                            ent->collision = 0xFFFF;
                             
                         }
 
@@ -1242,9 +1224,9 @@ u16 checkEntityToEntityCollision(u16 entityIndex, f32 x, f32 z, u16 buttonPresse
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", checkEntityProximity);
-
 u16 checkEntityProximity(u16 index, f32 x, f32 z, u16 buttonPressed) {
+    Entity *ent = &entities[index];
+
 
     Vec3f worldCoordinates;
     Vec3f rotatedPosition;
@@ -1257,17 +1239,17 @@ u16 checkEntityProximity(u16 index, f32 x, f32 z, u16 buttonPressed) {
 
     if (index < MAX_ENTITIES) {
         
-        if (entities[index].flags & ENTITY_ACTIVE) {
+        if (ent->flags & ENTITY_ACTIVE) {
             
-            if (!(entities[index].flags & ENTITY_PAUSED)) {
+            if (!(ent->flags & ENTITY_PAUSED)) {
                 
                 worldCoordinates.x = x;
                 worldCoordinates.y = 0;
                 worldCoordinates.z = z;
 
                 rotationAngles.x = 0;
-                // FIXME: macro not working; should be convertWorldToSpriteDirection(entities[index].direction, gMainMapIndex)
-                rotationAngles.y = getSpriteYValueFromDirection((entities[index].direction + getCurrentMapRotation(gMainMapIndex)) % 8);
+                // FIXME: macro not working; should be convertScreenDirectionToWorldDirection(ent->direction, gMainMapIndex)
+                rotationAngles.y = getSpriteYValueFromDirection((ent->direction + getCurrentMapRotation(gMainMapIndex)) % 8);
                 rotationAngles.z = 0;
 
                 rotateVector3D(worldCoordinates, &rotatedPosition, rotationAngles);
@@ -1276,7 +1258,7 @@ u16 checkEntityProximity(u16 index, f32 x, f32 z, u16 buttonPressed) {
 
                     if (i != index && !(entities[i].flags & ENTITY_TRACKING_ACTIVE)) {
                         
-                        if (temp = detectEntityOverlap(&entities[index], i, rotatedPosition.x, rotatedPosition.z, entityAssetDescriptors[entities[index].entityAssetIndex].spriteWidth, entityAssetDescriptors[entities[index].entityAssetIndex].spriteHeight)) {
+                        if (temp = detectEntityOverlap(ent, i, rotatedPosition.x, rotatedPosition.z, entityAssetDescriptors[ent->entityAssetIndex].spriteWidth, entityAssetDescriptors[ent->entityAssetIndex].spriteHeight)) {
                            
                             result |= temp;
                             
@@ -1288,9 +1270,9 @@ u16 checkEntityProximity(u16 index, f32 x, f32 z, u16 buttonPressed) {
                                     entities[i].buttonPressed = buttonPressed;
 
                                     if (!(entities[i].flags & ENTITY_COLLISION_EXEMPT)) {
-                                        entities[index].collision = i;    
+                                        ent->collision = i;    
                                     } else {
-                                        entities[index].collision = 0xFFFF;
+                                        ent->collision = 0xFFFF;
                                     }
 
                                     entities[i].unk_5E = 0xFFFF;
@@ -1310,7 +1292,7 @@ u16 checkEntityProximity(u16 index, f32 x, f32 z, u16 buttonPressed) {
                             entities[i].buttonPressed = 0;
                             
                             if (!set) {
-                                entities[index].collision = 0xFFFF;
+                                ent->collision = 0xFFFF;
                             }
                             
                         }       
@@ -1329,28 +1311,28 @@ u16 checkEntityProximity(u16 index, f32 x, f32 z, u16 buttonPressed) {
    
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", checkEntityInteractionAtPosition);
-
 // unused; check if position has level interaction
-bool checkEntityInteractionAtPosition(u16 entityIndex, f32 arg1, f32 arg2) {
+// bool checkEntityInteractionAtPosition(u16 entityIndex, f32 arg1, f32 arg2) {
+//     Entity *ent = &entities[entityIndex];
+
     
-    bool result = FALSE; 
+//     bool result = FALSE; 
 
-    if (entityIndex < MAX_ENTITIES) {
+//     if (entityIndex < MAX_ENTITIES) {
 
-        if ((entities[entityIndex].flags & ENTITY_ACTIVE) && !(entities[entityIndex].flags & ENTITY_PAUSED)) {
-            result = getLevelInteractionIndexFromPosition(mapControllers[gMainMapIndex].mainMapIndex, entities[entityIndex].coordinates.x + arg1, entities[entityIndex].coordinates.z + arg2);
-        }
+//         if ((ent->flags & ENTITY_ACTIVE) && !(ent->flags & ENTITY_PAUSED)) {
+//             result = getLevelInteractionIndexFromPosition(mapControllers[gMainMapIndex].mainMapIndex, ent->coordinates.x + arg1, ent->coordinates.z + arg2);
+//         }
 
-    }
+//     }
 
-    return result;
+//     return result;
     
-}
-
-//INCLUDE_ASM("asm/nonmatchings/system/entity", getLevelInteractionIndexFromEntityPosition);
+// }
 
 u8 getLevelInteractionIndexFromEntityPosition(u16 entityIndex, f32 x, f32 z) {
+    Entity *ent = &entities[entityIndex];
+
     
     Vec3f worldCoordinates;
     Vec3f rotatedPosition;
@@ -1360,21 +1342,21 @@ u8 getLevelInteractionIndexFromEntityPosition(u16 entityIndex, f32 x, f32 z) {
 
     if ((entityIndex < MAX_ENTITIES)) {
 
-        if ((entities[entityIndex].flags & ENTITY_ACTIVE)) {
+        if ((ent->flags & ENTITY_ACTIVE)) {
             
-            if (!(entities[entityIndex].flags & ENTITY_PAUSED) && !(entities[entityIndex].flags & ENTITY_MAP_SPACE_INDEPENDENT)) {
+            if (!(ent->flags & ENTITY_PAUSED) && !(ent->flags & ENTITY_MAP_SPACE_INDEPENDENT)) {
 
                 worldCoordinates.x = x;
                 worldCoordinates.y = 0;
                 worldCoordinates.z = z;
 
                 rotation.x = 0;
-                rotation.y = getSpriteYValueFromDirection(convertWorldToSpriteDirection(entities[entityIndex].direction, gMainMapIndex));
+                rotation.y = getSpriteYValueFromDirection(convertScreenDirectionToWorldDirection(ent->direction, gMainMapIndex));
                 rotation.z = 0;
                 
                 rotateVector3D(worldCoordinates, &rotatedPosition, rotation);
 
-                levelInteractionIndex = getLevelInteractionIndexFromPosition(mapControllers[gMainMapIndex].mainMapIndex, entities[entityIndex].coordinates.x + rotatedPosition.x, entities[entityIndex].coordinates.z + rotatedPosition.z);
+                levelInteractionIndex = getLevelInteractionIndexFromPosition(mapControllers[gMainMapIndex].mainMapIndex, ent->coordinates.x + rotatedPosition.x, ent->coordinates.z + rotatedPosition.z);
                 
             }
         }
@@ -1385,16 +1367,16 @@ u8 getLevelInteractionIndexFromEntityPosition(u16 entityIndex, f32 x, f32 z) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", getEntityAnimationOffset);
-
 // returns param 2 of startSpriteAnimation
 inline u16 getEntityAnimationOffset(u16 entityIndex, u16 offset) {
+    Entity *ent = &entities[entityIndex];
+
 
     u16 animationIndex = 0xFFFF;
 
     if (entityIndex < MAX_ENTITIES) {
-        if (entities[entityIndex].flags & ENTITY_ACTIVE) {
-            animationIndex = entityAssetDescriptors[entities[entityIndex].entityAssetIndex].animationScripts[offset] & 0x1FFF;
+        if (ent->flags & ENTITY_ACTIVE) {
+            animationIndex = entityAssetDescriptors[ent->entityAssetIndex].animationScripts[offset] & 0x1FFF;
         }
     }
     
@@ -1402,23 +1384,21 @@ inline u16 getEntityAnimationOffset(u16 entityIndex, u16 offset) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", getAnimationOffsetFromScript);
-
 // alternate get animation offset from animation scripts
 // used by shop and overlay screens
 u16 getAnimationOffsetFromScript(u16* vaddr, u16 offset) {
     return vaddr[offset] & 0x1FFF;
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", getEntityAnimationType);
-
 inline u16 getEntityAnimationType(u16 entityIndex, u16 offset) {
+    Entity *ent = &entities[entityIndex];
+
 
     u16 flags = 0xFFFF;
 
     if (entityIndex < MAX_ENTITIES) {
-        if (entities[entityIndex].flags & ENTITY_ACTIVE) {
-            flags = entityAssetDescriptors[entities[entityIndex].entityAssetIndex].animationScripts[offset] & 0x6000;
+        if (ent->flags & ENTITY_ACTIVE) {
+            flags = entityAssetDescriptors[ent->entityAssetIndex].animationScripts[offset] & 0x6000;
         }
     }
     
@@ -1426,23 +1406,21 @@ inline u16 getEntityAnimationType(u16 entityIndex, u16 offset) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", getEntityAnimationHorizontalFlip);
-
 inline u16 getEntityAnimationHorizontalFlip(u16 entityIndex, u16 offset) {
+    Entity *ent = &entities[entityIndex];
+
 
     u16 flipHorizontal = 0xFFFF;
 
     if (entityIndex < MAX_ENTITIES) {
-        if (entities[entityIndex].flags & ENTITY_ACTIVE) {
-            flipHorizontal = entityAssetDescriptors[entities[entityIndex].entityAssetIndex].animationScripts[offset] & 0x8000;
+        if (ent->flags & ENTITY_ACTIVE) {
+            flipHorizontal = entityAssetDescriptors[ent->entityAssetIndex].animationScripts[offset] & 0x8000;
         }
     }
     
     return flipHorizontal;
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/system/entity", getGroundObjectAtEntityPosition);
 
 // unused or inline
 // u16 getGroundObjectAtEntityPosition(u16 entityIndex, f32 x, f32 z) {
@@ -1468,8 +1446,6 @@ inline u16 getEntityAnimationHorizontalFlip(u16 entityIndex, u16 offset) {
 
 // }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", setGroundObjectAtEntityPosition);
-
 // unused or inline
 // map ground objects
 // bool setGroundObjectAtEntityPosition(u16 entityIndex, f32 arg1, f32 arg2, u16 spriteIndex) {
@@ -1490,9 +1466,9 @@ inline u16 getEntityAnimationHorizontalFlip(u16 entityIndex, u16 offset) {
 
 // }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", getEntityRelativeGroundObjectCoords);
-
 Vec3f getEntityRelativeGroundObjectCoords(u16 entityIndex, f32 arg2, f32 arg3) {
+    Entity *ent = &entities[entityIndex];
+
 
     Vec3f vec;
     Vec3f rotatedPosition;
@@ -1505,19 +1481,19 @@ Vec3f getEntityRelativeGroundObjectCoords(u16 entityIndex, f32 arg2, f32 arg3) {
 
     if (entityIndex < MAX_ENTITIES) {
 
-        if ((entities[entityIndex].flags & ENTITY_ACTIVE) && !(entities[entityIndex].flags & ENTITY_PAUSED) && !(entities[entityIndex].flags & ENTITY_MAP_SPACE_INDEPENDENT)) {
+        if ((ent->flags & ENTITY_ACTIVE) && !(ent->flags & ENTITY_PAUSED) && !(ent->flags & ENTITY_MAP_SPACE_INDEPENDENT)) {
 
             vec.x = arg2;
             vec.y = 0;
             vec.z = arg3;
 
             rotation.x = 0;
-            rotation.y = getSpriteYValueFromDirection(convertWorldToSpriteDirection(entities[entityIndex].direction, gMainMapIndex));
+            rotation.y = getSpriteYValueFromDirection(convertScreenDirectionToWorldDirection(ent->direction, gMainMapIndex));
             rotation.z = 0;
 
             rotateVector3D(vec, &rotatedPosition, rotation);
 
-            vec4 = getMapGroundObjectCoordinates(mapControllers[gMainMapIndex].mainMapIndex, entities[entityIndex].coordinates.x + rotatedPosition.x, entities[entityIndex].coordinates.z + rotatedPosition.z);
+            vec4 = getMapGroundObjectCoordinates(mapControllers[gMainMapIndex].mainMapIndex, ent->coordinates.x + rotatedPosition.x, ent->coordinates.z + rotatedPosition.z);
             
         }
         
@@ -1526,9 +1502,6 @@ Vec3f getEntityRelativeGroundObjectCoords(u16 entityIndex, f32 arg2, f32 arg3) {
     return vec4;
     
 }
-
-
-//INCLUDE_ASM("asm/nonmatchings/system/entity", getTerrainAtEntityPosition);
 
 // unused
 // u16 getTerrainAtEntityPosition(u16 entityIndex, f32 x, f32 z) {
@@ -1553,8 +1526,6 @@ Vec3f getEntityRelativeGroundObjectCoords(u16 entityIndex, f32 arg2, f32 arg3) {
 //     return terrainIndex;
     
 // }
-
-//INCLUDE_ASM("asm/nonmatchings/system/entity", setMapAdditionAtEntityPosition);
 
 // unused or inline
 // bool setMapAdditionAtEntityPosition(u16 entityIndex, f32 arg1, f32 arg2, u16 arg3) {
@@ -1584,16 +1555,16 @@ Vec3f getEntityRelativeGroundObjectCoords(u16 entityIndex, f32 arg2, f32 arg3) {
     
 // }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", checkEntityShouldPlaySoundEffect);
-
 bool checkEntityShouldPlaySoundEffect(u16 entityIndex) {
+    Entity *ent = &entities[entityIndex];
+
     
     bool result = FALSE; 
 
     if (entityIndex < MAX_ENTITIES) {
 
-        if ((entities[entityIndex].flags & ENTITY_ACTIVE) && !(entities[entityIndex].flags & ENTITY_PAUSED)) {
-            result = globalSprites[entities[entityIndex].globalSpriteIndex].audioTrigger;
+        if ((ent->flags & ENTITY_ACTIVE) && !(ent->flags & ENTITY_PAUSED)) {
+            result = globalSprites[ent->globalSpriteIndex].audioTrigger;
         }
 
     }
@@ -1602,9 +1573,9 @@ bool checkEntityShouldPlaySoundEffect(u16 entityIndex) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", getEntityRelativeTilePosition);
-
 Vec3f getEntityRelativeTilePosition(u16 entityIndex, f32 x, f32 z) {
+    Entity *ent = &entities[entityIndex];
+
 
     Vec3f worldCoordinates;
     Vec3f rotatedCoordinates;
@@ -1617,19 +1588,19 @@ Vec3f getEntityRelativeTilePosition(u16 entityIndex, f32 x, f32 z) {
 
     if (entityIndex < MAX_ENTITIES) {
 
-        if ((entities[entityIndex].flags & ENTITY_ACTIVE) && !(entities[entityIndex].flags & ENTITY_PAUSED) && !(entities[entityIndex].flags & ENTITY_MAP_SPACE_INDEPENDENT)) {
+        if ((ent->flags & ENTITY_ACTIVE) && !(ent->flags & ENTITY_PAUSED) && !(ent->flags & ENTITY_MAP_SPACE_INDEPENDENT)) {
 
             worldCoordinates.x = x;
             worldCoordinates.y = 0;
             worldCoordinates.z = z;
 
             rotation.x = 0;
-            rotation.y = getSpriteYValueFromDirection(convertWorldToSpriteDirection(entities[entityIndex].direction, gMainMapIndex));
+            rotation.y = getSpriteYValueFromDirection(convertScreenDirectionToWorldDirection(ent->direction, gMainMapIndex));
             rotation.z = 0;
 
             rotateVector3D(worldCoordinates, &rotatedCoordinates, rotation);
 
-            tileCoordinates = convertWorldToTileCoordinates(mapControllers[gMainMapIndex].mainMapIndex, entities[entityIndex].coordinates.x + rotatedCoordinates.x, entities[entityIndex].coordinates.z + rotatedCoordinates.z);
+            tileCoordinates = convertWorldToTileCoordinates(mapControllers[gMainMapIndex].mainMapIndex, ent->coordinates.x + rotatedCoordinates.x, ent->coordinates.z + rotatedCoordinates.z);
             
         }
         
@@ -1639,9 +1610,9 @@ Vec3f getEntityRelativeTilePosition(u16 entityIndex, f32 x, f32 z) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", getEntityTileCoordinates);
-
 Vec3f getEntityTileCoordinates(u16 entityIndex) {
+    Entity *ent = &entities[entityIndex];
+
 
     Vec3f tileCoordinates;
 
@@ -1650,15 +1621,14 @@ Vec3f getEntityTileCoordinates(u16 entityIndex) {
     tileCoordinates.y = 65535.0f;
     
     if (entityIndex < MAX_ENTITIES) {
-        if ((entities[entityIndex].flags & ENTITY_ACTIVE) && !(entities[entityIndex].flags & ENTITY_PAUSED) && !(entities[entityIndex].flags & ENTITY_MAP_SPACE_INDEPENDENT)) {
-            tileCoordinates = convertWorldToTileCoordinates(mapControllers[gMainMapIndex].mainMapIndex, entities[entityIndex].coordinates.x, entities[entityIndex].coordinates.z);
+        if ((ent->flags & ENTITY_ACTIVE) && !(ent->flags & ENTITY_PAUSED) && !(ent->flags & ENTITY_MAP_SPACE_INDEPENDENT)) {
+            tileCoordinates = convertWorldToTileCoordinates(mapControllers[gMainMapIndex].mainMapIndex, ent->coordinates.x, ent->coordinates.z);
         } 
     }
 
     return tileCoordinates;
 
 }
-
 
 // unused
 // Vec3f getEntityRelativeTileCoords(u16 entityIndex, f32 x, f32 z) {
@@ -1681,7 +1651,7 @@ Vec3f getEntityTileCoordinates(u16 entityIndex) {
 //             position.z = z;
 
 //             rotation.x = 0;
-//             rotation.y = getSpriteYValueFromDirection(convertWorldToSpriteDirection(entities[entityIndex].direction, gMainMapIndex));
+//             rotation.y = getSpriteYValueFromDirection(convertScreenDirectionToWorldDirection(entities[entityIndex].direction, gMainMapIndex));
 //             rotation.z = 0;
 
 //             rotateVector3D(position, &rotatedCoordinates, rotation);
@@ -1698,9 +1668,9 @@ Vec3f getEntityTileCoordinates(u16 entityIndex) {
     
 // }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", checkTerrainCollisionInDirection);
-
 bool checkTerrainCollisionInDirection(u16 index, s16 moveDistance, u8 direction) {
+    Entity *ent = &entities[index];
+
 
     Vec3f projectedPosition;
     
@@ -1713,8 +1683,8 @@ bool checkTerrainCollisionInDirection(u16 index, s16 moveDistance, u8 direction)
     u8 isGroundTooLow;
     u8 isGroundTooHigh;
     
-    entityTopBound = entities[index].coordinates.y + 24.0f;
-    entityLowerBound = entities[index].coordinates.y - 24.0f;
+    entityTopBound = ent->coordinates.y + 24.0f;
+    entityLowerBound = ent->coordinates.y - 24.0f;
     
     projectedPosition = projectEntityPosition(index, moveDistance, direction);
     terrainHeight = getTerrainHeightAtPosition(MAIN_MAP_INDEX, projectedPosition.x, projectedPosition.z);
@@ -1739,9 +1709,9 @@ bool checkTerrainCollisionInDirection(u16 index, s16 moveDistance, u8 direction)
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", projectEntityPosition);
-
 Vec3f projectEntityPosition(u16 index, s16 zDisplacement, u8 direction) {
+    Entity *ent = &entities[index];
+
 
     Vec3f offset;
     Vec3f rotatedOffset;
@@ -1757,15 +1727,13 @@ Vec3f projectEntityPosition(u16 index, s16 zDisplacement, u8 direction) {
 
     rotateVector3D(offset, &rotatedOffset, rotation);
 
-    offset.x = entities[index].coordinates.x + rotatedOffset.x;
-    offset.y = entities[index].coordinates.y + rotatedOffset.y;
-    offset.z = entities[index].coordinates.z + rotatedOffset.z;
+    offset.x = ent->coordinates.x + rotatedOffset.x;
+    offset.y = ent->coordinates.y + rotatedOffset.y;
+    offset.z = ent->coordinates.z + rotatedOffset.z;
 
     return offset;
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/system/entity", checkTerrainMovementCollision);
 
 u16 checkTerrainMovementCollision(Entity* entity, f32 deltaX, f32 deltaZ, u8 direction) {
 
@@ -1891,9 +1859,9 @@ u16 checkTerrainMovementCollision(Entity* entity, f32 deltaX, f32 deltaZ, u8 dir
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", detectEntityOverlap);
-
 u8 detectEntityOverlap(Entity* entity, u16 entityIndex, f32 deltaX, f32 deltaZ, u16 entityWidth, u16 entityHeight) {
+    Entity *ent = &entities[entityIndex];
+
 
     f32 dimensionX;           
     f32 dimensionZ;           
@@ -1910,27 +1878,27 @@ u8 detectEntityOverlap(Entity* entity, u16 entityIndex, f32 deltaX, f32 deltaZ, 
     u8 counter = 0;
     u8 result = 0;
     
-    if (entityIndex < MAX_ENTITIES && entities[entityIndex].flags & ENTITY_ACTIVE && entities[entityIndex].flags & ENTITY_IS_CURRENTLY_ANIMATED) { 
+    if (entityIndex < MAX_ENTITIES && ent->flags & ENTITY_ACTIVE && ent->flags & ENTITY_IS_CURRENTLY_ANIMATED) { 
 
         adjustedX = entity->coordinates.x + deltaX;
         adjustedZ = entity->coordinates.z + deltaZ;
 
-        if (entityAssetDescriptors[entities[entityIndex].entityAssetIndex].spriteWidth < entityWidth) {
+        if (entityAssetDescriptors[ent->entityAssetIndex].spriteWidth < entityWidth) {
             dimensionX = entityWidth;
         } else {
-            dimensionX = entityAssetDescriptors[entities[entityIndex].entityAssetIndex].spriteWidth;
+            dimensionX = entityAssetDescriptors[ent->entityAssetIndex].spriteWidth;
         }
 
-        if (entityAssetDescriptors[entities[entityIndex].entityAssetIndex].spriteHeight < entityHeight) {
+        if (entityAssetDescriptors[ent->entityAssetIndex].spriteHeight < entityHeight) {
             dimensionZ = entityHeight;
         } else {
-            dimensionZ = entityAssetDescriptors[entities[entityIndex].entityAssetIndex].spriteHeight;
+            dimensionZ = entityAssetDescriptors[ent->entityAssetIndex].spriteHeight;
         }
 
-        if (adjustedX <= entities[entityIndex].coordinates.x) {
+        if (adjustedX <= ent->coordinates.x) {
             
             xBoundaryHalf = (2.0f * dimensionX) - 1.0f;
-            distanceX = (entities[entityIndex].coordinates.x - adjustedX) + xBoundaryHalf;
+            distanceX = (ent->coordinates.x - adjustedX) + xBoundaryHalf;
 
             if (deltaX < 0.0f) {
                 counter++;
@@ -1943,7 +1911,7 @@ u8 detectEntityOverlap(Entity* entity, u16 entityIndex, f32 deltaX, f32 deltaZ, 
         } else {
 
             xBoundaryHalf = (2.0f * dimensionX) - 1.0f;
-            distanceX = (adjustedX - entities[entityIndex].coordinates.x) + xBoundaryHalf;
+            distanceX = (adjustedX - ent->coordinates.x) + xBoundaryHalf;
         
             if (0.0f < deltaX) {
                 counter++;
@@ -1955,10 +1923,10 @@ u8 detectEntityOverlap(Entity* entity, u16 entityIndex, f32 deltaX, f32 deltaZ, 
             
         }
 
-        if (adjustedZ <= entities[entityIndex].coordinates.z) {
+        if (adjustedZ <= ent->coordinates.z) {
             
             zBoundaryHalf = (2.0f * dimensionZ) - 1.0f;
-            distanceZ = (entities[entityIndex].coordinates.z - adjustedZ) + zBoundaryHalf;
+            distanceZ = (ent->coordinates.z - adjustedZ) + zBoundaryHalf;
             
             if (deltaZ < 0.0f) {
                 counter++;
@@ -1971,7 +1939,7 @@ u8 detectEntityOverlap(Entity* entity, u16 entityIndex, f32 deltaX, f32 deltaZ, 
         } else {
 
             zBoundaryHalf = (2.0f * dimensionZ) - 1.0f;
-            distanceZ = (adjustedZ -  entities[entityIndex].coordinates.z) + zBoundaryHalf; 
+            distanceZ = (adjustedZ -  ent->coordinates.z) + zBoundaryHalf; 
 
             if (deltaZ > 0.0f) {
                 counter++;
@@ -1997,20 +1965,18 @@ u8 detectEntityOverlap(Entity* entity, u16 entityIndex, f32 deltaX, f32 deltaZ, 
       
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", attemptEntityMovement);
-
 // unused or inline
 // u16 attemptEntityMovement(u16 index) {
 
 //     Vec3f projectedPosition;
 
-//     u16 collisionFlags = checkTerrainMovementCollision(&entities[index], entities[index].movementVector.x, entities[index].movementVector.z, convertWorldToSpriteDirection(entities[index].direction, gMainMapIndex));
+//     u16 collisionFlags = checkTerrainMovementCollision(&entities[index], entities[index].movementVector.x, entities[index].movementVector.z, convertScreenDirectionToWorldDirection(entities[index].direction, gMainMapIndex));
 
 //     if (collisionFlags) {
 
-//         projectedPosition = getMovementVectorFromDirection(entities[index].speed, convertWorldToSpriteDirection(entities[index].direction, gMainMapIndex), 0.0f);
+//         projectedPosition = getMovementVectorFromDirection(entities[index].speed, convertScreenDirectionToWorldDirection(entities[index].direction, gMainMapIndex), 0.0f);
 
-//         collisionFlags = checkTerrainMovementCollision(&entities[index], projectedPosition.x, projectedPosition.z, convertWorldToSpriteDirection(entities[index].direction, gMainMapIndex));
+//         collisionFlags = checkTerrainMovementCollision(&entities[index], projectedPosition.x, projectedPosition.z, convertScreenDirectionToWorldDirection(entities[index].direction, gMainMapIndex));
         
 //         if (!collisionFlags) {
 //             entities[index].movementVector.x = projectedPosition.x;
@@ -2023,30 +1989,30 @@ u8 detectEntityOverlap(Entity* entity, u16 entityIndex, f32 deltaX, f32 deltaZ, 
     
 // }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", doEntityPathfinding);
-
 void doEntityPathfinding(u16 index) {
+    Entity *ent = &entities[index];
+
     
     Vec3f projectedPosition;
     u8 direction;
 
-    u16 collisionFlags = checkTerrainMovementCollision(&entities[index], entities[index].movementVector.x, entities[index].movementVector.z, convertWorldToSpriteDirection(entities[index].direction, gMainMapIndex));
+    u16 collisionFlags = checkTerrainMovementCollision(ent, ent->movementVector.x, ent->movementVector.z, convertScreenDirectionToWorldDirection(ent->direction, gMainMapIndex));
 
     if ((collisionFlags & 0xFF00) != 0xFF00) {
 
         if (collisionFlags & 0xF0F) {            
             
             // try right turn
-            direction = (convertWorldToSpriteDirection(entities[index].direction, gMainMapIndex) + 1) % 8;
+            direction = (convertScreenDirectionToWorldDirection(ent->direction, gMainMapIndex) + 1) % 8;
     
-            projectedPosition = getMovementVectorFromDirection(entities[index].speed, direction, 0.0f);
+            projectedPosition = getMovementVectorFromDirection(ent->speed, direction, 0.0f);
     
-            if (checkTerrainMovementCollision(&entities[index], projectedPosition.x, projectedPosition.z, direction)) {
-                entities[index].movementVector.x = 0.0f;
-                entities[index].movementVector.z = 0.0f; 
+            if (checkTerrainMovementCollision(ent, projectedPosition.x, projectedPosition.z, direction)) {
+                ent->movementVector.x = 0.0f;
+                ent->movementVector.z = 0.0f; 
             } else {
-                entities[index].movementVector.x = projectedPosition.x;
-                entities[index].movementVector.z = projectedPosition.z;
+                ent->movementVector.x = projectedPosition.x;
+                ent->movementVector.z = projectedPosition.z;
             }
             
         }
@@ -2054,39 +2020,39 @@ void doEntityPathfinding(u16 index) {
         if (collisionFlags & 0xF0F0) {
 
             // try left turn
-            direction = (convertWorldToSpriteDirection(entities[index].direction, gMainMapIndex) + 7) % 8;
+            direction = (convertScreenDirectionToWorldDirection(ent->direction, gMainMapIndex) + 7) % 8;
 
-            projectedPosition = getMovementVectorFromDirection(entities[index].speed, direction, 0.0f);
+            projectedPosition = getMovementVectorFromDirection(ent->speed, direction, 0.0f);
 
-            if (checkTerrainMovementCollision(&entities[index], projectedPosition.x, projectedPosition.z, direction)) {
-                entities[index].movementVector.x = 0.0f;
-                entities[index].movementVector.z = 0.0f; 
+            if (checkTerrainMovementCollision(ent, projectedPosition.x, projectedPosition.z, direction)) {
+                ent->movementVector.x = 0.0f;
+                ent->movementVector.z = 0.0f; 
             } else {
-                entities[index].movementVector.x = projectedPosition.x;
-                entities[index].movementVector.z = projectedPosition.z;
+                ent->movementVector.x = projectedPosition.x;
+                ent->movementVector.z = projectedPosition.z;
             }
        
         }
         
     } else {
     
-        projectedPosition = getMovementVectorFromDirection(entities[index].speed, convertWorldToSpriteDirection(entities[index].direction, gMainMapIndex), 0.0f);
+        projectedPosition = getMovementVectorFromDirection(ent->speed, convertScreenDirectionToWorldDirection(ent->direction, gMainMapIndex), 0.0f);
 
-        if (checkTerrainMovementCollision(&entities[index], projectedPosition.x, projectedPosition.z, convertWorldToSpriteDirection(entities[index].direction, gMainMapIndex)) & 0xFFFF) {
-            entities[index].movementVector.x = 0.0f;
-            entities[index].movementVector.z = 0.0f;
+        if (checkTerrainMovementCollision(ent, projectedPosition.x, projectedPosition.z, convertScreenDirectionToWorldDirection(ent->direction, gMainMapIndex)) & 0xFFFF) {
+            ent->movementVector.x = 0.0f;
+            ent->movementVector.z = 0.0f;
         } else {
-            entities[index].movementVector.x = projectedPosition.x;
-            entities[index].movementVector.z = projectedPosition.z;
+            ent->movementVector.x = projectedPosition.x;
+            ent->movementVector.z = projectedPosition.z;
         }
 
     }
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/entity", updateEntityPhysics);
-
 void updateEntityPhysics(u16 index) {
+    Entity *ent = &entities[index];
+
 
     Vec3f appliedMovement;
     Vec3f rotatedPosition;
@@ -2103,66 +2069,65 @@ void updateEntityPhysics(u16 index) {
     appliedMovement.y = 0.0f;
     appliedMovement.z = 0.0f;
 
-    entities[index].flags &= ~ENTITY_TOUCHING_GROUND;
+    ent->flags &= ~ENTITY_TOUCHING_GROUND;
 
-    if (entities[index].flags & ENTITY_TRACKING_ACTIVE) {
+    if (ent->flags & ENTITY_TRACKING_ACTIVE) {
 
         if (!(mapControllers[gMainMapIndex].flags & (MAP_CONTROLLER_ROTATING_COUNTERCLOCKWISE | MAP_CONTROLLER_ROTATING_CLOCKWISE))) {
 
-            // FIXME: something off here 
-            if (((entities[index].trackingMode + 2) & 0xFF) < 2U) {
+            if (ent->trackingMode == 0xFE || ent->trackingMode == 0xFF) {
                 
                 rotation.x = 0.0f;
-                rotation.y = getSpriteYValueFromDirection((entities[entities[index].targetEntityIndex].direction + mapControllers[gMainMapIndex].rotation) % 8);
+                rotation.y = getSpriteYValueFromDirection((entities[ent->targetEntityIndex].direction + mapControllers[gMainMapIndex].rotation) % 8);
                 rotation.z = 0.0f;
                 
             } else {
 
                 rotation.x = 0.0f;
-                rotation.y = getSpriteYValueFromDirection((mapControllers[gMainMapIndex].rotation + entities[index].trackingMode) % 8);
+                rotation.y = getSpriteYValueFromDirection((mapControllers[gMainMapIndex].rotation + ent->trackingMode) % 8);
                 rotation.z = 0.0f;
 
             }
 
-            rotateVector3D(entities[index].attachmentOffset, &rotatedPosition, rotation);
+            rotateVector3D(ent->attachmentOffset, &rotatedPosition, rotation);
 
-            entities[index].viewSpacePosition.x = entities[entities[index].targetEntityIndex].viewSpacePosition.x + rotatedPosition.x;
-            entities[index].viewSpacePosition.y = entities[entities[index].targetEntityIndex].viewSpacePosition.y + rotatedPosition.y;
-            entities[index].viewSpacePosition.z = entities[entities[index].targetEntityIndex].viewSpacePosition.z + rotatedPosition.z;
+            ent->viewSpacePosition.x = entities[ent->targetEntityIndex].viewSpacePosition.x + rotatedPosition.x;
+            ent->viewSpacePosition.y = entities[ent->targetEntityIndex].viewSpacePosition.y + rotatedPosition.y;
+            ent->viewSpacePosition.z = entities[ent->targetEntityIndex].viewSpacePosition.z + rotatedPosition.z;
 
-            entities[index].coordinates.x = entities[entities[index].targetEntityIndex].coordinates.x + rotatedPosition.x;
-            entities[index].coordinates.y = entities[entities[index].targetEntityIndex].coordinates.y + rotatedPosition.y;
-            entities[index].coordinates.z = entities[entities[index].targetEntityIndex].coordinates.z + rotatedPosition.z;
+            ent->coordinates.x = entities[ent->targetEntityIndex].coordinates.x + rotatedPosition.x;
+            ent->coordinates.y = entities[ent->targetEntityIndex].coordinates.y + rotatedPosition.y;
+            ent->coordinates.z = entities[ent->targetEntityIndex].coordinates.z + rotatedPosition.z;
 
         }
         
-        shadowHeight = getTerrainHeightAtPosition(0, entities[index].coordinates.x, entities[index].coordinates.z);
+        shadowHeight = getTerrainHeightAtPosition(0, ent->coordinates.x, ent->coordinates.z);
         shadowHeight -= mapControllers[gMainMapIndex].viewPosition.y;
                 
     } else {
 
-        if (!(entities[index].flags & ENTITY_MOVEMENT_DISABLED)) {
+        if (!(ent->flags & ENTITY_MOVEMENT_DISABLED)) {
 
-            if ((entities[index].movementVector.x != 0.0f) || (entities[index].movementVector.y != 0.0f) || (entities[index].movementVector.z != 0.0f)) {
+            if ((ent->movementVector.x != 0.0f) || (ent->movementVector.y != 0.0f) || (ent->movementVector.z != 0.0f)) {
                 doEntityPathfinding(index);
             }
         
         }
 
-        if (entities[index].flags & ENTITY_SINGLE_COLLISION_CHECK) {
-            collisionCheck = checkEntityToEntityCollision(index, entities[index].movementVector.x, entities[index].movementVector.z, 0, 1);        
+        if (ent->flags & ENTITY_SINGLE_COLLISION_CHECK) {
+            collisionCheck = checkEntityToEntityCollision(index, ent->movementVector.x, ent->movementVector.z, 0, 1);        
         } else {
-            collisionCheck = checkEntityToEntityCollision(index, entities[index].movementVector.x, entities[index].movementVector.z, 0, MAX_ENTITIES);
+            collisionCheck = checkEntityToEntityCollision(index, ent->movementVector.x, ent->movementVector.z, 0, MAX_ENTITIES);
         }
 
         // FIXME: seems odd
-        collisionCheck &= entities[index].flags & ENTITY_NON_COLLIDABLE ? 0 : 0xFFFF;
+        collisionCheck &= ent->flags & ENTITY_NON_COLLIDABLE ? 0 : 0xFFFF;
 
         if (!collisionCheck) {
 
-            appliedMovement.x = entities[index].movementVector.x;
-            appliedMovement.y = entities[index].movementVector.y;
-            appliedMovement.z = entities[index].movementVector.z;
+            appliedMovement.x = ent->movementVector.x;
+            appliedMovement.y = ent->movementVector.y;
+            appliedMovement.z = ent->movementVector.z;
             
         }  else {
             
@@ -2172,76 +2137,74 @@ void updateEntityPhysics(u16 index) {
             
         }
 
-        entities[index].coordinates.x += appliedMovement.x;
-        entities[index].coordinates.z += appliedMovement.z;
+        ent->coordinates.x += appliedMovement.x;
+        ent->coordinates.z += appliedMovement.z;
 
-        if (entities[index].flags & ENTITY_CAMERA_TRACKING) {
+        if (ent->flags & ENTITY_CAMERA_TRACKING) {
 
-            tempX = entities[index].coordinates.x;
-            tempZ = entities[index].coordinates.z;
+            tempX = ent->coordinates.x;
+            tempZ = ent->coordinates.z;
 
-            if (!(entities[index].flags & ENTITY_Y_MOVEMENT)) {
+            if (!(ent->flags & ENTITY_Y_MOVEMENT)) {
                 
-                entities[index].coordinates.y = getTerrainHeightAtPosition(0, entities[index].coordinates.x, entities[index].coordinates.z);
-                shadowHeight = entities[index].coordinates.y - mapControllers[gMainMapIndex].viewPosition.y;
+                ent->coordinates.y = getTerrainHeightAtPosition(0, ent->coordinates.x, ent->coordinates.z);
+                shadowHeight = ent->coordinates.y - mapControllers[gMainMapIndex].viewPosition.y;
                     
             } else {
 
-                entities[index].coordinates.y += appliedMovement.y;
+                ent->coordinates.y += appliedMovement.y;
                 tempZ += appliedMovement.y;
                 
-                shadowHeight = getTerrainHeightAtPosition(0, entities[index].coordinates.x, entities[index].coordinates.z) - entities[index].coordinates.y;
+                shadowHeight = getTerrainHeightAtPosition(0, ent->coordinates.x, ent->coordinates.z) - ent->coordinates.y;
                 
             }
 
-            setMapControllerViewPosition(gMainMapIndex, tempX, entities[index].coordinates.y, tempZ);
+            setMapControllerViewPosition(gMainMapIndex, tempX, ent->coordinates.y, tempZ);
 
-            entities[index].viewSpacePosition.x = entities[index].coordinates.x - tempX;
-            entities[index].viewSpacePosition.y = 0;
-            entities[index].viewSpacePosition.z = entities[index].coordinates.z - tempZ;
+            ent->viewSpacePosition.x = ent->coordinates.x - tempX;
+            ent->viewSpacePosition.y = 0;
+            ent->viewSpacePosition.z = ent->coordinates.z - tempZ;
             
         } else {
 
-            if (!(entities[index].flags & ENTITY_Y_MOVEMENT)) {
+            if (!(ent->flags & ENTITY_Y_MOVEMENT)) {
                 
-                entities[index].coordinates.y = getTerrainHeightAtPosition(0, entities[index].coordinates.x, entities[index].coordinates.z);
-                shadowHeight = entities[index].coordinates.y - mapControllers[gMainMapIndex].viewPosition.y;
+                ent->coordinates.y = getTerrainHeightAtPosition(0, ent->coordinates.x, ent->coordinates.z);
+                shadowHeight = ent->coordinates.y - mapControllers[gMainMapIndex].viewPosition.y;
                 
             } else {
                 
-                entities[index].coordinates.y += appliedMovement.y;
+                ent->coordinates.y += appliedMovement.y;
                 
-                shadowHeight = getTerrainHeightAtPosition(0, entities[index].coordinates.x, entities[index].coordinates.z);
+                shadowHeight = getTerrainHeightAtPosition(0, ent->coordinates.x, ent->coordinates.z);
 
-                if (entities[index].coordinates.y <= shadowHeight) {
-                    entities[index].flags |= ENTITY_TOUCHING_GROUND;
+                if (ent->coordinates.y <= shadowHeight) {
+                    ent->flags |= ENTITY_TOUCHING_GROUND;
                 }
 
                 shadowHeight -= mapControllers[gMainMapIndex].viewPosition.y;
                 
             }
 
-            entities[index].viewSpacePosition.x = entities[index].coordinates.x - mapControllers[gMainMapIndex].viewPosition.x;
-            entities[index].viewSpacePosition.y = entities[index].coordinates.y - mapControllers[gMainMapIndex].viewPosition.y;
-            entities[index].viewSpacePosition.z = entities[index].coordinates.z - mapControllers[gMainMapIndex].viewPosition.z;
+            ent->viewSpacePosition.x = ent->coordinates.x - mapControllers[gMainMapIndex].viewPosition.x;
+            ent->viewSpacePosition.y = ent->coordinates.y - mapControllers[gMainMapIndex].viewPosition.y;
+            ent->viewSpacePosition.z = ent->coordinates.z - mapControllers[gMainMapIndex].viewPosition.z;
             
         }
             
     }
 
-    setSpriteViewSpacePosition(entities[index].globalSpriteIndex, entities[index].viewSpacePosition.x, entities[index].viewSpacePosition.y + entities[index].yOffset, entities[index].viewSpacePosition.z);
+    setSpriteViewSpacePosition(ent->globalSpriteIndex, ent->viewSpacePosition.x, ent->viewSpacePosition.y + ent->yOffset, ent->viewSpacePosition.z);
 
-    if (entityAssetDescriptors[entities[index].entityAssetIndex].shadowSpriteIndex != 0xFF) {
-        setSpriteViewSpacePosition(entities[index].shadowSpriteIndex, entities[index].viewSpacePosition.x, shadowHeight, entities[index].viewSpacePosition.z);
+    if (entityAssetDescriptors[ent->entityAssetIndex].shadowSpriteIndex != 0xFF) {
+        setSpriteViewSpacePosition(ent->shadowSpriteIndex, ent->viewSpacePosition.x, shadowHeight, ent->viewSpacePosition.z);
     }
     
-    entities[index].movementVector.x = 0.0f;
-    entities[index].movementVector.y = 0.0f;
-    entities[index].movementVector.z = 0.0f;
+    ent->movementVector.x = 0.0f;
+    ent->movementVector.y = 0.0f;
+    ent->movementVector.z = 0.0f;
     
 }
-
-//INCLUDE_ASM("asm/nonmatchings/system/entity", updateEntities);
 
 void updateEntities(void) {
 
@@ -2255,55 +2218,57 @@ void updateEntities(void) {
     u16 flipHorizontal;
 
     while (i < MAX_ENTITIES) {
+        Entity *ent = &entities[i];
 
-        if ((entities[i].flags & ENTITY_ACTIVE) && (entities[i].flags & ENTITY_IS_CURRENTLY_ANIMATED)) {
+
+        if ((ent->flags & ENTITY_ACTIVE) && (ent->flags & ENTITY_IS_CURRENTLY_ANIMATED)) {
             
-            entities[i].unk_66 = 0;
+            ent->unk_66 = 0;
 
-            if (!(entities[i].flags & ENTITY_PAUSED) || (entities[i].flags & ENTITY_TRACKING_ACTIVE)) {
+            if (!(ent->flags & ENTITY_PAUSED) || (ent->flags & ENTITY_TRACKING_ACTIVE)) {
                 
                 updateEntityPhysics(i);
 
-                 if (entities[i].flags & ENTITY_TRACKING_ACTIVE) {
-                    if (entities[i].trackingMode == 0xFE) {
-                        entities[i].direction = entities[entities[i].targetEntityIndex].direction;
+                 if (ent->flags & ENTITY_TRACKING_ACTIVE) {
+                    if (ent->trackingMode == 0xFE) {
+                        ent->direction = entities[ent->targetEntityIndex].direction;
                     }
                 }
                 
             }
 
-            if (entities[i].flags & ENTITY_ANIMATION_DIRECTION_CHANGE) {
-                directionalOffset = entities[i].direction;
+            if (ent->flags & ENTITY_ANIMATION_TRACKS_DIRECTION) {
+                directionalOffset = ent->direction;
             } else {
                 directionalOffset = 0;
             }
 
-            animationMetadataIndex = getEntityAnimationOffset(i, entities[i].animationIndices.animationIndex + directionalOffset);
-            animationType = getEntityAnimationType(i, entities[i].animationIndices.animationIndex + directionalOffset);
-            flipHorizontal = getEntityAnimationHorizontalFlip(i, entities[i].animationIndices.animationIndex + directionalOffset);
+            animationMetadataIndex = getEntityAnimationOffset(i, ent->animationIndices.animationIndex + directionalOffset);
+            animationType = getEntityAnimationType(i, ent->animationIndices.animationIndex + directionalOffset);
+            flipHorizontal = getEntityAnimationHorizontalFlip(i, ent->animationIndices.animationIndex + directionalOffset);
 
             tileCoordinates = getTileCoordinates(&mainMap[MAIN_MAP_INDEX], 
-                entities[i].coordinates.x + mainMap[MAIN_MAP_INDEX].mapGrid.tileSizeX / 2,
-                entities[i].coordinates.z + mainMap[MAIN_MAP_INDEX].mapGrid.tileSizeZ / 2);
+                ent->coordinates.x + mainMap[MAIN_MAP_INDEX].mapGrid.tileSizeX / 2,
+                ent->coordinates.z + mainMap[MAIN_MAP_INDEX].mapGrid.tileSizeZ / 2);
             
-            if (mainMap[MAIN_MAP_INDEX].visibilityGrid[(u8)tileCoordinates.z][(u8)tileCoordinates.x] || entities[i].flags & ENTITY_CAMERA_TRACKING) {
+            if (mainMap[MAIN_MAP_INDEX].visibilityGrid[(u8)tileCoordinates.z][(u8)tileCoordinates.x] || ent->flags & ENTITY_CAMERA_TRACKING) {
 
-                if ((directionalOffset + entities[i].animationIndices.animationIndex) != entities[i].animationIndices.nextAnimationIndex) {
+                if ((directionalOffset + ent->animationIndices.animationIndex) != ent->animationIndices.nextAnimationIndex) {
                     
-                    resetAnimationState(entities[i].globalSpriteIndex);
+                    resetAnimationState(ent->globalSpriteIndex);
 
                     switch (animationType) {
 
-                        case 0:
-                            startSpriteAnimation(entities[i].globalSpriteIndex, animationMetadataIndex, 0xFF);
+                        case ANIM_TYPE_ONE_SHOT:
+                            startSpriteAnimation(ent->globalSpriteIndex, animationMetadataIndex, 0xFF);
                             break;
 
-                        case 0x2000: 
-                            startSpriteAnimation(entities[i].globalSpriteIndex, animationMetadataIndex, 0xFE);
+                        case ANIM_TYPE_LOOP: 
+                            startSpriteAnimation(ent->globalSpriteIndex, animationMetadataIndex, 0xFE);
                             break;
                         
-                        case 0x4000:
-                            startSpriteAnimation(entities[i].globalSpriteIndex, animationMetadataIndex, 0xFD);
+                        case ANIM_TYPE_DESTROY_ON_END:
+                            startSpriteAnimation(ent->globalSpriteIndex, animationMetadataIndex, 0xFD);
                             break;
 
                         default:
@@ -2311,47 +2276,47 @@ void updateEntities(void) {
                         
                     }
 
-                    if (entities[i].flags & ENTITY_PALETTE_SET) {
-                        setSpritePaletteIndex(entities[i].globalSpriteIndex, entities[i].paletteIndex);
+                    if (ent->flags & ENTITY_PALETTE_SET) {
+                        setSpritePaletteIndex(ent->globalSpriteIndex, ent->paletteIndex);
                     }
 
                     if (flipHorizontal) {
-                        setSpriteFlip(entities[i].globalSpriteIndex, TRUE, FALSE);
+                        setSpriteFlip(ent->globalSpriteIndex, TRUE, FALSE);
                     } else {
-                        setSpriteFlip(entities[i].globalSpriteIndex, FALSE, FALSE);
+                        setSpriteFlip(ent->globalSpriteIndex, FALSE, FALSE);
                     }
                     
-                    entities[i].animationIndices.nextAnimationIndex = entities[i].animationIndices.animationIndex + directionalOffset;
+                    ent->animationIndices.nextAnimationIndex = ent->animationIndices.animationIndex + directionalOffset;
                           
                 }
 
-                if (entityAssetDescriptors[entities[i].entityAssetIndex].shadowSpriteIndex != 0xFF) {
+                if (entityAssetDescriptors[ent->entityAssetIndex].shadowSpriteIndex != 0xFF) {
 
-                    if (globalSprites[entities[i].shadowSpriteIndex].viewSpacePosition.y <= entities[i].viewSpacePosition.y) {
+                    if (globalSprites[ent->shadowSpriteIndex].viewSpacePosition.y <= ent->viewSpacePosition.y) {
 
-                        startSpriteAnimation(entities[i].shadowSpriteIndex, 
-                             shadowSpriteDescriptors[entityAssetDescriptors[entities[i].entityAssetIndex].shadowSpriteIndex].animationIndex,
-                             shadowSpriteDescriptors[entityAssetDescriptors[entities[i].entityAssetIndex].shadowSpriteIndex].frameIndex);
+                        startSpriteAnimation(ent->shadowSpriteIndex, 
+                             shadowSpriteDescriptors[entityAssetDescriptors[ent->entityAssetIndex].shadowSpriteIndex].animationIndex,
+                             shadowSpriteDescriptors[entityAssetDescriptors[ent->entityAssetIndex].shadowSpriteIndex].frameIndex);
                                              
                     } else {
-                        resetAnimationState(entities[i].shadowSpriteIndex);
+                        resetAnimationState(ent->shadowSpriteIndex);
                     }
                     
                 } else {
-                    resetAnimationState(entities[i].shadowSpriteIndex);
+                    resetAnimationState(ent->shadowSpriteIndex);
                 }
 
-                if ((animationType == 0x4000) && checkSpriteAnimationStateChanged(entities[i].globalSpriteIndex)) {
+                if ((animationType == ANIM_TYPE_DESTROY_ON_END) && checkSpriteAnimationCycleEnded(ent->globalSpriteIndex)) {
                     deactivateEntity(i);                   
                 }
                 
             } else {
 
-                entities[i].animationIndices.nextAnimationIndex = 0xFFFF;
-                resetAnimationState(entities[i].globalSpriteIndex);
+                ent->animationIndices.nextAnimationIndex = 0xFFFF;
+                resetAnimationState(ent->globalSpriteIndex);
 
-                if (entityAssetDescriptors[entities[i].entityAssetIndex].shadowSpriteIndex != 0xFF) {
-                    resetAnimationState(entities[i].shadowSpriteIndex);
+                if (entityAssetDescriptors[ent->entityAssetIndex].shadowSpriteIndex != 0xFF) {
+                    resetAnimationState(ent->shadowSpriteIndex);
                 }
                     
             }

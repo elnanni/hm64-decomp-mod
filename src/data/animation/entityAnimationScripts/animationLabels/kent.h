@@ -1,0 +1,57 @@
+#ifndef _KENT_H_
+#define _KENT_H_
+
+#define KENT_ANIMATION_STANDING_DIRECTIONAL  0
+#define KENT_ANIMATION_STANDING_S            0
+#define KENT_ANIMATION_STANDING_SW           1
+#define KENT_ANIMATION_STANDING_W            2
+#define KENT_ANIMATION_STANDING_NW           3
+#define KENT_ANIMATION_STANDING_N            4
+#define KENT_ANIMATION_STANDING_NE           5
+#define KENT_ANIMATION_STANDING_E            6
+#define KENT_ANIMATION_STANDING_SE           7
+#define KENT_ANIMATION_WALKING_DIRECTIONAL   8
+#define KENT_ANIMATION_WALKING_S             8
+#define KENT_ANIMATION_WALKING_SW            9
+#define KENT_ANIMATION_WALKING_W             10
+#define KENT_ANIMATION_WALKING_NW            11
+#define KENT_ANIMATION_WALKING_N             12
+#define KENT_ANIMATION_WALKING_NE            13
+#define KENT_ANIMATION_WALKING_E             14
+#define KENT_ANIMATION_WALKING_SE            15
+#define KENT_ANIMATION_RUNNING_DIRECTIONAL   16
+#define KENT_ANIMATION_RUNNING_S             16
+#define KENT_ANIMATION_RUNNING_SW            17
+#define KENT_ANIMATION_RUNNING_W             18
+#define KENT_ANIMATION_RUNNING_NW            19
+#define KENT_ANIMATION_RUNNING_N             20
+#define KENT_ANIMATION_RUNNING_NE            21
+#define KENT_ANIMATION_RUNNING_E             22
+#define KENT_ANIMATION_RUNNING_SE            23
+#define KENT_ANIMATION_ARMS_UP_SW            24
+#define KENT_ANIMATION_ARMS_UP_NW            25
+#define KENT_ANIMATION_ARMS_UP_NE            26
+#define KENT_ANIMATION_ARMS_UP_SE            27
+#define KENT_ANIMATION_HOLDING_1_DIRECTIONAL 28
+#define KENT_ANIMATION_HOLDING_1_S           28
+#define KENT_ANIMATION_HOLDING_1_SW          29
+#define KENT_ANIMATION_HOLDING_1_W           30
+#define KENT_ANIMATION_HOLDING_1_NW          31
+#define KENT_ANIMATION_HOLDING_1_N           32
+#define KENT_ANIMATION_HOLDING_1_NE          33
+#define KENT_ANIMATION_HOLDING_1_E           34
+#define KENT_ANIMATION_HOLDING_1_SE          35
+#define KENT_ANIMATION_HOLDING_2_DIRECTIONAL 36
+#define KENT_ANIMATION_HOLDING_2_S           36
+#define KENT_ANIMATION_HOLDING_2_SW          37
+#define KENT_ANIMATION_HOLDING_2_W           38
+#define KENT_ANIMATION_HOLDING_2_NW          39
+#define KENT_ANIMATION_HOLDING_2_N           40
+#define KENT_ANIMATION_HOLDING_2_NE          41
+#define KENT_ANIMATION_HOLDING_2_E           42
+#define KENT_ANIMATION_HOLDING_2_SE          43
+#define KENT_ANIMATION_JUMPING_NE            44
+#define KENT_ANIMATION_45                    45
+#define KENT_ANIMATION_JUMPING_NW            46
+
+#endif

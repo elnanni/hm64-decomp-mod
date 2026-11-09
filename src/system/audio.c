@@ -21,36 +21,36 @@ s32 gAudioSequenceVolume;
 Sfx gSfx[4];
 SequenceInfo gAudioSequences[4];
 
-
-//INCLUDE_ASM("asm/nonmatchings/system/audio", initializeAudio);
-
 void initializeAudio(musConfig *config) {
 
     u16 i;
     u16 j;
 
     for (i = 0; i < MAX_ACTIVE_SEQUENCES; i++) {
-        
-        gAudioSequences[i].flags = 0;
-        gAudioSequences[i].handle = 0;
-        gAudioSequences[i].numChannelsPlaying = 0;
-        gAudioSequences[i].unused1 = 0;
-        gAudioSequences[i].unused2 = 0;
-        gSfx[i].volume = 0;
-        gAudioSequences[i].speed = 0;
-        
-        setupInterpolator(&gAudioSequences[i].volumes, 0, 0, 0, 0);
-        
+        SequenceInfo *seq = &gAudioSequences[i];
+        Sfx *sfx = &gSfx[i];
+
+        seq->flags = 0;
+        seq->handle = 0;
+        seq->numChannelsPlaying = 0;
+        seq->unused1 = 0;
+        seq->unused2 = 0;
+        sfx->volume = 0;
+        seq->speed = 0;
+
+        setupInterpolator(&seq->volumes, 0, 0, 0, 0);
+
     }
 
     for (j = 0; j < MAX_ACTIVE_SFX; j++) {
-        gSfx[j].flags = 0;
-        gSfx[j].sfxIndex = 0;
-        gSfx[j].handle = 0;
-        gSfx[j].numSfxPlaying = 0;
-        gSfx[j].frequency = 0;
-        gSfx[j].pan = 0;
-        gSfx[j].volume = 0;
+        Sfx *sfx = &gSfx[j];
+        sfx->flags = 0;
+        sfx->sfxIndex = 0;
+        sfx->handle = 0;
+        sfx->numSfxPlaying = 0;
+        sfx->frequency = 0;
+        sfx->pan = 0;
+        sfx->volume = 0;
     }
     
     nuAuStlInit(config);
@@ -59,94 +59,92 @@ void initializeAudio(musConfig *config) {
     
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/audio", updateAudio);
-
 void updateAudio(void) {
 
     u16 i, j;
     u8 current;
 
     for (i = 0; i < MAX_ACTIVE_SEQUENCES; i++) {
+        SequenceInfo *seq = &gAudioSequences[i];
 
-        if (gAudioSequences[i].flags & AUDIO_ACTIVE) {
+        if (seq->flags & AUDIO_ACTIVE) {
 
-            if (gAudioSequences[i].flags & AUDIO_START) {
+            if (seq->flags & AUDIO_START) {
                 current = i;
-                nuAuStlSeqPlayerDataSet(current, gAudioSequences[i].currentAudioSequenceRomAddrStart, gAudioSequences[i].currentAudioSequenceRomAddrEnd - gAudioSequences[i].currentAudioSequenceRomAddrStart);
-                gAudioSequences[i].handle = nuAuStlSeqPlayerPlay2(current);
-                gAudioSequences[i].flags &= ~AUDIO_START;
-            }
-            
-            if (gAudioSequences[i].flags & AUDIO_STOP) {
-                MusHandleStop(gAudioSequences[i].handle, gAudioSequences[i].speed);
-                gAudioSequences[i].flags &= ~AUDIO_STOP;
-            }
-            
-            interpolateToTarget(&gAudioSequences[i].volumes);
-            MusHandleSetVolume(gAudioSequences[i].handle, gAudioSequences[i].volumes.currentValue);
-            
-            gAudioSequences[i].numChannelsPlaying = MusHandleAsk(gAudioSequences[i].handle);
-            
-            if (!gAudioSequences[i].numChannelsPlaying) {
-                gAudioSequences[i].flags = 0;
-                MusHandleStop(gAudioSequences[i].handle, 1);
+                nuAuStlSeqPlayerDataSet(current, seq->currentAudioSequenceRomAddrStart, seq->currentAudioSequenceRomAddrEnd - seq->currentAudioSequenceRomAddrStart);
+                seq->handle = nuAuStlSeqPlayerPlay2(current);
+                seq->flags &= ~AUDIO_START;
             }
 
-        }   
-        
+            if (seq->flags & AUDIO_STOP) {
+                MusHandleStop(seq->handle, seq->speed);
+                seq->flags &= ~AUDIO_STOP;
+            }
+
+            interpolateToTarget(&seq->volumes);
+            MusHandleSetVolume(seq->handle, seq->volumes.currentValue);
+
+            seq->numChannelsPlaying = MusHandleAsk(seq->handle);
+
+            if (!seq->numChannelsPlaying) {
+                seq->flags = 0;
+                MusHandleStop(seq->handle, 1);
+            }
+
+        }
+
     }
 
     for (j = 0; j < MAX_ACTIVE_SFX; j++) {
+        Sfx *sfx = &gSfx[j];
 
-        if (gSfx[j].flags & AUDIO_ACTIVE) {
+        if (sfx->flags & AUDIO_ACTIVE) {
 
-            if (gSfx[j].flags & 2) {
-                gSfx[j].handle = nuAuStlSndPlayerPlay(gSfx[j].sfxIndex);
-                gSfx[j].flags &= ~2;
+            if (sfx->flags & 2) {
+                sfx->handle = nuAuStlSndPlayerPlay(sfx->sfxIndex);
+                sfx->flags &= ~2;
             }
-            
-            if (gSfx[j].flags & AUDIO_STOP) {
-                MusHandleStop(gSfx[j].handle, 0);
-                gSfx[j].flags &= ~AUDIO_STOP;
+
+            if (sfx->flags & AUDIO_STOP) {
+                MusHandleStop(sfx->handle, 0);
+                sfx->flags &= ~AUDIO_STOP;
             }
-            
-            MusHandleSetFreqOffset(gSfx[j].handle, gSfx[j].frequency);
-            MusHandleSetPan(gSfx[j].handle, gSfx[j].pan);
-            MusHandleSetVolume(gSfx[j].handle, gSfx[j].volume);
-            
-            gSfx[j].numSfxPlaying = MusHandleAsk(gSfx[j].handle);
-            
-            if (!(gSfx[j].numSfxPlaying)) {
-                gSfx[j].flags = 0;
+
+            MusHandleSetFreqOffset(sfx->handle, sfx->frequency);
+            MusHandleSetPan(sfx->handle, sfx->pan);
+            MusHandleSetVolume(sfx->handle, sfx->volume);
+
+            sfx->numSfxPlaying = MusHandleAsk(sfx->handle);
+
+            if (!(sfx->numSfxPlaying)) {
+                sfx->flags = 0;
             }
 
         }
     }
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/audio", setAudioSequenceBank);
-
 void setAudioSequenceBank(u8 *pBankStart, u8 *pBankEnd, u8 *wBankStart) {
     nuAuStlBankSet(pBankStart, pBankEnd - pBankStart, wBankStart);
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/audio", setAudioSequence);
-
 bool setAudioSequence(u16 sequenceIndex, u8 *sequenceAddrStart, u8 *sequenceAddrEnd) {
+
+    SequenceInfo *seq = &gAudioSequences[sequenceIndex];
     
     bool result = FALSE;
     
     if (sequenceIndex < MAX_ACTIVE_SEQUENCES) {
 
-        if (!(gAudioSequences[sequenceIndex].flags & AUDIO_ACTIVE)) {
+        if (!(seq->flags & AUDIO_ACTIVE)) {
 
-            setupInterpolator(&gAudioSequences[sequenceIndex].volumes, 0, 0, 0, 0);
+            setupInterpolator(&seq->volumes, 0, 0, 0, 0);
 
-            gAudioSequences[sequenceIndex].unused1 = 128;
-            gAudioSequences[sequenceIndex].unused2 = 128;
-            gAudioSequences[sequenceIndex].currentAudioSequenceRomAddrStart = sequenceAddrStart;
-            gAudioSequences[sequenceIndex].currentAudioSequenceRomAddrEnd = sequenceAddrEnd;
-            gAudioSequences[sequenceIndex].flags = (AUDIO_ACTIVE | AUDIO_START);
+            seq->unused1 = 128;
+            seq->unused2 = 128;
+            seq->currentAudioSequenceRomAddrStart = sequenceAddrStart;
+            seq->currentAudioSequenceRomAddrEnd = sequenceAddrEnd;
+            seq->flags = (AUDIO_ACTIVE | AUDIO_START);
 
             result = TRUE;
             
@@ -157,18 +155,18 @@ bool setAudioSequence(u16 sequenceIndex, u8 *sequenceAddrStart, u8 *sequenceAddr
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/audio", stopAudioSequenceWithFadeOut);
-
 bool stopAudioSequenceWithFadeOut(u16 index, u32 speed) {
+
+    SequenceInfo *seq = &gAudioSequences[index];
 
     bool result = FALSE;
 
     if (index < MAX_ACTIVE_SEQUENCES) {
         
-        if (gAudioSequences[index].flags & AUDIO_ACTIVE) {
+        if (seq->flags & AUDIO_ACTIVE) {
             
-            gAudioSequences[index].speed = speed;
-            gAudioSequences[index].flags |= AUDIO_STOP;
+            seq->speed = speed;
+            seq->flags |= AUDIO_STOP;
             
             result = TRUE;
 
@@ -180,18 +178,18 @@ bool stopAudioSequenceWithFadeOut(u16 index, u32 speed) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/audio", stopAudioSequence);
-
 bool stopAudioSequence(u16 sequenceIndex) {
+
+    SequenceInfo *seq = &gAudioSequences[sequenceIndex];
 
     bool result = FALSE;
 
     if (sequenceIndex < MAX_ACTIVE_SEQUENCES) {
     
-        if (gAudioSequences[sequenceIndex].flags & AUDIO_ACTIVE) {
+        if (seq->flags & AUDIO_ACTIVE) {
             
-            MusHandleStop(gAudioSequences[sequenceIndex].handle, 0);
-            gAudioSequences[sequenceIndex].flags = 0;
+            MusHandleStop(seq->handle, 0);
+            seq->flags = 0;
             
             result = TRUE;
 
@@ -203,15 +201,15 @@ bool stopAudioSequence(u16 sequenceIndex) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/audio", setAudioSequenceVolumes);
-
 bool setAudioSequenceVolumes(u16 index, s32 targetVolume, s16 fadeInRate) {
+
+    SequenceInfo *seq = &gAudioSequences[index];
     
     bool result = FALSE;
     
     if (index < MAX_ACTIVE_SEQUENCES) {
          
-        if (gAudioSequences[index].flags & AUDIO_ACTIVE) {
+        if (seq->flags & AUDIO_ACTIVE) {
 
             targetVolume &= (~targetVolume >> 0x1F);
             
@@ -219,9 +217,9 @@ bool setAudioSequenceVolumes(u16 index, s32 targetVolume, s16 fadeInRate) {
                 targetVolume = MAX_VOLUME;
             }
             
-            gAudioSequences[index].volumes.targetValue = targetVolume;
+            seq->volumes.targetValue = targetVolume;
             
-            initializeInterpolator(&gAudioSequences[index].volumes, fadeInRate, targetVolume);
+            initializeInterpolator(&seq->volumes, fadeInRate, targetVolume);
             
             result = TRUE;
 
@@ -231,8 +229,6 @@ bool setAudioSequenceVolumes(u16 index, s32 targetVolume, s16 fadeInRate) {
     return result;
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/system/audio", func_8003D4E4);
 
 // unused
 // bool func_8003D4E4(u16 sequenceIndex, s32 arg1) {
@@ -261,18 +257,36 @@ bool setAudioSequenceVolumes(u16 index, s32 targetVolume, s16 fadeInRate) {
 
 // }
 
-//INCLUDE_ASM("asm/nonmatchings/system/audio", func_8003D570);
-
 // unused
-// s
+// bool func_8003D570(u16 sequenceIndex, s32 arg1) {
+    
+//     bool result = FALSE;
 
-//INCLUDE_ASM("asm/nonmatchings/system/audio", stopMusic);
+//     if (sequenceIndex < MAX_ACTIVE_SEQUENCES) {
+        
+//         if (gAudioSequences[sequenceIndex].flags & AUDIO_ACTIVE) {
+            
+//             gAudioSequences[sequenceIndex].unused2 = arg1;
+            
+//             if (arg1 < 0) {
+//                  gAudioSequences[sequenceIndex].unused2 = 0;
+//             }
+            
+//             if (gAudioSequences[sequenceIndex].unused2 >= 257) {
+//                  gAudioSequences[sequenceIndex].unused2 = 256;
+//             }
+
+//             result = TRUE;
+//         }
+//     }
+
+//     return result;
+
+// }
 
 void stopMusic(int speed) {
     MusStop(MUSFLAG_SONGS, speed);
 }
-
-//INCLUDE_ASM("asm/nonmatchings/system/audio", setSfx);
 
 bool setSfx(u32 sfxIndex) {
 
@@ -283,17 +297,19 @@ bool setSfx(u32 sfxIndex) {
     u32 current;
 
     while (TRUE) {
-        
-        current = i;
+        Sfx *sfx;
 
-        if (!(gSfx[current].flags & AUDIO_ACTIVE)) {
-            
+        current = i;
+        sfx = &gSfx[current];
+
+        if (!(sfx->flags & AUDIO_ACTIVE)) {
+
             i = MAX_ACTIVE_SFX;
-            
-            gSfx[current].sfxIndex = sfxIndex;
-            gSfx[current].frequency = 0;
-            gSfx[current].pan = 128;
-            gSfx[current].flags = (AUDIO_ACTIVE | AUDIO_START);
+
+            sfx->sfxIndex = sfxIndex;
+            sfx->frequency = 0;
+            sfx->pan = 128;
+            sfx->flags = (AUDIO_ACTIVE | AUDIO_START);
 
             result = TRUE;
 
@@ -307,8 +323,6 @@ bool setSfx(u32 sfxIndex) {
     return result;
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/system/audio", findAndStopSfx);
 
 // unused
 // bool findAndStopSfx(u32 sfxIndex) {
@@ -334,8 +348,6 @@ bool setSfx(u32 sfxIndex) {
 
 // }
 
-//INCLUDE_ASM("asm/nonmatchings/system/audio", setSfxVolume);
-
 bool setSfxVolume(u32 sfxIndex, s32 volume) {
 
     bool result;
@@ -344,19 +356,20 @@ bool setSfxVolume(u32 sfxIndex, s32 volume) {
     result = FALSE;
     
     for (i = 0; i < MAX_ACTIVE_SFX; i++) {
-        
-        if (gSfx[i].flags & AUDIO_ACTIVE && gSfx[i].sfxIndex == sfxIndex) {
+        Sfx *sfx = &gSfx[i];
 
-            gSfx[i].volume = volume;
-            
+        if (sfx->flags & AUDIO_ACTIVE && sfx->sfxIndex == sfxIndex) {
+
+            sfx->volume = volume;
+
             if (volume < 0) {
-                gSfx[i].volume = 0;
+                sfx->volume = 0;
             }
-            
-            if (gSfx[i].volume > MAX_VOLUME) {
-                gSfx[i].volume = MAX_VOLUME;
+
+            if (sfx->volume > MAX_VOLUME) {
+                sfx->volume = MAX_VOLUME;
             }
-            
+
             result = TRUE;
 
         }
@@ -366,28 +379,26 @@ bool setSfxVolume(u32 sfxIndex, s32 volume) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/audio", setSfxFrequency);
-
 bool setSfxFrequency(u32 sfxIndex, s32 frequency) {
 
     u16 i = 0;
     bool result = FALSE;
 
     for (i = 0; i < MAX_ACTIVE_SFX; i++) {
+        Sfx *sfx = &gSfx[i];
 
-        if (gSfx[i].flags & AUDIO_ACTIVE) {
+        if (sfx->flags & AUDIO_ACTIVE) {
 
-            if (gSfx[i].sfxIndex == sfxIndex) {
+            if (sfx->sfxIndex == sfxIndex) {
 
-                gSfx[i].frequency = frequency;
+                sfx->frequency = frequency;
 
                 if (frequency < MIN_SFX_FREQUENCY) {
-                    gSfx[i].frequency = -6;
+                    sfx->frequency = -6;
                 }
 
-
-                if (gSfx[i].frequency > MAX_SFX_FREQUENCY) {
-                    gSfx[i].frequency = 6;
+                if (sfx->frequency > MAX_SFX_FREQUENCY) {
+                    sfx->frequency = 6;
                 }
 
                 result = TRUE;
@@ -400,29 +411,28 @@ bool setSfxFrequency(u32 sfxIndex, s32 frequency) {
 
 }
 
-//INCLUDE_ASM("asm/nonmatchings/system/audio", setSfxPan);
-
 bool setSfxPan(u32 sfxIndex, s32 arg1) {
 
     u16 i = 0;
     bool result = FALSE;
 
     for (i = 0; i < MAX_ACTIVE_SFX; i++) {
+        Sfx *sfx = &gSfx[i];
 
-        if (gSfx[i].flags & AUDIO_ACTIVE) {
+        if (sfx->flags & AUDIO_ACTIVE) {
 
-            if (gSfx[i].sfxIndex == sfxIndex) {
+            if (sfx->sfxIndex == sfxIndex) {
 
-                gSfx[i].pan = arg1;
-                
+                sfx->pan = arg1;
+
                 if (arg1 < 0) {
-                    gSfx[i].pan = 0;
+                    sfx->pan = 0;
                 }
-                
+
                 result = TRUE;
-                
-                if (gSfx[i].pan >= 257) {
-                    gSfx[i].pan = 256;
+
+                if (sfx->pan >= 257) {
+                    sfx->pan = 256;
                 }
             }
         }
@@ -431,8 +441,6 @@ bool setSfxPan(u32 sfxIndex, s32 arg1) {
     return result;
 
 }
-
-//INCLUDE_ASM("asm/nonmatchings/system/audio", stopSoundEffect);
 
 void stopSfx(void) {
     MusStop(MUSFLAG_EFFECTS, 0);

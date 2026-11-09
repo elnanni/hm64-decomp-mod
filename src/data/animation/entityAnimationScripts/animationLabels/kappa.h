@@ -1,0 +1,7 @@
+#ifndef _KAPPA_H_
+#define _KAPPA_H_
+
+#define KAPPA_ANIMATION_STANDING_SW   0
+#define KAPPA_ANIMATION_RAISE_ARMS_SW 1
+
+#endif
