@@ -21,6 +21,8 @@
 #include "assetIndices/cutscenes.h"
 #include "assetIndices/maps.h"
 
+u32 D_8016FB00;
+
 //INCLUDE_ASM("asm/nonmatchings/game/gameStart", setupGameStart);
 
 void setupGameStart(void) {
@@ -58,7 +60,7 @@ void startGame(void) {
     setDailyEventBit(0x53);
     setDailyEventBit(0x54);
 
-    gHour = 6;
+    // gHour = 6;
 
     setMainLoopCallbackFunctionIndex(MAP_LOAD);
     
@@ -103,6 +105,7 @@ void func_8004DFF8(void) {
     gPlayer.belongingsSlots[1] = GOLDEN_EGG_HELD_ITEM;
     gPlayer.belongingsSlots[2] = GOLDEN_MILK;
     gPlayer.belongingsSlots[3] = GOLDEN_EGG_HELD_ITEM;
+    gPlayer.belongingsSlots[4] = WEED_HELD_ITEM;
 
     chickenFeedQuantity = 100;
     fodderQuantity = 100;
@@ -128,22 +131,24 @@ void func_8004DFF8(void) {
      horseInfo.grown = TRUE;
      npcAffection[ELLEN] = 100;
 
-     // setLifeEventBit(MARRIED);
-     // setLifeEventBit(WIFE_PREGNANT);
+    setLifeEventBit(MARRIED);
+    setLifeEventBit(WIFE_PREGNANT);
+    setLifeEventBit(HAVE_BABY);
+
     
-     // gWife = KAREN;
+    gWife = KAREN;
     
-//     npcAffection[POPURI] = MAX_AFFECTION;
+     npcAffection[KAREN] = MAX_AFFECTION;
     
-//     gSeason = WINTER;
+     gSeason = WINTER;
      gDayOfMonth = 1;
     
-//     dogInfo.affection = MAX_AFFECTION;
+     dogInfo.affection = MAX_AFFECTION;
     
      gHour = 10;
     
 //     // max recipes
-//     recipesBits[0] = -1;
+     recipesBits[0] = -1;
     
 //     // unused game variable
 //     D_8016FB00 = 7;
